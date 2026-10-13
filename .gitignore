@@ -1,5 +1,28 @@
+# Dependências
 node_modules/
+
+# Variáveis de ambiente (o .env.example é versionado)
 .env
 .env.*
-.DS_Store
+!.env.example
+
+# Builds e caches
 dist/
+build/
+*.tsbuildinfo
+.turbo/
+
+# Expo / React Native
+.expo/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+apps/mobile/ios/
+apps/mobile/android/
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+
+# Sistema
+.DS_Store

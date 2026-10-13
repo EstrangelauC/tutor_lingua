@@ -1,0 +1,7 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# O Metro (React Native/Expo) resolve módulos de forma mais previsível
+# com node_modules "planos", como os do npm.
+nodeLinker: hoisted
