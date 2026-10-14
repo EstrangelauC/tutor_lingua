@@ -38,6 +38,12 @@
         {
           "microphonePermission": "A Camille precisa do microfone para ouvir as tuas respostas em francês."
         }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportsRTL": false
+        }
       ]
     ],
     "experiments": {

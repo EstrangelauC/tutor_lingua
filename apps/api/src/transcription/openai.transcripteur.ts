@@ -1,5 +1,6 @@
 import { Logger, ServiceUnavailableException } from "@nestjs/common";
 import OpenAI, { toFile } from "openai";
+import { erreurApi } from "../common/erreur-api";
 import type { AudioEleve, Transcripteur } from "./transcripteur";
 
 // O feedback precisa dos erros do aluno: a transcrição não os pode corrigir.
@@ -32,7 +33,7 @@ export class OpenAiTranscripteur implements Transcripteur {
       ) {
         this.logger.warn(`Transcrição indisponível: ${erreur.message}`);
         throw new ServiceUnavailableException(
-          "A transcrição está indisponível de momento. Tenta outra vez.",
+          erreurApi("service_indisponible", "A transcrição da OpenAI está indisponível."),
         );
       }
       throw erreur;

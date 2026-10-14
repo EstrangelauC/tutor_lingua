@@ -14,6 +14,7 @@ import {
   type Conversation,
   type MoteurCamille,
 } from "../camille/camille.types";
+import { erreurApi } from "../common/erreur-api";
 import { TRANSCRIPTEUR, type AudioEleve, type Transcripteur } from "../transcription/transcripteur";
 
 interface Session {
@@ -76,7 +77,7 @@ export class SessionsService implements OnModuleDestroy {
       const texteEleve = await this.transcripteur.transcrire(audio);
       if (texteEleve === "") {
         throw new UnprocessableEntityException(
-          "Não se percebeu nada na gravação. Tenta outra vez.",
+          erreurApi("audio_vide", "A transcrição da gravação veio vazia."),
         );
       }
       return { ...(await this.avancer(session, texteEleve)), texteEleve };
@@ -90,7 +91,9 @@ export class SessionsService implements OnModuleDestroy {
         return session.feedback;
       }
       if (session.echange === 0) {
-        throw new ConflictException("Ainda não há respostas para avaliar.");
+        throw new ConflictException(
+          erreurApi("sans_reponse", "Ainda não há respostas para avaliar."),
+        );
       }
       const feedback = await this.moteur.evaluer(session.conversation);
       session.terminee = true;
@@ -115,14 +118,16 @@ export class SessionsService implements OnModuleDestroy {
 
   private verifierEnCours(session: Session): void {
     if (session.terminee) {
-      throw new ConflictException("A sessão já terminou: pede o feedback.");
+      throw new ConflictException(
+        erreurApi("session_terminee", "A sessão já terminou: pede o feedback."),
+      );
     }
   }
 
   private obtenir(id: string): Session {
     const session = this.sessions.get(id);
     if (!session) {
-      throw new NotFoundException("Sessão não encontrada.");
+      throw new NotFoundException(erreurApi("session_introuvable", "Sessão não encontrada."));
     }
     session.derniereActivite = Date.now();
     return session;
@@ -130,7 +135,9 @@ export class SessionsService implements OnModuleDestroy {
 
   private async exclusif<T>(session: Session, action: () => Promise<T>): Promise<T> {
     if (session.occupee) {
-      throw new ConflictException("A Camille ainda está a responder ao pedido anterior.");
+      throw new ConflictException(
+        erreurApi("session_occupee", "A Camille ainda está a responder ao pedido anterior."),
+      );
     }
     session.occupee = true;
     try {

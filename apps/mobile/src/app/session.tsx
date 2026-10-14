@@ -1,37 +1,33 @@
-import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { TacheSchema, type CreerSessionRequest } from "@camille/shared";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Linking,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
-  Text,
   TextInput,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Bouton } from "../components/bouton";
 import { BoutonMicro } from "../components/bouton-micro";
+import { Segments } from "../components/choix";
+import { Ecran } from "../components/ecran";
 import { OrbeCamille, type EtatOrbe } from "../components/orbe-camille";
 import { Progression } from "../components/progression";
-import { TACHES } from "../libelles";
-import { useContexteSession } from "../session/session-context";
-import { useSessionCamille, type Activite } from "../session/use-session-camille";
-import { TOUCHE_MIN, couleurs, serif } from "../theme";
+import { useDonnees } from "../donnees/donnees-context";
+import { DEBITS, ModeMicroSchema, type ModeMicro } from "../donnees/preferences";
+import { FRANCAIS, styleTexte, useI18n } from "../i18n";
+import { useSessionCamille } from "../session/use-session-camille";
+import { TACHES } from "../taches";
+import { TOUCHE_MIN, creerStyles, serif, useTheme } from "../theme";
 import { formulaireAudio } from "../voix/formulaire-audio";
 import { arreterDeParler } from "../voix/parole";
 import { useEnregistreur } from "../voix/use-enregistreur";
+import { Text } from "../components/texte";
 
-type ModeMicro = "maintenir" | "mainsLibres";
 type Saisie = "voix" | "texte";
-
-const STATUTS: Record<Exclude<Activite, null>, string> = {
-  demarrage: "A Camille está a preparar-se…",
-  reponse: "A Camille está a pensar…",
-  evaluation: "A Camille está a preparar o teu feedback…",
-};
 
 /** Abaixo disto (dBFS) conta como silêncio. */
 const SEUIL_PAROLE_DB = -40;
@@ -43,22 +39,33 @@ const DUREE_MAX_MS = 90_000;
 
 export default function Session() {
   const router = useRouter();
-  const { config, setFeedback } = useContexteSession();
+  const styles = useStyles();
+  const { couleurs } = useTheme();
+  const { t } = useI18n();
+  const { preferences, modifierPreferences, ajouterSession } = useDonnees();
+  const params = useLocalSearchParams<{ tache?: string }>();
+  const tache = TacheSchema.catch("entretien").parse(params.tache);
+  const { niveau, langueAppui, modeMicro } = preferences;
+  const config = useMemo<CreerSessionRequest>(
+    () => ({ niveau, tache, langueAppui }),
+    [niveau, tache, langueAppui],
+  );
+
   const enregistreur = useEnregistreur();
-  const [modeMicro, setModeMicro] = useState<ModeMicro>("maintenir");
   const [saisie, setSaisie] = useState<Saisie>("voix");
   const [transcriptionVisible, setTranscriptionVisible] = useState(false);
   const [brouillon, setBrouillon] = useState("");
   const defilement = useRef<ScrollView>(null);
 
   // Lidos dentro de callbacks assíncronos, que podem vir de um render anterior.
-  const modeRef = useRef<ModeMicro>("maintenir");
+  const modeRef = useRef<ModeMicro>(modeMicro);
   const saisieRef = useRef<Saisie>("voix");
   const doigtPose = useRef(false);
   const silence = useRef({ aParle: false, dernierSon: 0 });
 
   const { etat, demarrer, envoyer, envoyerAudio, rejouer, terminer, interrompre, signalerErreur } =
     useSessionCamille(config, {
+      debit: DEBITS[preferences.vitesseVoix],
       onFinParole: (terminee) => {
         if (!terminee && modeRef.current === "mainsLibres" && saisieRef.current === "voix") {
           void commencer();
@@ -75,11 +82,7 @@ export default function Session() {
   const occupee = etat.activite !== null;
 
   const signalerTropCourt = () =>
-    signalerErreur(
-      modeRef.current === "maintenir"
-        ? "Gravação muito curta. Mantém o microfone premido enquanto falas."
-        : "Gravação muito curta. Tenta outra vez.",
-    );
+    signalerErreur(modeRef.current === "maintenir" ? "trop_court_maintenir" : "trop_court");
 
   async function commencer() {
     interrompre();
@@ -121,9 +124,10 @@ export default function Session() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enregistreur.enregistre, enregistreur.duree, enregistreur.metering, modeMicro]);
 
+  /** Também fica como modo por omissão das próximas sessões. */
   const choisirMode = (mode: ModeMicro) => {
     modeRef.current = mode;
-    setModeMicro(mode);
+    modifierPreferences({ modeMicro: mode });
   };
 
   const choisirSaisie = (valeur: Saisie) => {
@@ -146,15 +150,24 @@ export default function Session() {
     if (enregistreur.enregistre) {
       await enregistreur.arreter();
     }
-    if (etat.echange === 0) {
+    if (etat.echange === 0 || !etat.sessionId) {
       arreterDeParler();
       router.dismissTo("/");
       return;
     }
     const feedback = await terminer();
     if (feedback) {
-      setFeedback(feedback);
-      router.replace("/feedback");
+      ajouterSession({
+        id: etat.sessionId,
+        date: new Date().toISOString(),
+        tache,
+        niveau,
+        langueAppui,
+        echanges: etat.echange,
+        dureeMs: etat.debut === null ? 0 : Date.now() - etat.debut,
+        feedback,
+      });
+      router.replace({ pathname: "/feedback", params: { id: etat.sessionId } });
     }
   };
 
@@ -166,63 +179,66 @@ export default function Session() {
         ? "parle"
         : "attend";
 
+  const statuts = t.session.statuts;
   const statut = etat.activite
-    ? STATUTS[etat.activite]
+    ? statuts[etat.activite]
     : enregistreur.enregistre
-      ? "A ouvir-te…"
+      ? statuts.ecoute
       : etat.parle
-        ? "A Camille está a falar"
+        ? statuts.parle
         : etat.terminee
-          ? "Sessão terminada"
+          ? statuts.terminee
           : etat.sessionId
-            ? "É a tua vez"
-            : "Sem sessão";
+            ? statuts.aToi
+            : statuts.sansSession;
 
   const libelleMicro = occupee
-    ? "Um momento…"
+    ? t.session.micro.attente
     : enregistreur.enregistre
       ? modeMicro === "maintenir"
-        ? "Solta para enviar"
-        : "Toca para enviar (ou faz uma pausa)"
+        ? t.session.micro.relacher
+        : t.session.micro.toucherEnvoyer
       : modeMicro === "maintenir"
-        ? "Mantém premido para falar"
-        : "Toca para falar";
+        ? t.session.micro.maintenir
+        : t.session.micro.toucher;
 
   const microRefuse = enregistreur.permission === "refusee";
 
   return (
-    <SafeAreaView style={styles.ecran} edges={["top", "bottom"]}>
+    <Ecran>
       <KeyboardAvoidingView
-        style={styles.ecran}
+        style={styles.remplir}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.entete}>
           <Pressable
             accessibilityRole="button"
-            accessibilityState={{ disabled: occupee }}
+            aria-disabled={occupee}
             disabled={occupee}
             onPress={onTerminer}
             style={[styles.petitBouton, occupee && styles.inactif]}
           >
-            <Text style={styles.petitBoutonTexte}>Terminar</Text>
+            <Text style={styles.petitBoutonTexte}>{t.session.terminer}</Text>
           </Pressable>
           <View style={styles.enteteCentre}>
-            <Text style={styles.tache}>{TACHES[config.tache].titre}</Text>
+            <Text style={styles.tache}>{TACHES[tache].titre}</Text>
             <Text style={styles.compteur}>
-              Troca {Math.min(etat.echange + 1, etat.maxEchanges)} de {etat.maxEchanges}
+              {t.session.echange(Math.min(etat.echange + 1, etat.maxEchanges), etat.maxEchanges)}
             </Text>
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityState={{ selected: transcriptionVisible }}
+            aria-expanded={transcriptionVisible}
             accessibilityLabel={
-              transcriptionVisible ? "Ocultar transcrição" : "Mostrar transcrição"
+              transcriptionVisible
+                ? t.session.masquerTranscription
+                : t.session.afficherTranscription
             }
             onPress={() => setTranscriptionVisible((v) => !v)}
             style={[styles.petitBouton, transcriptionVisible && styles.petitBoutonActif]}
           >
             <Text style={[styles.petitBoutonTexte, transcriptionVisible && styles.texteActif]}>
-              Texto
+              {t.session.texte}
             </Text>
           </Pressable>
         </View>
@@ -236,7 +252,7 @@ export default function Session() {
               <OrbeCamille etat={etatOrbe} niveau={enregistreur.niveau} />
               <View style={styles.camilleTextes}>
                 <Text style={styles.camilleNom}>Camille</Text>
-                <Text accessibilityLiveRegion="polite" style={styles.statut}>
+                <Text accessibilityLiveRegion="polite" style={styles.statutCompact}>
                   {statut}
                 </Text>
               </View>
@@ -246,7 +262,7 @@ export default function Session() {
                 disabled={etat.parle || occupee}
                 style={styles.lien}
               >
-                <Text style={styles.lienTexte}>Ouvir outra vez</Text>
+                <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
               </Pressable>
             </View>
             <ScrollView
@@ -264,7 +280,7 @@ export default function Session() {
                   ]}
                 >
                   <Text style={styles.bulleAuteur}>
-                    {replique.role === "camille" ? "Camille" : "Tu"}
+                    {replique.role === "camille" ? "Camille" : t.communs.tu}
                   </Text>
                   <Text
                     style={[
@@ -291,19 +307,17 @@ export default function Session() {
               disabled={etat.parle || occupee || etat.repliques.length === 0}
               style={styles.lien}
             >
-              <Text style={styles.lienTexte}>Ouvir outra vez</Text>
+              <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
             </Pressable>
-            <Text style={styles.aide}>
-              Sem correções durante o exercício. O feedback chega no fim.
-            </Text>
+            <Text style={styles.aide}>{t.session.aide}</Text>
           </View>
         )}
 
         {etat.erreur && (
           <View accessibilityRole="alert" style={styles.erreur}>
-            <Text style={styles.erreurTexte}>{etat.erreur}</Text>
+            <Text style={styles.erreurTexte}>{t.erreurs[etat.erreur]}</Text>
             {etat.sessionId === null && (
-              <Bouton libelle="Tentar outra vez" variante="secondaire" onPress={demarrer} />
+              <Bouton libelle={t.session.reessayer} variante="secondaire" onPress={demarrer} />
             )}
           </View>
         )}
@@ -311,7 +325,7 @@ export default function Session() {
         <View style={styles.pied}>
           {etat.terminee ? (
             <Bouton
-              libelle="Ver o feedback"
+              libelle={t.session.voirFeedback}
               onPress={onTerminer}
               chargement={etat.activite === "evaluation"}
             />
@@ -319,14 +333,11 @@ export default function Session() {
             <View style={styles.piedTexte}>
               {microRefuse && (
                 <View style={styles.avis}>
-                  <Text style={styles.avisTitre}>A Camille não te consegue ouvir</Text>
-                  <Text style={styles.avisTexte}>
-                    O acesso ao microfone foi recusado. Podes responder por escrito ou ativar o
-                    microfone nas definições.
-                  </Text>
+                  <Text style={styles.avisTitre}>{t.session.microRefuse.titre}</Text>
+                  <Text style={styles.avisTexte}>{t.session.microRefuse.texte}</Text>
                   {Platform.OS !== "web" && (
                     <Bouton
-                      libelle="Abrir definições"
+                      libelle={t.session.microRefuse.ouvrir}
                       variante="secondaire"
                       onPress={() => void Linking.openSettings()}
                     />
@@ -335,17 +346,17 @@ export default function Session() {
               )}
               <View style={styles.saisie}>
                 <TextInput
-                  accessibilityLabel="A tua resposta em francês"
+                  accessibilityLabel={t.session.champ}
                   value={brouillon}
                   onChangeText={setBrouillon}
-                  placeholder="Escreve a tua resposta em francês…"
+                  placeholder={t.session.placeholder}
                   placeholderTextColor={couleurs.encre3}
                   multiline
                   maxLength={2000}
                   style={styles.champ}
                 />
                 <Bouton
-                  libelle="Enviar"
+                  libelle={t.session.envoyer}
                   onPress={onEnvoyerTexte}
                   desactive={occupee || etat.sessionId === null || brouillon.trim() === ""}
                   chargement={etat.activite === "reponse"}
@@ -358,34 +369,21 @@ export default function Session() {
                   onPress={() => choisirSaisie("voix")}
                   style={styles.lien}
                 >
-                  <Text style={styles.lienTexte}>Responder com a voz</Text>
+                  <Text style={styles.lienTexte}>{t.session.repondreVoix}</Text>
                 </Pressable>
               )}
             </View>
           ) : (
             <View style={styles.piedVoix}>
-              <View accessibilityRole="radiogroup" style={styles.segments}>
-                {(
-                  [
-                    ["maintenir", "Premir para falar"],
-                    ["mainsLibres", "Mãos-livres"],
-                  ] as const
-                ).map(([mode, libelle]) => (
-                  <Pressable
-                    key={mode}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: modeMicro === mode }}
-                    onPress={() => choisirMode(mode)}
-                    style={[styles.segment, modeMicro === mode && styles.segmentChoisi]}
-                  >
-                    <Text
-                      style={[styles.segmentTexte, modeMicro === mode && styles.segmentTexteChoisi]}
-                    >
-                      {libelle}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
+              <Segments
+                options={ModeMicroSchema.options.map((mode) => ({
+                  valeur: mode,
+                  libelle: t.session.modes[mode],
+                }))}
+                valeur={modeMicro}
+                onChange={choisirMode}
+                style={styles.segments}
+              />
               <BoutonMicro
                 enregistre={enregistreur.enregistre}
                 desactive={occupee || etat.sessionId === null}
@@ -406,18 +404,17 @@ export default function Session() {
                 onPress={() => choisirSaisie("texte")}
                 style={styles.lien}
               >
-                <Text style={styles.lienTexte}>Escrever a resposta</Text>
+                <Text style={styles.lienTexte}>{t.session.ecrire}</Text>
               </Pressable>
             </View>
           )}
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </Ecran>
   );
 }
 
-const styles = StyleSheet.create({
-  ecran: { flex: 1, backgroundColor: couleurs.fond },
+const useStyles = creerStyles((c) => ({
   remplir: { flex: 1 },
   entete: {
     flexDirection: "row",
@@ -432,20 +429,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: couleurs.ligne,
-    backgroundColor: couleurs.surface,
+    borderColor: c.ligne,
+    backgroundColor: c.surface,
     justifyContent: "center",
   },
-  petitBoutonActif: { backgroundColor: couleurs.bleuDoux, borderColor: "#B9C6F3" },
-  petitBoutonTexte: { fontSize: 15, fontWeight: "600", color: couleurs.encre },
-  texteActif: { color: couleurs.bleuEncre },
+  petitBoutonActif: { backgroundColor: c.bleuDoux, borderColor: c.bleuTrait },
+  petitBoutonTexte: { fontSize: 15, fontWeight: "600", color: c.encre },
+  texteActif: { color: c.bleuEncre },
   inactif: { opacity: 0.5 },
   enteteCentre: { flex: 1, alignItems: "center", gap: 2 },
-  tache: { fontFamily: serif, fontSize: 18, color: couleurs.encre },
-  compteur: { fontSize: 13, color: couleurs.encre2 },
+  tache: { fontFamily: serif, fontSize: 18, color: c.encre },
+  compteur: { fontSize: 13, color: c.encre2 },
   progression: { paddingHorizontal: 20 },
   scene: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, padding: 20 },
-  camilleNomGrand: { fontFamily: serif, fontStyle: "italic", fontSize: 24, color: couleurs.encre },
+  camilleNomGrand: { fontFamily: serif, fontStyle: "italic", fontSize: 24, color: c.encre },
   camilleCompacte: {
     flexDirection: "row",
     alignItems: "center",
@@ -454,14 +451,15 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   camilleTextes: { flex: 1, gap: 2 },
-  camilleNom: { fontFamily: serif, fontStyle: "italic", fontSize: 20, color: couleurs.encre },
-  statut: { fontSize: 15, fontWeight: "600", color: couleurs.encre2, textAlign: "center" },
+  camilleNom: { fontFamily: serif, fontStyle: "italic", fontSize: 20, color: c.encre },
+  statut: { fontSize: 15, fontWeight: "600", color: c.encre2, textAlign: "center" },
+  statutCompact: { fontSize: 15, fontWeight: "600", color: c.encre2 },
   lien: { minHeight: TOUCHE_MIN, justifyContent: "center", paddingHorizontal: 8 },
-  lienTexte: { fontSize: 15, fontWeight: "600", color: couleurs.bleu, textAlign: "center" },
+  lienTexte: { fontSize: 15, fontWeight: "600", color: c.bleu, textAlign: "center" },
   aide: {
     fontSize: 13,
     lineHeight: 19,
-    color: couleurs.encre2,
+    color: c.encre2,
     textAlign: "center",
     maxWidth: 300,
   },
@@ -469,22 +467,22 @@ const styles = StyleSheet.create({
   bulleBloc: { maxWidth: "88%", gap: 4 },
   bulleCamille: { alignSelf: "flex-start" },
   bulleEleve: { alignSelf: "flex-end", alignItems: "flex-end" },
-  bulleAuteur: { fontSize: 12, fontWeight: "600", color: couleurs.encre2, paddingHorizontal: 4 },
+  bulleAuteur: { fontSize: 12, fontWeight: "600", color: c.encre2, paddingHorizontal: 4 },
   bulle: {
-    fontFamily: serif,
+    ...FRANCAIS,
     fontSize: 16,
     lineHeight: 23,
-    color: couleurs.encre,
+    color: c.encre,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 16,
     overflow: "hidden",
   },
-  bulleFondCamille: { backgroundColor: couleurs.bleuDoux },
+  bulleFondCamille: { backgroundColor: c.bleuDoux },
   bulleFondEleve: {
-    backgroundColor: couleurs.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: couleurs.ligne,
+    borderColor: c.ligne,
   },
   erreur: {
     marginHorizontal: 16,
@@ -492,50 +490,33 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 10,
     borderRadius: 14,
-    backgroundColor: couleurs.ecouteDoux,
+    backgroundColor: c.ecouteDoux,
   },
-  erreurTexte: { fontSize: 14, lineHeight: 20, color: couleurs.ecouteEncre },
+  erreurTexte: { fontSize: 14, lineHeight: 20, color: c.ecouteEncre },
   pied: {
     paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 8,
     borderTopWidth: 1,
-    borderTopColor: couleurs.ligne,
+    borderTopColor: c.ligne,
   },
   piedVoix: { alignItems: "center", gap: 10 },
   piedTexte: { gap: 8 },
-  segments: {
-    alignSelf: "stretch",
-    flexDirection: "row",
-    gap: 4,
-    padding: 4,
-    borderRadius: 16,
-    backgroundColor: couleurs.discret,
-  },
-  segment: {
-    flex: 1,
-    minHeight: TOUCHE_MIN,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  segmentChoisi: { backgroundColor: couleurs.surface },
-  segmentTexte: { fontSize: 14, fontWeight: "500", color: couleurs.encre2, textAlign: "center" },
-  segmentTexteChoisi: { fontWeight: "700", color: couleurs.encre },
-  libelleMicro: { fontSize: 15, fontWeight: "500", color: couleurs.encre2, textAlign: "center" },
+  segments: { alignSelf: "stretch" },
+  libelleMicro: { fontSize: 15, fontWeight: "500", color: c.encre2, textAlign: "center" },
   avis: {
     padding: 14,
     gap: 8,
     borderRadius: 14,
-    backgroundColor: couleurs.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: couleurs.ligne,
+    borderColor: c.ligne,
   },
-  avisTitre: { fontSize: 16, fontWeight: "600", color: couleurs.encre },
-  avisTexte: { fontSize: 14, lineHeight: 20, color: couleurs.encre2 },
+  avisTitre: { fontSize: 16, fontWeight: "600", color: c.encre },
+  avisTexte: { fontSize: 14, lineHeight: 20, color: c.encre2 },
   saisie: { flexDirection: "row", alignItems: "flex-end", gap: 8 },
   champ: {
+    ...styleTexte(false),
     flex: 1,
     minHeight: TOUCHE_MIN + 8,
     maxHeight: 140,
@@ -543,10 +524,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: couleurs.ligne,
-    backgroundColor: couleurs.surface,
+    borderColor: c.ligne,
+    backgroundColor: c.surface,
     fontSize: 16,
-    color: couleurs.encre,
+    color: c.encre,
   },
   envoyer: { paddingHorizontal: 16 },
-});
+}));

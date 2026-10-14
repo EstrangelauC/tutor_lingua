@@ -3,6 +3,7 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { ErreurSchema, FeedbackSchema, type Feedback } from "@camille/shared";
 import { Logger, ServiceUnavailableException } from "@nestjs/common";
 import { z } from "zod";
+import { erreurApi } from "../common/erreur-api";
 import type { Conversation, MoteurCamille } from "./camille.types";
 import {
   CONSIGNE_DERNIER_ECHANGE,
@@ -57,7 +58,9 @@ export class ClaudeCamille implements MoteurCamille {
 
     if (response.stop_reason === "refusal" || !response.parsed_output) {
       this.logger.warn(`Feedback sem resultado (stop_reason=${response.stop_reason}).`);
-      throw new ServiceUnavailableException("Não foi possível gerar o feedback. Tenta outra vez.");
+      throw new ServiceUnavailableException(
+        erreurApi("service_indisponible", "Não foi possível gerar o feedback."),
+      );
     }
     const feedback = response.parsed_output;
     return { ...feedback, erreurs: feedback.erreurs.slice(0, 3) };
@@ -116,7 +119,7 @@ export class ClaudeCamille implements MoteurCamille {
       ) {
         this.logger.warn(`API da Anthropic indisponível: ${erreur.message}`);
         throw new ServiceUnavailableException(
-          "A Camille está indisponível de momento. Tenta outra vez.",
+          erreurApi("service_indisponible", "A API da Anthropic está indisponível."),
         );
       }
       throw erreur;

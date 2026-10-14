@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import { CodeErreurApiSchema, codeDepuisStatut, type CodeErreur } from "./erreurs";
 import {
   FeedbackSchema,
   TourAudioSchema,
@@ -13,6 +14,8 @@ import {
 export class ErreurApi extends Error {
   constructor(
     readonly status: number,
+    /** Estável, para a app escolher a mensagem na língua da interface. */
+    readonly code: CodeErreur,
     message: string,
   ) {
     super(message);
@@ -73,21 +76,24 @@ export function creerClientCamille({
         signal: controleur.signal,
       });
     } catch {
-      throw new ErreurApi(
-        0,
-        controleur.signal.aborted ? "A API demorou demasiado a responder." : "Sem ligação à API.",
-      );
+      throw controleur.signal.aborted
+        ? new ErreurApi(0, "delai", "A API demorou demasiado a responder.")
+        : new ErreurApi(0, "reseau", "Sem ligação à API.");
     } finally {
       clearTimeout(minuterie);
     }
 
     const json: unknown = await response.json().catch(() => undefined);
     if (!response.ok) {
-      throw new ErreurApi(response.status, messageErreur(json) ?? `Erro ${response.status}.`);
+      throw new ErreurApi(
+        response.status,
+        codeErreur(json) ?? codeDepuisStatut(response.status),
+        messageErreur(json) ?? `Erro ${response.status}.`,
+      );
     }
     const resultat = schema.safeParse(json);
     if (!resultat.success) {
-      throw new ErreurApi(response.status, "Resposta inesperada da API.");
+      throw new ErreurApi(response.status, "reponse_invalide", "Resposta inesperada da API.");
     }
     return resultat.data;
   }
@@ -117,6 +123,14 @@ export function creerClientCamille({
         DELAI_FEEDBACK_MS,
       ),
   };
+}
+
+function codeErreur(json: unknown): CodeErreur | undefined {
+  if (typeof json === "object" && json !== null && "code" in json) {
+    const resultat = CodeErreurApiSchema.safeParse((json as { code: unknown }).code);
+    if (resultat.success) return resultat.data;
+  }
+  return undefined;
 }
 
 function messageErreur(json: unknown): string | undefined {

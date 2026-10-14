@@ -14,14 +14,22 @@ describe("API de sessões (Camille simulada)", () => {
   let app: INestApplication;
   let base: string;
 
-  // Transcrição controlada pelo teste: devolve sempre `prochaine`.
-  const transcripteur: Transcripteur & { prochaine: string } = {
+  // Transcrição controlada pelo teste: devolve sempre `prochaine`, depois de `attente` (se houver).
+  const transcripteur: Transcripteur & {
+    prochaine: string;
+    attente?: Promise<void>;
+    appelee?: () => void;
+  } = {
     nom: "teste",
     prochaine: "Je m'appelle Nour.",
     async transcrire() {
+      this.appelee?.();
+      await this.attente;
       return this.prochaine;
     },
   };
+
+  const code = (json: unknown) => (json as { code?: unknown }).code;
 
   const postAudio = async (chemin: string, audio?: Blob) => {
     const corps = new FormData();
@@ -80,6 +88,7 @@ describe("API de sessões (Camille simulada)", () => {
 
     const deTrop = await post(`/sessions/${premier.sessionId}/messages`, { texte: "Encore ?" });
     assert.equal(deTrop.status, 409);
+    assert.equal(code(deTrop.json), "session_terminee");
 
     const fin = await post(`/sessions/${premier.sessionId}/terminer`);
     assert.equal(fin.status, 200);
@@ -100,6 +109,7 @@ describe("API de sessões (Camille simulada)", () => {
 
     const apres = await post(`/sessions/${sessionId}/messages`, { texte: "Et maintenant ?" });
     assert.equal(apres.status, 409);
+    assert.equal(code(apres.json), "session_terminee");
   });
 
   it("recusa pedidos inválidos com 400", async () => {
@@ -109,6 +119,7 @@ describe("API de sessões (Camille simulada)", () => {
       langueAppui: "pt-PT",
     });
     assert.equal(niveau.status, 400);
+    assert.equal(code(niveau.json), "requete_invalide");
 
     const { sessionId } = TourCamilleSchema.parse((await creer()).json);
     const vide = await post(`/sessions/${sessionId}/messages`, { texte: "   " });
@@ -121,6 +132,7 @@ describe("API de sessões (Camille simulada)", () => {
   it("devolve 404 para uma sessão desconhecida", async () => {
     const inconnue = await post(`/sessions/${crypto.randomUUID()}/messages`, { texte: "Bonjour" });
     assert.equal(inconnue.status, 404);
+    assert.equal(code(inconnue.json), "session_introuvable");
   });
 
   it("aceita uma resposta gravada e devolve o que se percebeu", async () => {
@@ -141,6 +153,7 @@ describe("API de sessões (Camille simulada)", () => {
 
     const silence = await postAudio(`/sessions/${sessionId}/audio`, gravacao());
     assert.equal(silence.status, 422);
+    assert.equal(code(silence.json), "audio_vide");
 
     transcripteur.prochaine = "Oui, bien sûr.";
     const ensuite = TourAudioSchema.parse(
@@ -154,17 +167,41 @@ describe("API de sessões (Camille simulada)", () => {
 
     const sansFichier = await postAudio(`/sessions/${sessionId}/audio`);
     assert.equal(sansFichier.status, 400);
+    assert.equal(code(sansFichier.json), "requete_invalide");
 
     const texte = await postAudio(
       `/sessions/${sessionId}/audio`,
       new Blob(["bonjour"], { type: "text/plain" }),
     );
     assert.equal(texte.status, 415);
+    assert.equal(code(texte.json), "audio_format");
+  });
+
+  it("recusa um segundo pedido enquanto a Camille responde ao primeiro", async () => {
+    const { sessionId } = TourCamilleSchema.parse((await creer()).json);
+    let liberer = () => {};
+    transcripteur.attente = new Promise((resolve) => (liberer = resolve));
+    const appelee = new Promise<void>((resolve) => (transcripteur.appelee = resolve));
+    try {
+      const audio = postAudio(`/sessions/${sessionId}/audio`, gravacao());
+      await appelee;
+
+      const enParallele = await post(`/sessions/${sessionId}/messages`, { texte: "Allô ?" });
+      assert.equal(enParallele.status, 409);
+      assert.equal(code(enParallele.json), "session_occupee");
+
+      liberer();
+      assert.equal((await audio).status, 200);
+    } finally {
+      transcripteur.attente = undefined;
+      transcripteur.appelee = undefined;
+    }
   });
 
   it("não gera feedback sem respostas do aluno", async () => {
     const { sessionId } = TourCamilleSchema.parse((await creer()).json);
     const fin = await post(`/sessions/${sessionId}/terminer`);
     assert.equal(fin.status, 409);
+    assert.equal(code(fin.json), "sans_reponse");
   });
 });

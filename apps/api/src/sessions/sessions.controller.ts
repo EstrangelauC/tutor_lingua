@@ -21,6 +21,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { erreurApi } from "../common/erreur-api";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { SessionsService } from "./sessions.service";
 
@@ -80,12 +81,16 @@ export class SessionsController {
     @UploadedFile() fichier: FichierRecu | undefined,
   ): Promise<TourAudio> {
     if (!fichier || fichier.buffer.length === 0) {
-      throw new BadRequestException('Falta a gravação no campo "audio".');
+      throw new BadRequestException(
+        erreurApi("requete_invalide", 'Falta a gravação no campo "audio".'),
+      );
     }
     const typeMime = fichier.mimetype.split(";")[0]?.trim().toLowerCase() ?? "";
     const extension = EXTENSIONS[typeMime];
     if (!extension) {
-      throw new UnsupportedMediaTypeException(`Formato de áudio não suportado: ${typeMime}.`);
+      throw new UnsupportedMediaTypeException(
+        erreurApi("audio_format", `Formato de áudio não suportado: ${typeMime}.`),
+      );
     }
     return this.sessions.envoyerAudio(id, {
       contenu: fichier.buffer,

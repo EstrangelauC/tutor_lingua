@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, View } from "react-native";
-import { couleurs } from "../theme";
+import { Pressable, View } from "react-native";
+import { creerStyles } from "../theme";
 
 interface Props {
   enregistre: boolean;
@@ -20,6 +20,7 @@ export function BoutonMicro({
   onFin,
   accessibilityLabel,
 }: Props) {
+  const styles = useStyles();
   const actions =
     mode === "maintenir"
       ? { onPressIn: onDebut, onPressOut: onFin }
@@ -29,7 +30,7 @@ export function BoutonMicro({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ disabled: desactive, selected: enregistre }}
+      aria-disabled={desactive}
       disabled={desactive}
       {...actions}
       style={({ pressed }) => [
@@ -51,7 +52,7 @@ export function BoutonMicro({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = creerStyles((c) => ({
   bouton: {
     width: 88,
     height: 88,
@@ -59,13 +60,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  pret: { backgroundColor: couleurs.bleu },
-  enregistre: { backgroundColor: couleurs.ecoute, transform: [{ scale: 1.06 }] },
-  desactive: { backgroundColor: couleurs.ligne },
+  pret: { backgroundColor: c.bleu },
+  enregistre: { backgroundColor: c.ecoute, transform: [{ scale: 1.06 }] },
+  desactive: { backgroundColor: c.ligne },
   presse: { opacity: 0.85 },
-  carre: { width: 28, height: 28, borderRadius: 6, backgroundColor: couleurs.blanc },
+  carre: { width: 28, height: 28, borderRadius: 6, backgroundColor: c.surPlein },
   micro: { alignItems: "center", gap: 3 },
-  capsule: { width: 16, height: 26, borderRadius: 8, backgroundColor: couleurs.blanc },
-  pied: { width: 4, height: 8, borderRadius: 2, backgroundColor: couleurs.blanc },
-  capsuleDesactivee: { backgroundColor: couleurs.encre3 },
-});
+  capsule: { width: 16, height: 26, borderRadius: 8, backgroundColor: c.surPlein },
+  pied: { width: 4, height: 8, borderRadius: 2, backgroundColor: c.surPlein },
+  capsuleDesactivee: { backgroundColor: c.encre3 },
+}));

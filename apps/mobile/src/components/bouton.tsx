@@ -1,13 +1,14 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, type ViewStyle } from "react-native";
-import { TOUCHE_MIN, couleurs } from "../theme";
+import { ActivityIndicator, Pressable, type StyleProp, type ViewStyle } from "react-native";
+import { TOUCHE_MIN, creerStyles, useTheme } from "../theme";
+import { Text } from "./texte";
 
 interface Props {
   libelle: string;
   onPress: () => void;
-  variante?: "principal" | "secondaire" | "discret";
+  variante?: "principal" | "secondaire" | "danger";
   desactive?: boolean;
   chargement?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function Bouton({
@@ -18,11 +19,15 @@ export function Bouton({
   chargement = false,
   style,
 }: Props) {
+  const styles = useStyles();
+  const { couleurs } = useTheme();
   const inactif = desactive || chargement;
+  const plein = variante !== "secondaire";
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled: inactif, busy: chargement }}
+      aria-disabled={inactif}
+      aria-busy={chargement}
       disabled={inactif}
       onPress={onPress}
       style={({ pressed }) => [
@@ -34,14 +39,9 @@ export function Bouton({
       ]}
     >
       {chargement ? (
-        <ActivityIndicator color={variante === "principal" ? couleurs.blanc : couleurs.bleu} />
+        <ActivityIndicator color={plein ? couleurs.surPlein : couleurs.bleu} />
       ) : (
-        <Text
-          style={[
-            styles.texte,
-            variante === "principal" ? styles.textePrincipal : styles.texteAutre,
-          ]}
-        >
+        <Text style={[styles.texte, plein ? styles.textePlein : styles.texteSecondaire]}>
           {libelle}
         </Text>
       )}
@@ -49,7 +49,7 @@ export function Bouton({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = creerStyles((c) => ({
   base: {
     minHeight: TOUCHE_MIN + 8,
     paddingHorizontal: 20,
@@ -58,16 +58,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  principal: { backgroundColor: couleurs.bleu },
+  principal: { backgroundColor: c.bleu },
   secondaire: {
-    backgroundColor: couleurs.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: couleurs.ligne,
+    borderColor: c.ligne,
   },
-  discret: { backgroundColor: "transparent", minHeight: TOUCHE_MIN },
+  danger: { backgroundColor: c.ecoute },
   inactif: { opacity: 0.5 },
   presse: { opacity: 0.85 },
   texte: { fontSize: 17, fontWeight: "600", textAlign: "center" },
-  textePrincipal: { color: couleurs.blanc },
-  texteAutre: { color: couleurs.encre },
-});
+  textePlein: { color: c.surPlein },
+  texteSecondaire: { color: c.encre },
+}));

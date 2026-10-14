@@ -65,17 +65,33 @@ describe("creerClientCamille", () => {
     assert.deepEqual(appels[0]?.init.headers, { accept: "application/json" });
   });
 
-  it("transforma erros da API em ErreurApi com a mensagem do servidor", async () => {
-    const { fn } = fetchFalso(409, { statusCode: 409, message: "A sessão já terminou." });
+  it("transforma erros da API em ErreurApi com o código e a mensagem do servidor", async () => {
+    const { fn } = fetchFalso(409, { code: "session_terminee", message: "A sessão já terminou." });
     const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });
 
     await assert.rejects(client.envoyerMessage(tour.sessionId, "Encore"), (erreur) => {
       assert.ok(erreur instanceof ErreurApi);
       assert.equal(erreur.status, 409);
+      assert.equal(erreur.code, "session_terminee");
       assert.equal(erreur.message, "A sessão já terminou.");
       assert.equal(erreur.temporaire, true);
       return true;
     });
+  });
+
+  it("deduz o código pelo status quando a resposta não o traz", async () => {
+    const casos = [
+      [400, "requete_invalide"],
+      [413, "audio_trop_long"],
+      [422, "audio_vide"],
+      [502, "service_indisponible"],
+      [418, "inconnu"],
+    ] as const;
+    for (const [status, code] of casos) {
+      const { fn } = fetchFalso(status, { statusCode: status, message: "Erro", code: "outro" });
+      const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });
+      await assert.rejects(client.terminer(tour.sessionId), { code });
+    }
   });
 
   it("recusa respostas que não seguem o contrato", async () => {
@@ -83,6 +99,7 @@ describe("creerClientCamille", () => {
     const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });
 
     await assert.rejects(client.terminer(tour.sessionId), {
+      code: "reponse_invalide",
       message: "Resposta inesperada da API.",
     });
   });
@@ -96,8 +113,24 @@ describe("creerClientCamille", () => {
     await assert.rejects(client.terminer(tour.sessionId), (erreur) => {
       assert.ok(erreur instanceof ErreurApi);
       assert.equal(erreur.status, 0);
+      assert.equal(erreur.code, "reseau");
       assert.equal(erreur.message, "Sem ligação à API.");
       return true;
     });
+  });
+
+  it("distingue o tempo esgotado de uma falha de rede", async (t) => {
+    t.mock.timers.enable({ apis: ["setTimeout"] });
+    // fetch que só termina quando o pedido é cancelado.
+    const fn = ((_url: string, init: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        init.signal?.addEventListener("abort", () => reject(new Error("aborted")));
+      })) as typeof fetch;
+    const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });
+
+    const pedido = client.envoyerMessage(tour.sessionId, "Bonjour");
+    t.mock.timers.tick(45_000);
+
+    await assert.rejects(pedido, { status: 0, code: "delai" });
   });
 });

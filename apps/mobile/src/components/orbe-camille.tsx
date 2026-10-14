@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Animated, Easing, StyleSheet, Text, View } from "react-native";
-import { couleurs, serif } from "../theme";
+import { Animated, Easing, StyleSheet, View } from "react-native";
+import { useI18n } from "../i18n";
+import { serif, useTheme } from "../theme";
+import { Text } from "./texte";
 
 export type EtatOrbe = "parle" | "ecoute" | "pense" | "attend";
 
@@ -11,18 +13,13 @@ interface Props {
   taille?: number;
 }
 
-const LIBELLES: Record<EtatOrbe, string> = {
-  parle: "A Camille está a falar",
-  ecoute: "A Camille está a ouvir-te",
-  pense: "A Camille está a pensar",
-  attend: "Camille",
-};
-
 /**
  * Ilustração abstrata da Camille. Fala: núcleo azul com anel a pulsar.
  * Ouve: contorno laranja que cresce com a tua voz. Pensa: núcleo cinzento a pulsar.
  */
 export function OrbeCamille({ etat, niveau = 0, taille = 56 }: Props) {
+  const { couleurs } = useTheme();
+  const { t } = useI18n();
   const [pulsation] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -61,7 +58,7 @@ export function OrbeCamille({ etat, niveau = 0, taille = 56 }: Props) {
   return (
     <View
       accessible
-      accessibilityLabel={LIBELLES[etat]}
+      accessibilityLabel={t.orbe[etat]}
       style={{ width: taille, height: taille, alignItems: "center", justifyContent: "center" }}
     >
       <Animated.View
@@ -88,7 +85,7 @@ export function OrbeCamille({ etat, niveau = 0, taille = 56 }: Props) {
       >
         <Text
           style={{
-            color: etat === "ecoute" ? couleurs.ecoute : couleurs.blanc,
+            color: etat === "ecoute" ? couleurs.ecoute : couleurs.surPlein,
             fontFamily: serif,
             fontStyle: "italic",
             fontSize: taille * 0.36,

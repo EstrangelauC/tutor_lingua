@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "rootDir": ".",
+    "outDir": "./.test-dist",
+    "sourceMap": true
+  },
+  // Só a lógica sem React Native (dados guardados, línguas e dicionários) corre no Node.
+  "include": ["test"]
+}

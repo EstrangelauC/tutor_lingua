@@ -1,5 +1,7 @@
-import { StyleSheet, Text, type TextStyle } from "react-native";
-import { couleurs, serif } from "../theme";
+import { type TextStyle } from "react-native";
+import { FRANCAIS } from "../i18n";
+import { creerStyles } from "../theme";
+import { Text } from "./texte";
 
 interface Props {
   phrase: string;
@@ -9,6 +11,7 @@ interface Props {
 
 /** Frase em francês com o trecho errado (riscado) ou corrigido (destacado). */
 export function PhraseSurlignee({ phrase, extrait, type }: Props) {
+  const styles = useStyles();
   const index = extrait ? phrase.indexOf(extrait) : -1;
   const style: TextStyle = type === "errone" ? styles.errone : styles.corrige;
 
@@ -25,12 +28,12 @@ export function PhraseSurlignee({ phrase, extrait, type }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  phrase: { fontFamily: serif, fontSize: 17, lineHeight: 25, color: couleurs.encre },
+const useStyles = creerStyles((c) => ({
+  phrase: { ...FRANCAIS, fontSize: 17, lineHeight: 25, color: c.encre },
   errone: {
-    backgroundColor: couleurs.ecouteDoux,
-    color: couleurs.ecouteEncre,
+    backgroundColor: c.ecouteDoux,
+    color: c.ecouteEncre,
     textDecorationLine: "line-through",
   },
-  corrige: { backgroundColor: couleurs.bleuDoux, color: couleurs.bleuEncre, fontWeight: "600" },
-});
+  corrige: { backgroundColor: c.bleuDoux, color: c.bleuEncre, fontWeight: "600" },
+}));

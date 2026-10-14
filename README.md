@@ -8,9 +8,10 @@ O utilizador conversa em voz alta com **Camille**, uma examinadora virtual bienv
 
 - Três tarefas da prova: **Entretien**, **Interaction**, **Point de vue**
 - Níveis alvo A2, B1 e B2
-- Interface multilíngue (PT-PT, EN, ES, AR com RTL, UK, TR, RO) e língua de apoio configurável
+- Interface multilíngue (PT-PT, EN, ES e AR com RTL; preparada para UK, TR, RO) e língua de apoio configurável
 - Feedback no fim da sessão: nível estimado, 3 erros principais com a forma correta, 1 conselho
-- Histórico de sessões e evolução
+- Histórico de sessões e evolução, guardados no telemóvel
+- Tema claro, escuro ou do sistema
 
 ## Stack
 
@@ -21,7 +22,7 @@ apps/
   api/        NestJS: sessões de conversa com a Camille (Claude) e feedback
   mobile/     Expo (SDK 57) + Expo Router, compatível com Expo Go
 packages/
-  shared/     @camille/shared: schemas Zod e cliente HTTP da API
+  shared/     @camille/shared: schemas Zod, códigos de erro e cliente HTTP da API
 ```
 
 ## Requisitos
@@ -68,6 +69,8 @@ Os modelos podem mudar-se com `ANTHROPIC_MODEL` e `OPENAI_TRANSCRIPTION_MODEL`. 
 
 Os schemas Zod de cada pedido e resposta estão em `packages/shared/src/session.ts`. A sessão termina sozinha depois de 8 respostas do aluno (`terminee: true`); o feedback pode ser pedido a qualquer momento depois da primeira resposta. As sessões ficam em memória e perdem-se quando a API reinicia.
 
+Os erros vêm como `{ code, message }`: o `code` é estável (`session_introuvable`, `session_occupee`, `audio_vide`, `service_indisponible`…, lista em `packages/shared/src/erreurs.ts`) e é o que a app traduz para a língua da interface; a `message` é em português, para quem desenvolve.
+
 ```sh
 curl -X POST localhost:3000/sessions -H 'content-type: application/json' \
   -d '{"niveau":"B1","tache":"entretien","langueAppui":"pt-PT"}'
@@ -86,15 +89,27 @@ Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e
 
 A app fala com a API: arranca primeiro `pnpm dev:api` noutro terminal. Por omissão, a app usa o IP do computador que corre o Metro, na porta 3000, por isso não é preciso configurar nada na mesma rede. Com `pnpm dev:mobile --tunnel`, ou com uma API noutro endereço, define `EXPO_PUBLIC_API_URL` em `apps/mobile/.env` (ver `apps/mobile/.env.example`).
 
-Fluxo atual: escolher tarefa, nível e língua do feedback → conversar com a Camille por voz → feedback.
+A app tem três separadores: **Início** (escolher a tarefa e começar), **Histórico** (sessões feitas, tempo de prática e evolução do nível estimado) e **Definições**.
 
 - A Camille lê as falas em voz alta (voz francesa do sistema, `expo-speech`). Se o telemóvel não tiver uma voz francesa instalada, instala-a nas definições de acessibilidade/voz do sistema.
 - **Premir para falar**: mantém o microfone premido enquanto respondes e solta para enviar.
-- **Mãos-livres**: o microfone abre sozinho quando a Camille acaba de falar; a resposta é enviada com um toque ou depois de uma pausa de ~2 s.
+- **Mãos-livres**: o microfone abre sozinho quando a Camille acaba de falar; a resposta é enviada com um toque ou depois de uma pausa de ~2 s. O modo escolhido fica como omissão para as sessões seguintes.
 - **Texto**: mostra ou oculta a transcrição. **Escrever a resposta** troca o microfone por uma caixa de texto.
 - Com auriculares, a Camille ouve-te melhor e não se ouve a si própria.
 
+Nas **Definições**: língua da interface e língua de apoio (a do feedback; por omissão acompanham a língua do telemóvel), nível alvo, velocidade da voz da Camille (com «Ouvir exemplo»), modo do microfone, tema (claro, escuro ou sistema) e apagar o histórico. A conversa é sempre em francês, seja qual for a língua da interface.
+
+As preferências e o histórico ficam só no telemóvel (`@react-native-async-storage/async-storage`, 100 sessões no máximo); as gravações são enviadas para transcrição e não ficam guardadas.
+
 Para experimentar no browser: `pnpm --filter @camille/mobile web` (o browser pede acesso ao microfone).
+
+#### Línguas da interface
+
+Os textos estão em `apps/mobile/src/i18n/textes/`, um ficheiro por língua, todos com a forma do português (`Textes`). Em árabe, o layout é espelhado (RTL) e o francês fica sempre da esquerda para a direita. Para juntar uma língua (ucraniano, turco, romeno…):
+
+1. Acrescenta o código a `LangueAppuiSchema` em `packages/shared/src/base.ts` (a API passa a aceitá-la como língua do feedback; a Camille simulada precisa de um texto de feedback nessa língua em `apps/api/src/camille/simulee.moteur.ts`).
+2. Cria `apps/mobile/src/i18n/textes/<código>.ts` a partir de `en.ts` e junta-o a `textes/index.ts`; põe o nome da língua em `i18n/langues.ts` (e marca-a em `estRtl` se se escrever da direita para a esquerda).
+3. O `pnpm typecheck` e o teste `textes.test.ts` dizem o que falta.
 
 ### Outros
 
@@ -103,7 +118,7 @@ Para experimentar no browser: `pnpm --filter @camille/mobile web` (o browser ped
 | `pnpm build`     | Compila `@camille/shared` e a API  |
 | `pnpm lint`      | ESLint em todos os pacotes         |
 | `pnpm typecheck` | `tsc --noEmit` em todos os pacotes |
-| `pnpm test`      | Testes da API e do cliente HTTP    |
+| `pnpm test`      | Testes da API, do cliente e da app |
 | `pnpm format`    | Formata o repositório com Prettier |
 
 > Depois de `pnpm --filter <pacote> add ...`, corre `pnpm install`: com `nodeLinker: hoisted`, o `add` filtrado pode retirar de `node_modules` pacotes de outros workspaces.
@@ -115,4 +130,4 @@ Para experimentar no browser: `pnpm --filter @camille/mobile web` (o browser ped
 
 ## Estado
 
-🚧 Passo 4: sessão por voz (gravação, transcrição, leitura das falas da Camille). A seguir: i18n da interface, RTL, tema escuro e histórico.
+🚧 Passo 5: interface em PT-PT, EN, ES e AR (RTL), tema escuro, histórico com evolução e definições. Verificado no browser; no iOS e no Android ainda falta confirmar num aparelho o layout RTL (estilo `direction` por ecrã, sem reiniciar a app) e as vozes francesas. A seguir: ucraniano, turco e romeno, e proteger a API (autenticação e limites de uso).

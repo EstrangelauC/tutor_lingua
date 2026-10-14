@@ -1,5 +1,6 @@
 import {
   ErreurApi,
+  type CodeErreur,
   type CreerSessionRequest,
   type Feedback,
   type TourCamille,
@@ -16,6 +17,9 @@ export interface Replique {
 /** O que está a acontecer agora: arranque, à espera da Camille, a gerar o feedback ou nada (vez do aluno). */
 export type Activite = "demarrage" | "reponse" | "evaluation" | null;
 
+/** Erros a mostrar ao aluno: os da API e os da gravação. A app traduz cada um. */
+export type ErreurSession = CodeErreur | "trop_court" | "trop_court_maintenir";
+
 export interface EtatSession {
   sessionId: string | null;
   repliques: Replique[];
@@ -25,8 +29,10 @@ export interface EtatSession {
   activite: Activite;
   /** A Camille está a ler a última fala em voz alta. */
   parle: boolean;
-  /** Mensagem a mostrar ao aluno quando um pedido falha. */
-  erreur: string | null;
+  /** O que mostrar ao aluno quando um pedido falha. */
+  erreur: ErreurSession | null;
+  /** Quando a Camille abriu a sessão (ms), para guardar a duração no histórico. */
+  debut: number | null;
 }
 
 const ETAT_INITIAL: EtatSession = {
@@ -38,18 +44,16 @@ const ETAT_INITIAL: EtatSession = {
   activite: null,
   parle: false,
   erreur: null,
+  debut: null,
 };
 
-function message(erreur: unknown): string {
-  if (erreur instanceof ErreurApi) {
-    return erreur.status === 0
-      ? "Sem ligação à API. Confirma que a API está a correr e que o telemóvel está na mesma rede."
-      : erreur.message;
-  }
-  return "Algo correu mal. Tenta outra vez.";
+function code(erreur: unknown): ErreurSession {
+  return erreur instanceof ErreurApi ? erreur.code : "inconnu";
 }
 
 interface Options {
+  /** Velocidade de leitura das falas (1 = normal do sistema). */
+  debit: number;
   /**
    * Chamado quando a Camille acaba de ler uma fala sem ser interrompida (usado pelo modo
    * mãos-livres para abrir o microfone). `terminee` diz se essa era a última fala da sessão.
@@ -58,12 +62,12 @@ interface Options {
 }
 
 /** Conduz uma sessão com a Camille através da API e lê as falas dela em voz alta. */
-export function useSessionCamille(config: CreerSessionRequest, { onFinParole }: Options = {}) {
+export function useSessionCamille(config: CreerSessionRequest, { debit, onFinParole }: Options) {
   const [etat, setEtat] = useState<EtatSession>(ETAT_INITIAL);
 
   const dire = async (texte: string, terminee: boolean) => {
     setEtat((e) => ({ ...e, parle: true }));
-    const fin = await parler(texte);
+    const fin = await parler(texte, debit);
     setEtat((e) => ({ ...e, parle: false }));
     if (fin === "fin") {
       onFinParole?.(terminee);
@@ -91,9 +95,11 @@ export function useSessionCamille(config: CreerSessionRequest, { onFinParole }: 
   const demarrer = useCallback(async () => {
     setEtat({ ...ETAT_INITIAL, activite: "demarrage" });
     try {
-      appliquerTour(await api.creerSession(config));
+      const tour = await api.creerSession(config);
+      setEtat((e) => ({ ...e, debut: Date.now() }));
+      appliquerTour(tour);
     } catch (erreur) {
-      setEtat((e) => ({ ...e, activite: null, erreur: message(erreur) }));
+      setEtat((e) => ({ ...e, activite: null, erreur: code(erreur) }));
     }
     // appliquerTour só usa setters estáveis e a fala recebida.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,7 +123,7 @@ export function useSessionCamille(config: CreerSessionRequest, { onFinParole }: 
         ...e,
         repliques: e.repliques.slice(0, -1),
         activite: null,
-        erreur: message(erreur),
+        erreur: code(erreur),
       }));
       return false;
     }
@@ -133,7 +139,7 @@ export function useSessionCamille(config: CreerSessionRequest, { onFinParole }: 
       appliquerTour(tour, tour.texteEleve);
       return true;
     } catch (erreur) {
-      setEtat((e) => ({ ...e, activite: null, erreur: message(erreur) }));
+      setEtat((e) => ({ ...e, activite: null, erreur: code(erreur) }));
       return false;
     }
   };
@@ -157,12 +163,12 @@ export function useSessionCamille(config: CreerSessionRequest, { onFinParole }: 
       setEtat((e) => ({ ...e, activite: null, terminee: true }));
       return feedback;
     } catch (erreur) {
-      setEtat((e) => ({ ...e, activite: null, erreur: message(erreur) }));
+      setEtat((e) => ({ ...e, activite: null, erreur: code(erreur) }));
       return null;
     }
   };
 
-  const signalerErreur = (texte: string | null) => setEtat((e) => ({ ...e, erreur: texte }));
+  const signalerErreur = (erreur: ErreurSession | null) => setEtat((e) => ({ ...e, erreur }));
 
   return {
     etat,
