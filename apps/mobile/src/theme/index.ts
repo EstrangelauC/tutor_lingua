@@ -3,6 +3,13 @@ import { useDonnees } from "../donnees/donnees-context";
 import { PALETTES, type Couleurs, type NomTheme } from "./couleurs";
 
 export { TOUCHE_MIN, serif, type Couleurs } from "./couleurs";
+export {
+  COLONNE_LECTURE,
+  LARGEUR_LARGE,
+  LARGEUR_LECTURE,
+  TITRE_DOCUMENT,
+  useLarge,
+} from "./mise-en-page";
 
 /** Tema em uso: o escolhido nas definições, ou o do sistema. */
 export function useTheme(): { nom: NomTheme; couleurs: Couleurs } {

@@ -12,7 +12,7 @@ import { useDonnees } from "../../donnees/donnees-context";
 import { enMinutes, statistiques } from "../../donnees/historique";
 import { jourEtMois, useI18n } from "../../i18n";
 import { ECHELLE, TACHES } from "../../taches";
-import { creerStyles, serif, useTheme } from "../../theme";
+import { COLONNE_LECTURE, creerStyles, serif, useTheme } from "../../theme";
 import { Text } from "../../components/texte";
 
 type Filtre = Tache | "toutes";
@@ -138,7 +138,7 @@ export default function Historique() {
 }
 
 const useStyles = creerStyles((c) => ({
-  contenu: { padding: 20, gap: 16 },
+  contenu: { ...COLONNE_LECTURE, padding: 20, gap: 16 },
   entete: { gap: 4, marginBottom: 4 },
   titre: { fontSize: 26, fontWeight: "600", color: c.encre },
   sousTitre: { fontSize: 15, color: c.encre2 },

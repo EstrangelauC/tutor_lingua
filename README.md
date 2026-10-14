@@ -114,7 +114,7 @@ Nas **Definições**: língua da interface e língua de apoio (a do feedback; po
 
 As preferências e o histórico ficam só no telemóvel (`@react-native-async-storage/async-storage`, 100 sessões no máximo); as gravações são enviadas para transcrição e não ficam guardadas.
 
-Para experimentar no browser: `pnpm --filter @camille/mobile web` (o browser pede acesso ao microfone).
+Para experimentar no browser: `pnpm --filter @camille/mobile web` (o browser pede acesso ao microfone). A partir de 900 px de largura a app usa o layout de computador: navegação no topo, sessão em duas colunas com a transcrição sempre à vista, e a **tecla Espaço** faz de microfone.
 
 #### Línguas da interface
 
@@ -155,6 +155,12 @@ Com `NODE_ENV=production`, as três chaves são obrigatórias e o arranque falha
 - **Fly.io**: o `fly.toml` na raiz aponta para o Dockerfile. `fly launch --no-deploy --copy-config`, depois `fly secrets set ANTHROPIC_API_KEY=… OPENAI_API_KEY=… CAMILLE_API_KEY=…` e `fly deploy`. A máquina pára sem tráfego e acorda em segundos no primeiro pedido.
 - Só se publicares a versão web da app: `CORS_ORIGINES=https://o-teu-dominio` (várias origens separadas por vírgulas).
 
+### A versão web
+
+`pnpm build:web` exporta a app para `apps/mobile/dist` (um HTML por rota, gerado a partir de `src/app/+html.tsx`, mais o bundle): serve-se em qualquer alojamento estático; uma regra de _rewrite_ de `/*` para `/index.html` garante que os links profundos abrem mesmo onde `/session` não é mapeado para `session.html`. O endereço da API e a chave ficam no bundle no momento da exportação (`EXPO_PUBLIC_API_URL` e `EXPO_PUBLIC_CAMILLE_API_KEY`), e a API precisa de `CORS_ORIGINES` com a origem do site.
+
+O `render.yaml` já inclui o serviço estático `camille-web` com tudo isto (e a API com `CORS_ORIGINES=https://camille-web.onrender.com`); só a chave é pedida no painel. O CI também exporta a versão web em cada push, para apanhar o que só parte no bundle.
+
 ### A app num telemóvel
 
 O **Expo Go** chega para tudo o que a app usa hoje (áudio, voz, armazenamento): com a API publicada, basta `EXPO_PUBLIC_API_URL=https://…` e `EXPO_PUBLIC_CAMILLE_API_KEY=…` em `apps/mobile/.env` e `pnpm dev:mobile --tunnel` para testar fora da tua rede.
@@ -186,4 +192,4 @@ O que só se confirma num telemóvel real: a qualidade das vozes francesas do si
 
 ## Estado
 
-🚧 Passo 7: pronta a publicar — imagem Docker da API verificada localmente, Blueprint do Render e `fly.toml`, perfis EAS para a app e CI no GitHub. Falta o próprio deploy (precisa das tuas contas) e o teste num telemóvel real: vozes francesas, microfone com auriculares e RTL nativo.
+🚧 Passo 8: versão web — layout de computador (navegação no topo, sessão em duas colunas, tecla Espaço, feedback em duas colunas com «Ouvir» em cada correção), exportação estática verificada no Chromium e serviço estático no Blueprint do Render. Falta o próprio deploy (precisa das tuas contas) e o teste num telemóvel real: vozes francesas, microfone com auriculares e RTL nativo.

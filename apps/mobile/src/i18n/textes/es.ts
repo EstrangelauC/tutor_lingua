@@ -51,6 +51,7 @@ export const es: Textes = {
   session: {
     terminer: "Terminar",
     texte: "Texto",
+    transcription: "Transcripción",
     afficherTranscription: "Mostrar transcripción",
     masquerTranscription: "Ocultar transcripción",
     echange: (n: number, total: number) => `Turno ${n} de ${total}`,
@@ -79,6 +80,7 @@ export const es: Textes = {
       toucherEnvoyer: "Toca para enviar (o haz una pausa)",
       maintenir: "Mantén pulsado para hablar",
       toucher: "Toca para hablar",
+      espace: "o la tecla Espacio",
     },
     ecrire: "Escribir la respuesta",
     repondreVoix: "Responder con la voz",
@@ -109,6 +111,7 @@ export const es: Textes = {
     sansErreur: "Sin errores importantes en esta sesión",
     ceQueTuAsDit: "Lo que dijiste",
     formeCorrecte: "Forma correcta",
+    ecouter: "Escuchar",
     prochaine: "Para la próxima sesión",
     repeter: "Repetir esta tarea",
     nouvelle: "Nueva tarea",

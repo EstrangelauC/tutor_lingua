@@ -69,6 +69,7 @@ export const uk: Textes = {
   session: {
     terminer: "Завершити",
     texte: "Текст",
+    transcription: "Транскрипція",
     afficherTranscription: "Показати транскрипцію",
     masquerTranscription: "Сховати транскрипцію",
     echange: (n: number, total: number) => `Репліка ${n} з ${total}`,
@@ -97,6 +98,7 @@ export const uk: Textes = {
       toucherEnvoyer: "Торкніться, щоб надіслати (або зробіть паузу)",
       maintenir: "Утримуйте, щоб говорити",
       toucher: "Торкніться, щоб говорити",
+      espace: "або клавіша Пробіл",
     },
     ecrire: "Написати відповідь",
     repondreVoix: "Відповісти голосом",
@@ -127,6 +129,7 @@ export const uk: Textes = {
     sansErreur: "У цій сесії немає суттєвих помилок",
     ceQueTuAsDit: "Що ви сказали",
     formeCorrecte: "Правильна форма",
+    ecouter: "Прослухати",
     prochaine: "До наступної сесії",
     repeter: "Повторити це завдання",
     nouvelle: "Нове завдання",

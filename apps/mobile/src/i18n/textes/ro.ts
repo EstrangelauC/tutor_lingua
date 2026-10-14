@@ -62,6 +62,7 @@ export const ro: Textes = {
   session: {
     terminer: "Termină",
     texte: "Text",
+    transcription: "Transcriere",
     afficherTranscription: "Arată transcrierea",
     masquerTranscription: "Ascunde transcrierea",
     echange: (n: number, total: number) => `Replica ${n} din ${total}`,
@@ -90,6 +91,7 @@ export const ro: Textes = {
       toucherEnvoyer: "Atinge pentru a trimite (sau fă o pauză)",
       maintenir: "Ține apăsat pentru a vorbi",
       toucher: "Atinge pentru a vorbi",
+      espace: "sau tasta Spațiu",
     },
     ecrire: "Scrie răspunsul",
     repondreVoix: "Răspunde cu vocea",
@@ -120,6 +122,7 @@ export const ro: Textes = {
     sansErreur: "Nicio greșeală importantă în această sesiune",
     ceQueTuAsDit: "Ce ai spus",
     formeCorrecte: "Forma corectă",
+    ecouter: "Ascultă",
     prochaine: "Pentru sesiunea următoare",
     repeter: "Repetă această sarcină",
     nouvelle: "Sarcină nouă",

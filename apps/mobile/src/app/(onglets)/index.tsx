@@ -10,7 +10,7 @@ import { useDonnees } from "../../donnees/donnees-context";
 import { derniereParTache, joursDepuis } from "../../donnees/historique";
 import { useI18n } from "../../i18n";
 import { TACHES } from "../../taches";
-import { TOUCHE_MIN, creerStyles, serif, useTheme } from "../../theme";
+import { COLONNE_LECTURE, creerStyles, serif, TOUCHE_MIN, useTheme } from "../../theme";
 import { Text } from "../../components/texte";
 
 export default function Accueil() {
@@ -110,7 +110,7 @@ export default function Accueil() {
 }
 
 const useStyles = creerStyles((c) => ({
-  contenu: { padding: 20, gap: 24 },
+  contenu: { ...COLONNE_LECTURE, padding: 20, gap: 24 },
   remplir: { flex: 1 },
   marque: { flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap" },
   pastille: {

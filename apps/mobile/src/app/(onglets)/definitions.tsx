@@ -11,7 +11,7 @@ import { Section } from "../../components/section";
 import { useDonnees } from "../../donnees/donnees-context";
 import { DEBITS, ModeMicroSchema, ThemeSchema, VitesseVoixSchema } from "../../donnees/preferences";
 import { NOMS_LANGUES, useI18n } from "../../i18n";
-import { TOUCHE_MIN, creerStyles, useTheme } from "../../theme";
+import { COLONNE_LECTURE, creerStyles, TOUCHE_MIN, useTheme } from "../../theme";
 import { arreterDeParler, parler } from "../../voix/parole";
 import { Text } from "../../components/texte";
 
@@ -201,7 +201,7 @@ function Reglage({
 }
 
 const useStyles = creerStyles((c) => ({
-  contenu: { padding: 20, gap: 24 },
+  contenu: { ...COLONNE_LECTURE, padding: 20, gap: 24 },
   titre: { fontSize: 26, fontWeight: "600", color: c.encre },
   remplir: { flex: 1 },
   carte: {

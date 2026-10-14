@@ -71,6 +71,7 @@ export const ar: Textes = {
   session: {
     terminer: "إنهاء",
     texte: "النص",
+    transcription: "نص المحادثة",
     afficherTranscription: "إظهار نص المحادثة",
     masquerTranscription: "إخفاء نص المحادثة",
     echange: (n: number, total: number) => `التبادل ${n} من ${total}`,
@@ -99,6 +100,7 @@ export const ar: Textes = {
       toucherEnvoyer: "انقر للإرسال (أو توقّف قليلًا)",
       maintenir: "اضغط مطوّلًا للتحدث",
       toucher: "انقر للتحدث",
+      espace: "أو مفتاح المسافة",
     },
     ecrire: "اكتب الإجابة",
     repondreVoix: "أجب بصوتك",
@@ -128,6 +130,7 @@ export const ar: Textes = {
     sansErreur: "لا أخطاء مهمة في هذه الجلسة",
     ceQueTuAsDit: "ما قلته",
     formeCorrecte: "الصيغة الصحيحة",
+    ecouter: "استمع",
     prochaine: "للجلسة القادمة",
     repeter: "كرّر هذه المهمة",
     nouvelle: "مهمة جديدة",

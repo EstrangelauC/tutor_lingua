@@ -52,6 +52,7 @@ export const tr: Textes = {
   session: {
     terminer: "Bitir",
     texte: "Metin",
+    transcription: "Döküm",
     afficherTranscription: "Dökümü göster",
     masquerTranscription: "Dökümü gizle",
     echange: (n: number, total: number) => `Tur ${n} / ${total}`,
@@ -80,6 +81,7 @@ export const tr: Textes = {
       toucherEnvoyer: "Göndermek için dokun (ya da dur)",
       maintenir: "Konuşmak için basılı tut",
       toucher: "Konuşmak için dokun",
+      espace: "ya da Boşluk tuşu",
     },
     ecrire: "Cevabı yaz",
     repondreVoix: "Sesle cevap ver",
@@ -110,6 +112,7 @@ export const tr: Textes = {
     sansErreur: "Bu oturumda önemli hata yok",
     ceQueTuAsDit: "Söylediğin",
     formeCorrecte: "Doğru biçim",
+    ecouter: "Dinle",
     prochaine: "Bir sonraki oturum için",
     repeter: "Bu görevi tekrarla",
     nouvelle: "Yeni görev",

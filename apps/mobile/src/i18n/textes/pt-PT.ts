@@ -54,6 +54,7 @@ export const ptPT = {
   session: {
     terminer: "Terminar",
     texte: "Texto",
+    transcription: "Transcrição",
     afficherTranscription: "Mostrar transcrição",
     masquerTranscription: "Ocultar transcrição",
     echange: (n: number, total: number) => `Troca ${n} de ${total}`,
@@ -82,6 +83,7 @@ export const ptPT = {
       toucherEnvoyer: "Toca para enviar (ou faz uma pausa)",
       maintenir: "Mantém premido para falar",
       toucher: "Toca para falar",
+      espace: "ou a tecla Espaço",
     },
     ecrire: "Escrever a resposta",
     repondreVoix: "Responder com a voz",
@@ -112,6 +114,7 @@ export const ptPT = {
     sansErreur: "Sem erros importantes nesta sessão",
     ceQueTuAsDit: "O que disseste",
     formeCorrecte: "Forma correta",
+    ecouter: "Ouvir",
     prochaine: "Para a próxima sessão",
     repeter: "Repetir esta tarefa",
     nouvelle: "Nova tarefa",

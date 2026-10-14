@@ -13,7 +13,8 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build:web": "turbo run build --filter=@camille/shared && pnpm --filter @camille/mobile exec expo export --platform web --clear"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

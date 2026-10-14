@@ -16,16 +16,16 @@ import { Segments } from "../components/choix";
 import { Ecran } from "../components/ecran";
 import { OrbeCamille, type EtatOrbe } from "../components/orbe-camille";
 import { Progression } from "../components/progression";
+import { Text } from "../components/texte";
 import { useDonnees } from "../donnees/donnees-context";
 import { DEBITS, ModeMicroSchema, type ModeMicro } from "../donnees/preferences";
 import { FRANCAIS, styleTexte, useI18n } from "../i18n";
 import { useSessionCamille } from "../session/use-session-camille";
 import { TACHES } from "../taches";
-import { TOUCHE_MIN, creerStyles, serif, useTheme } from "../theme";
+import { TOUCHE_MIN, creerStyles, serif, useLarge, useTheme } from "../theme";
 import { formulaireAudio } from "../voix/formulaire-audio";
 import { arreterDeParler } from "../voix/parole";
 import { useEnregistreur } from "../voix/use-enregistreur";
-import { Text } from "../components/texte";
 
 type Saisie = "voix" | "texte";
 
@@ -37,11 +37,20 @@ const SILENCE_MS = 1_800;
 const DUREE_MIN_MS = 600;
 const DUREE_MAX_MS = 90_000;
 
+/** Na web, a tecla Espaço não deve fazer de microfone enquanto se escreve. */
+function dansUnChamp(cible: EventTarget | null): boolean {
+  const element = cible as { tagName?: string; isContentEditable?: boolean } | null;
+  return (
+    element?.tagName === "INPUT" || element?.tagName === "TEXTAREA" || !!element?.isContentEditable
+  );
+}
+
 export default function Session() {
   const router = useRouter();
   const styles = useStyles();
   const { couleurs } = useTheme();
   const { t } = useI18n();
+  const large = useLarge();
   const { preferences, modifierPreferences, ajouterSession } = useDonnees();
   const params = useLocalSearchParams<{ tache?: string }>();
   const tache = TacheSchema.catch("entretien").parse(params.tache);
@@ -80,6 +89,7 @@ export default function Session() {
   }, [demarrer]);
 
   const occupee = etat.activite !== null;
+  const microActif = !occupee && etat.sessionId !== null && !etat.terminee;
 
   const signalerTropCourt = () =>
     signalerErreur(modeRef.current === "maintenir" ? "trop_court_maintenir" : "trop_court");
@@ -123,6 +133,39 @@ export default function Session() {
     // finir só usa o gravador e o envio, que não mudam o que este efeito observa.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enregistreur.enregistre, enregistreur.duree, enregistreur.metering, modeMicro]);
+
+  // Web: a tecla Espaço faz de botão do microfone (manter, em premir para falar; alternar, em
+  // mãos-livres). Os handlers são refeitos a cada render para verem o estado atual.
+  const enregistre = enregistreur.enregistre;
+  useEffect(() => {
+    if (Platform.OS !== "web" || saisie !== "voix") return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || e.repeat || dansUnChamp(e.target)) return;
+      e.preventDefault();
+      if (!microActif) return;
+      if (modeMicro === "maintenir") {
+        if (!enregistre) {
+          doigtPose.current = true;
+          void commencer();
+        }
+      } else {
+        void (enregistre ? finir() : commencer());
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || modeMicro !== "maintenir" || dansUnChamp(e.target)) return;
+      doigtPose.current = false;
+      if (enregistre) void finir();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+    // commencer e finir são funções do componente, refeitas a cada render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saisie, microActif, modeMicro, enregistre]);
 
   /** Também fica como modo por omissão das próximas sessões. */
   const choisirMode = (mode: ModeMicro) => {
@@ -204,6 +247,180 @@ export default function Session() {
 
   const microRefuse = enregistreur.permission === "refusee";
 
+  const listeTranscription = (
+    <ScrollView
+      ref={defilement}
+      style={styles.remplir}
+      contentContainerStyle={styles.transcriptionContenu}
+      onContentSizeChange={() => defilement.current?.scrollToEnd({ animated: true })}
+    >
+      {etat.repliques.map((replique, i) => (
+        <View
+          key={i}
+          style={[
+            styles.bulleBloc,
+            replique.role === "camille" ? styles.bulleCamille : styles.bulleEleve,
+          ]}
+        >
+          <Text style={styles.bulleAuteur}>
+            {replique.role === "camille" ? "Camille" : t.communs.tu}
+          </Text>
+          <Text
+            style={[
+              styles.bulle,
+              replique.role === "camille" ? styles.bulleFondCamille : styles.bulleFondEleve,
+            ]}
+          >
+            {replique.texte}
+          </Text>
+        </View>
+      ))}
+    </ScrollView>
+  );
+
+  const scene = (
+    <View style={styles.scene}>
+      <OrbeCamille etat={etatOrbe} niveau={enregistreur.niveau} taille={168} />
+      <Text style={styles.camilleNomGrand}>Camille</Text>
+      <Text accessibilityLiveRegion="polite" style={styles.statut}>
+        {statut}
+      </Text>
+      <Pressable
+        accessibilityRole="button"
+        onPress={rejouer}
+        disabled={etat.parle || occupee || etat.repliques.length === 0}
+        style={styles.lien}
+      >
+        <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
+      </Pressable>
+      <Text style={styles.aide}>{t.session.aide}</Text>
+    </View>
+  );
+
+  const enteteCompacte = (
+    <View style={styles.camilleCompacte}>
+      <OrbeCamille etat={etatOrbe} niveau={enregistreur.niveau} />
+      <View style={styles.camilleTextes}>
+        <Text style={styles.camilleNom}>Camille</Text>
+        <Text accessibilityLiveRegion="polite" style={styles.statutCompact}>
+          {statut}
+        </Text>
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        onPress={rejouer}
+        disabled={etat.parle || occupee}
+        style={styles.lien}
+      >
+        <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
+      </Pressable>
+    </View>
+  );
+
+  const bandeauErreur = etat.erreur && (
+    <View accessibilityRole="alert" style={styles.erreur}>
+      <Text style={styles.erreurTexte}>{t.erreurs[etat.erreur]}</Text>
+      {etat.sessionId === null && (
+        <Bouton libelle={t.session.reessayer} variante="secondaire" onPress={demarrer} />
+      )}
+    </View>
+  );
+
+  const pied = (
+    <View style={styles.pied}>
+      {etat.terminee ? (
+        <Bouton
+          libelle={t.session.voirFeedback}
+          onPress={onTerminer}
+          chargement={etat.activite === "evaluation"}
+        />
+      ) : saisie === "texte" || microRefuse ? (
+        <View style={styles.piedTexte}>
+          {microRefuse && (
+            <View style={styles.avis}>
+              <Text style={styles.avisTitre}>{t.session.microRefuse.titre}</Text>
+              <Text style={styles.avisTexte}>{t.session.microRefuse.texte}</Text>
+              {Platform.OS !== "web" && (
+                <Bouton
+                  libelle={t.session.microRefuse.ouvrir}
+                  variante="secondaire"
+                  onPress={() => void Linking.openSettings()}
+                />
+              )}
+            </View>
+          )}
+          <View style={styles.saisie}>
+            <TextInput
+              accessibilityLabel={t.session.champ}
+              value={brouillon}
+              onChangeText={setBrouillon}
+              placeholder={t.session.placeholder}
+              placeholderTextColor={couleurs.encre3}
+              multiline
+              maxLength={2000}
+              style={styles.champ}
+            />
+            <Bouton
+              libelle={t.session.envoyer}
+              onPress={onEnvoyerTexte}
+              desactive={occupee || etat.sessionId === null || brouillon.trim() === ""}
+              chargement={etat.activite === "reponse"}
+              style={styles.envoyer}
+            />
+          </View>
+          {!microRefuse && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => choisirSaisie("voix")}
+              style={styles.lien}
+            >
+              <Text style={styles.lienTexte}>{t.session.repondreVoix}</Text>
+            </Pressable>
+          )}
+        </View>
+      ) : (
+        <View style={styles.piedVoix}>
+          <Segments
+            options={ModeMicroSchema.options.map((mode) => ({
+              valeur: mode,
+              libelle: t.session.modes[mode],
+            }))}
+            valeur={modeMicro}
+            onChange={choisirMode}
+            style={styles.segments}
+          />
+          <BoutonMicro
+            enregistre={enregistreur.enregistre}
+            desactive={!microActif}
+            mode={modeMicro === "maintenir" ? "maintenir" : "basculer"}
+            accessibilityLabel={libelleMicro}
+            onDebut={() => {
+              doigtPose.current = true;
+              void commencer();
+            }}
+            onFin={() => {
+              doigtPose.current = false;
+              void finir();
+            }}
+          />
+          <Text style={styles.libelleMicro}>
+            {libelleMicro}
+            {large && Platform.OS === "web" && (
+              <Text style={styles.indice}>{` · ${t.session.micro.espace}`}</Text>
+            )}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => choisirSaisie("texte")}
+            style={styles.lien}
+          >
+            <Text style={styles.lienTexte}>{t.session.ecrire}</Text>
+          </Pressable>
+        </View>
+      )}
+    </View>
+  );
+
   return (
     <Ecran>
       <KeyboardAvoidingView
@@ -226,189 +443,59 @@ export default function Session() {
               {t.session.echange(Math.min(etat.echange + 1, etat.maxEchanges), etat.maxEchanges)}
             </Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            aria-expanded={transcriptionVisible}
-            accessibilityLabel={
-              transcriptionVisible
-                ? t.session.masquerTranscription
-                : t.session.afficherTranscription
-            }
-            onPress={() => setTranscriptionVisible((v) => !v)}
-            style={[styles.petitBouton, transcriptionVisible && styles.petitBoutonActif]}
-          >
-            <Text style={[styles.petitBoutonTexte, transcriptionVisible && styles.texteActif]}>
-              {t.session.texte}
-            </Text>
-          </Pressable>
+          {large ? (
+            // Em ecrãs largos a transcrição está sempre à vista: só um espaço para equilibrar.
+            <View style={styles.petitBoutonFantome} />
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              aria-expanded={transcriptionVisible}
+              accessibilityLabel={
+                transcriptionVisible
+                  ? t.session.masquerTranscription
+                  : t.session.afficherTranscription
+              }
+              onPress={() => setTranscriptionVisible((v) => !v)}
+              style={[styles.petitBouton, transcriptionVisible && styles.petitBoutonActif]}
+            >
+              <Text style={[styles.petitBoutonTexte, transcriptionVisible && styles.texteActif]}>
+                {t.session.texte}
+              </Text>
+            </Pressable>
+          )}
         </View>
         <View style={styles.progression}>
           <Progression actuel={etat.echange} total={etat.maxEchanges} />
         </View>
 
-        {transcriptionVisible ? (
-          <>
-            <View style={styles.camilleCompacte}>
-              <OrbeCamille etat={etatOrbe} niveau={enregistreur.niveau} />
-              <View style={styles.camilleTextes}>
-                <Text style={styles.camilleNom}>Camille</Text>
-                <Text accessibilityLiveRegion="polite" style={styles.statutCompact}>
-                  {statut}
-                </Text>
-              </View>
-              <Pressable
-                accessibilityRole="button"
-                onPress={rejouer}
-                disabled={etat.parle || occupee}
-                style={styles.lien}
-              >
-                <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
-              </Pressable>
+        {large ? (
+          <View style={styles.colonnes}>
+            <View style={styles.colonneCamille}>
+              {scene}
+              {bandeauErreur}
+              {pied}
             </View>
-            <ScrollView
-              ref={defilement}
-              style={styles.remplir}
-              contentContainerStyle={styles.transcriptionContenu}
-              onContentSizeChange={() => defilement.current?.scrollToEnd({ animated: true })}
-            >
-              {etat.repliques.map((replique, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.bulleBloc,
-                    replique.role === "camille" ? styles.bulleCamille : styles.bulleEleve,
-                  ]}
-                >
-                  <Text style={styles.bulleAuteur}>
-                    {replique.role === "camille" ? "Camille" : t.communs.tu}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.bulle,
-                      replique.role === "camille" ? styles.bulleFondCamille : styles.bulleFondEleve,
-                    ]}
-                  >
-                    {replique.texte}
-                  </Text>
-                </View>
-              ))}
-            </ScrollView>
-          </>
+            <View style={styles.colonneTranscription}>
+              <Text accessibilityRole="header" style={styles.colonneTitre}>
+                {t.session.transcription}
+              </Text>
+              {listeTranscription}
+            </View>
+          </View>
         ) : (
-          <View style={styles.scene}>
-            <OrbeCamille etat={etatOrbe} niveau={enregistreur.niveau} taille={168} />
-            <Text style={styles.camilleNomGrand}>Camille</Text>
-            <Text accessibilityLiveRegion="polite" style={styles.statut}>
-              {statut}
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={rejouer}
-              disabled={etat.parle || occupee || etat.repliques.length === 0}
-              style={styles.lien}
-            >
-              <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
-            </Pressable>
-            <Text style={styles.aide}>{t.session.aide}</Text>
-          </View>
-        )}
-
-        {etat.erreur && (
-          <View accessibilityRole="alert" style={styles.erreur}>
-            <Text style={styles.erreurTexte}>{t.erreurs[etat.erreur]}</Text>
-            {etat.sessionId === null && (
-              <Bouton libelle={t.session.reessayer} variante="secondaire" onPress={demarrer} />
+          <>
+            {transcriptionVisible ? (
+              <>
+                {enteteCompacte}
+                {listeTranscription}
+              </>
+            ) : (
+              scene
             )}
-          </View>
+            {bandeauErreur}
+            {pied}
+          </>
         )}
-
-        <View style={styles.pied}>
-          {etat.terminee ? (
-            <Bouton
-              libelle={t.session.voirFeedback}
-              onPress={onTerminer}
-              chargement={etat.activite === "evaluation"}
-            />
-          ) : saisie === "texte" || microRefuse ? (
-            <View style={styles.piedTexte}>
-              {microRefuse && (
-                <View style={styles.avis}>
-                  <Text style={styles.avisTitre}>{t.session.microRefuse.titre}</Text>
-                  <Text style={styles.avisTexte}>{t.session.microRefuse.texte}</Text>
-                  {Platform.OS !== "web" && (
-                    <Bouton
-                      libelle={t.session.microRefuse.ouvrir}
-                      variante="secondaire"
-                      onPress={() => void Linking.openSettings()}
-                    />
-                  )}
-                </View>
-              )}
-              <View style={styles.saisie}>
-                <TextInput
-                  accessibilityLabel={t.session.champ}
-                  value={brouillon}
-                  onChangeText={setBrouillon}
-                  placeholder={t.session.placeholder}
-                  placeholderTextColor={couleurs.encre3}
-                  multiline
-                  maxLength={2000}
-                  style={styles.champ}
-                />
-                <Bouton
-                  libelle={t.session.envoyer}
-                  onPress={onEnvoyerTexte}
-                  desactive={occupee || etat.sessionId === null || brouillon.trim() === ""}
-                  chargement={etat.activite === "reponse"}
-                  style={styles.envoyer}
-                />
-              </View>
-              {!microRefuse && (
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => choisirSaisie("voix")}
-                  style={styles.lien}
-                >
-                  <Text style={styles.lienTexte}>{t.session.repondreVoix}</Text>
-                </Pressable>
-              )}
-            </View>
-          ) : (
-            <View style={styles.piedVoix}>
-              <Segments
-                options={ModeMicroSchema.options.map((mode) => ({
-                  valeur: mode,
-                  libelle: t.session.modes[mode],
-                }))}
-                valeur={modeMicro}
-                onChange={choisirMode}
-                style={styles.segments}
-              />
-              <BoutonMicro
-                enregistre={enregistreur.enregistre}
-                desactive={occupee || etat.sessionId === null}
-                mode={modeMicro === "maintenir" ? "maintenir" : "basculer"}
-                accessibilityLabel={libelleMicro}
-                onDebut={() => {
-                  doigtPose.current = true;
-                  void commencer();
-                }}
-                onFin={() => {
-                  doigtPose.current = false;
-                  void finir();
-                }}
-              />
-              <Text style={styles.libelleMicro}>{libelleMicro}</Text>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => choisirSaisie("texte")}
-                style={styles.lien}
-              >
-                <Text style={styles.lienTexte}>{t.session.ecrire}</Text>
-              </Pressable>
-            </View>
-          )}
-        </View>
       </KeyboardAvoidingView>
     </Ecran>
   );
@@ -433,6 +520,7 @@ const useStyles = creerStyles((c) => ({
     backgroundColor: c.surface,
     justifyContent: "center",
   },
+  petitBoutonFantome: { minWidth: 96 },
   petitBoutonActif: { backgroundColor: c.bleuDoux, borderColor: c.bleuTrait },
   petitBoutonTexte: { fontSize: 15, fontWeight: "600", color: c.encre },
   texteActif: { color: c.bleuEncre },
@@ -441,6 +529,18 @@ const useStyles = creerStyles((c) => ({
   tache: { fontFamily: serif, fontSize: 18, color: c.encre },
   compteur: { fontSize: 13, color: c.encre2 },
   progression: { paddingHorizontal: 20 },
+  colonnes: { flex: 1, flexDirection: "row" },
+  colonneCamille: { flex: 5, borderEndWidth: 1, borderColor: c.ligne },
+  colonneTranscription: { flex: 6 },
+  colonneTitre: {
+    fontSize: 13,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+    color: c.encre2,
+    paddingHorizontal: 20,
+    paddingTop: 18,
+  },
   scene: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, padding: 20 },
   camilleNomGrand: { fontFamily: serif, fontStyle: "italic", fontSize: 24, color: c.encre },
   camilleCompacte: {
@@ -504,6 +604,7 @@ const useStyles = creerStyles((c) => ({
   piedTexte: { gap: 8 },
   segments: { alignSelf: "stretch" },
   libelleMicro: { fontSize: 15, fontWeight: "500", color: c.encre2, textAlign: "center" },
+  indice: { fontWeight: "400", color: c.encre3 },
   avis: {
     padding: 14,
     gap: 8,

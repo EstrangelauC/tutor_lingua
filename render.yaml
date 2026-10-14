@@ -21,3 +21,25 @@ services:
         sync: false
       - key: CAMILLE_API_KEY
         sync: false
+      # Origem da versão web (o serviço abaixo). Ajusta se mudares o nome.
+      - key: CORS_ORIGINES
+        value: https://camille-web.onrender.com
+
+  # Versão web da app: exportação estática do Expo (um HTML por rota); o rewrite cobre os links profundos.
+  - type: web
+    name: camille-web
+    runtime: static
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build:web
+    staticPublishPath: apps/mobile/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: EXPO_PUBLIC_API_URL
+        value: https://camille-api.onrender.com
+      # A mesma CAMILLE_API_KEY da API (fica no bundle: trava quem só tem o URL).
+      - key: EXPO_PUBLIC_CAMILLE_API_KEY
+        sync: false

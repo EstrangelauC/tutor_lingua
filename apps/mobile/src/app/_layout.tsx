@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import Head from "expo-router/head";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
@@ -6,7 +7,7 @@ import { useEffect } from "react";
 import { I18nManager, Platform } from "react-native";
 import { DonneesProvider } from "../donnees/donnees-context";
 import { useI18n } from "../i18n";
-import { useTheme } from "../theme";
+import { TITRE_DOCUMENT, useTheme } from "../theme";
 
 // A direção (RTL em árabe) segue a língua escolhida na app e aplica-se ecrã a ecrã;
 // a do aparelho não deve virar o layout por cima disso.
@@ -46,6 +47,10 @@ function Racine() {
 
   return (
     <>
+      {/* Na web, o Expo Router gere o <title> com o Helmet: sem isto fica vazio. */}
+      <Head>
+        <title>{TITRE_DOCUMENT}</title>
+      </Head>
       <StatusBar style={nom === "sombre" ? "light" : "dark"} />
       <Stack
         screenOptions={{ headerShown: false, contentStyle: { backgroundColor: couleurs.fond } }}

@@ -52,6 +52,7 @@ export const en: Textes = {
   session: {
     terminer: "Finish",
     texte: "Text",
+    transcription: "Transcript",
     afficherTranscription: "Show transcript",
     masquerTranscription: "Hide transcript",
     echange: (n: number, total: number) => `Turn ${n} of ${total}`,
@@ -80,6 +81,7 @@ export const en: Textes = {
       toucherEnvoyer: "Tap to send (or pause)",
       maintenir: "Press and hold to talk",
       toucher: "Tap to talk",
+      espace: "or the Space bar",
     },
     ecrire: "Type your answer",
     repondreVoix: "Answer by voice",
@@ -110,6 +112,7 @@ export const en: Textes = {
     sansErreur: "No major mistakes in this session",
     ceQueTuAsDit: "What you said",
     formeCorrecte: "Correct form",
+    ecouter: "Listen",
     prochaine: "For your next session",
     repeter: "Repeat this task",
     nouvelle: "New task",
