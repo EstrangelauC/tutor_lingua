@@ -1,6 +1,15 @@
-# Prompt de sistema – Camille
+# Prompts da Camille
 
-Variáveis: `{{niveau}}` (A2 | B1), `{{langue_appui}}`, `{{tache}}` (entretien | interaction | point_de_vue)
+A versão em uso está no código, em [`apps/api/src/camille/prompts.ts`](../apps/api/src/camille/prompts.ts). Há dois prompts:
+
+1. **Conversa** (`promptConversation`): a Camille conduz a tarefa só em francês, com frases curtas adaptadas ao nível (A2, B1 ou B2), sem corrigir durante o exercício. Na última troca, a API acrescenta uma instrução de sistema para ela se despedir.
+2. **Feedback** (`promptFeedback`): um pedido separado, que recebe a transcrição da sessão e devolve um JSON validado com o schema `FeedbackSchema` de `@camille/shared`: nível estimado, frase-resumo, até 3 erros (frase dita, forma correta, trechos a destacar e explicação) e 1 conselho. Os textos explicativos vêm na língua de apoio; os exemplos ficam em francês.
+
+## Diferenças em relação ao prompt original
+
+O prompt original pedia à própria Camille que mudasse para a língua de apoio e desse o feedback no fim da conversa. Agora a API controla o fim da sessão (8 trocas, ou quando o aluno termina) e gera o feedback num pedido próprio. Assim o resultado vem sempre estruturado e pode ser mostrado no ecrã de feedback tal como foi desenhado.
+
+## Prompt original (referência)
 
 ```
 Tu es "Camille", examinatrice bienveillante qui prépare les candidats à l'épreuve orale du TCF IRN.

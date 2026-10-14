@@ -1,16 +1,15 @@
 import { z } from "zod";
 
 // Uma linha "ANTHROPIC_API_KEY=" no .env chega como string vazia: trata-a como ausente.
-const optionalString = z.preprocess(
-  (value) => (value === "" ? undefined : value),
-  z.string().trim().min(1).optional(),
-);
+const vazioComoAusente = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((value) => (value === "" ? undefined : value), schema);
 
 export const envSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-    ANTHROPIC_API_KEY: optionalString,
+    ANTHROPIC_API_KEY: vazioComoAusente(z.string().trim().min(1).optional()),
+    ANTHROPIC_MODEL: vazioComoAusente(z.string().trim().min(1).default("claude-opus-5-5")),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production" && env.ANTHROPIC_API_KEY === undefined) {

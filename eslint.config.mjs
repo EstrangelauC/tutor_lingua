@@ -11,6 +11,7 @@ export default defineConfig(
     "**/node_modules/",
     "**/dist/",
     "**/.turbo/",
+    "**/.test-dist/",
     "**/.expo/",
     "**/web-build/",
     "apps/mobile/expo-env.d.ts",

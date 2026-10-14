@@ -1,6 +1,7 @@
 pnpm-lock.yaml
 **/dist/
 **/.turbo/
+**/.test-dist/
 **/.expo/
 **/web-build/
 apps/mobile/ios/

@@ -11,6 +11,7 @@ dist/
 build/
 *.tsbuildinfo
 .turbo/
+.test-dist/
 
 # Expo / React Native
 .expo/
