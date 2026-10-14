@@ -136,6 +136,49 @@ Os textos estão em `apps/mobile/src/i18n/textes/`, um ficheiro por língua (`pt
 
 > Depois de `pnpm --filter <pacote> add ...`, corre `pnpm install`: com `nodeLinker: hoisted`, o `add` filtrado pode retirar de `node_modules` pacotes de outros workspaces.
 
+## Publicar
+
+### A API
+
+A imagem Docker (`apps/api/Dockerfile`) compila `@camille/shared` e a API e corre `node dist/main.js` com o utilizador `node`. Para a construir e experimentar localmente:
+
+```sh
+docker build -f apps/api/Dockerfile -t camille-api .
+docker run --rm -p 3000:3000 -e NODE_ENV=production \
+  -e ANTHROPIC_API_KEY=… -e OPENAI_API_KEY=… -e CAMILLE_API_KEY=… camille-api
+curl http://localhost:3000/health
+```
+
+Com `NODE_ENV=production`, as três chaves são obrigatórias e o arranque falha sem elas. Em qualquer alojamento atrás de um proxy, define `CONFIANCE_PROXY=true` (os dois ficheiros abaixo já o fazem). As sessões ficam em memória: uma instância só, e um reinício apaga as sessões a decorrer (o histórico está no telemóvel, não se perde).
+
+- **Render**: o `render.yaml` na raiz é um Blueprint. No Render, _New → Blueprint_, escolhe o repositório e, quando pedir, cola as três chaves. O plano `free` adormece sem tráfego e o primeiro pedido demora cerca de um minuto; para praticar sem esperas, muda para `starter`. O endereço fica `https://camille-api.onrender.com` (ou o nome que deres ao serviço).
+- **Fly.io**: o `fly.toml` na raiz aponta para o Dockerfile. `fly launch --no-deploy --copy-config`, depois `fly secrets set ANTHROPIC_API_KEY=… OPENAI_API_KEY=… CAMILLE_API_KEY=…` e `fly deploy`. A máquina pára sem tráfego e acorda em segundos no primeiro pedido.
+- Só se publicares a versão web da app: `CORS_ORIGINES=https://o-teu-dominio` (várias origens separadas por vírgulas).
+
+### A app num telemóvel
+
+O **Expo Go** chega para tudo o que a app usa hoje (áudio, voz, armazenamento): com a API publicada, basta `EXPO_PUBLIC_API_URL=https://…` e `EXPO_PUBLIC_CAMILLE_API_KEY=…` em `apps/mobile/.env` e `pnpm dev:mobile --tunnel` para testar fora da tua rede.
+
+Para uma app instalável sem Metro nem Expo Go (para ti e para quem testar), usa o EAS Build com o perfil `preview` de `apps/mobile/eas.json`:
+
+```sh
+npm install -g eas-cli && eas login
+cd apps/mobile
+eas init                                   # liga o projeto à tua conta Expo (escreve extra.eas.projectId)
+eas env:create --environment preview --name EXPO_PUBLIC_API_URL --value https://camille-api.onrender.com --visibility plain
+eas env:create --environment preview --name EXPO_PUBLIC_CAMILLE_API_KEY --value … --visibility sensitive
+eas build --profile preview --platform android   # APK instalável diretamente
+eas build --profile preview --platform ios       # precisa de conta Apple Developer; instala via TestFlight ou registo do aparelho
+```
+
+Os identificadores (`com.estrangelauc.camille`) estão no `app.json`; muda-os antes do primeiro build se quiseres outros. O perfil `production` serve para as lojas (`eas submit`). Se um dia a app precisar de um módulo nativo que não venha no Expo Go, junta `expo-dev-client` e um perfil `development` com `"developmentClient": true`.
+
+O que só se confirma num telemóvel real: a qualidade das vozes francesas do sistema, o microfone com auriculares e o layout RTL em árabe no iOS e no Android.
+
+### CI
+
+`.github/workflows/ci.yml` corre em cada push para `main` e em cada pull request: build, typecheck, lint, testes e Prettier, e constrói a imagem Docker da API e confirma que responde em `/health`.
+
 ## Documentação
 
 - [`docs/camille-system-prompt.md`](docs/camille-system-prompt.md) — prompts da Camille (conversa e feedback)
@@ -143,4 +186,4 @@ Os textos estão em `apps/mobile/src/i18n/textes/`, um ficheiro por língua (`pt
 
 ## Estado
 
-🚧 Passo 6: API protegida (chave de acesso e limites por IP) e interface em sete línguas (UK, TR e RO juntaram-se a PT-PT, EN, ES e AR). Verificado no browser; no iOS e no Android ainda falta confirmar num aparelho o layout RTL (estilo `direction` por ecrã, sem reiniciar a app) e as vozes francesas. A seguir: publicar a API (Render/Fly) e fazer um development build da app para testar em telemóveis reais.
+🚧 Passo 7: pronta a publicar — imagem Docker da API verificada localmente, Blueprint do Render e `fly.toml`, perfis EAS para a app e CI no GitHub. Falta o próprio deploy (precisa das tuas contas) e o teste num telemóvel real: vozes francesas, microfone com auriculares e RTL nativo.

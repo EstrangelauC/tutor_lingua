@@ -1,0 +1,33 @@
+# Fly.io, a partir da raiz do monorepo:
+#   fly launch --no-deploy --copy-config      (cria a app com este ficheiro)
+#   fly secrets set ANTHROPIC_API_KEY=… OPENAI_API_KEY=… CAMILLE_API_KEY=…
+#   fly deploy
+app = "camille-api"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "apps/api/Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  CONFIANCE_PROXY = "true"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  # Pára sem tráfego (sem custos) e acorda no primeiro pedido, em segundos.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

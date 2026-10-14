@@ -8,9 +8,15 @@
     "scheme": "camille",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "com.estrangelauc.camille",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.estrangelauc.camille",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

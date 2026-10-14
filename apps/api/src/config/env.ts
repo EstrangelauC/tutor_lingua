@@ -21,6 +21,8 @@ export const envSchema = z
     // Limites por IP: criar sessões é o que gasta créditos.
     LIMITE_SESSIONS_PAR_HEURE: vazioComoAusente(z.coerce.number().int().min(1).default(20)),
     LIMITE_REQUETES_PAR_MINUTE: vazioComoAusente(z.coerce.number().int().min(1).default(60)),
+    // Origens autorizadas (separadas por vírgulas) se a versão web da app for publicada.
+    CORS_ORIGINES: vazioComoAusente(z.string().trim().min(1).optional()),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== "production") return;

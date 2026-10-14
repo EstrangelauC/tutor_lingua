@@ -18,8 +18,12 @@ async function bootstrap(): Promise<void> {
     app.set("trust proxy", 1);
   }
 
-  // A app nativa não precisa de CORS; a versão web do Expo (localhost:8081) precisa, em desenvolvimento.
-  if (config.get("NODE_ENV", { infer: true }) === "development") {
+  // A app nativa não precisa de CORS. A versão web precisa: em desenvolvimento aceita-se
+  // qualquer origem (o Expo em localhost:8081); em produção, só as de CORS_ORIGINES.
+  const origines = config.get("CORS_ORIGINES", { infer: true });
+  if (origines) {
+    app.enableCors({ origin: origines.split(",").map((o) => o.trim()) });
+  } else if (config.get("NODE_ENV", { infer: true }) === "development") {
     app.enableCors();
   }
 

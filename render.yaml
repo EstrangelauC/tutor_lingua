@@ -1,0 +1,23 @@
+# Blueprint do Render: New → Blueprint → este repositório. As chaves (sync: false) são
+# pedidas no painel na primeira vez. O plano free adormece sem tráfego e o primeiro pedido
+# demora ~1 min a acordar; para praticar sem esperas, muda para "starter".
+services:
+  - type: web
+    name: camille-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CONFIANCE_PROXY
+        value: "true"
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CAMILLE_API_KEY
+        sync: false
