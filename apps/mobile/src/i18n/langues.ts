@@ -13,6 +13,9 @@ export const NOMS_LANGUES: Record<LangueAppui, string> = {
   en: "English",
   es: "Español",
   ar: "العربية",
+  uk: "Українська",
+  tr: "Türkçe",
+  ro: "Română",
 };
 
 export function estRtl(langue: LangueAppui): boolean {
@@ -24,7 +27,10 @@ export function langueDepuisAppareil(codes: readonly (string | null | undefined)
   for (const code of codes) {
     const base = code?.toLowerCase().split(/[-_]/)[0];
     if (base === "pt") return "pt-PT";
-    if (base === "en" || base === "es" || base === "ar") return base;
+    if (base === "en" || base === "es" || base === "ar" || base === "uk" || base === "tr") {
+      return base;
+    }
+    if (base === "ro" || base === "mo") return "ro";
   }
   return "en";
 }

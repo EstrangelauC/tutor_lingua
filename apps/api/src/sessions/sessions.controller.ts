@@ -21,6 +21,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { SkipThrottle } from "@nestjs/throttler";
 import { erreurApi } from "../common/erreur-api";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { SessionsService } from "./sessions.service";
@@ -50,12 +51,15 @@ const EXTENSIONS: Record<string, string> = {
   "audio/ogg": "ogg",
 };
 
+// O limite de sessões por hora só conta a criação; as outras rotas contam só para o limite geral.
 @Controller("sessions")
+@SkipThrottle({ sessions: true })
 export class SessionsController {
   constructor(@Inject(SessionsService) private readonly sessions: SessionsService) {}
 
   /** Cria uma sessão e devolve a primeira fala da Camille. */
   @Post()
+  @SkipThrottle({ sessions: false })
   creer(
     @Body(new ZodValidationPipe(CreerSessionRequestSchema)) body: CreerSessionRequest,
   ): Promise<TourCamille> {

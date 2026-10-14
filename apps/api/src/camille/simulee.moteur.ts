@@ -58,6 +58,21 @@ const TEXTES_FEEDBACK: Record<
     explication: "بعد « si » نستعمل الـ imparfait، وليس الـ conditionnel أبدًا.",
     conseil: "اضبط ANTHROPIC_API_KEY في الـ API لتحصل على ملاحظات كامي الحقيقية.",
   },
+  uk: {
+    resume: "Симуляція: вашу розмову не було проаналізовано.",
+    explication: "Після « si » вживається imparfait, ніколи не conditionnel.",
+    conseil: "Задайте ANTHROPIC_API_KEY в API, щоб отримувати справжній відгук Каміли.",
+  },
+  tr: {
+    resume: "Simülasyon: konuşman analiz edilmedi.",
+    explication: "« si »'den sonra imparfait kullanılır, asla conditionnel değil.",
+    conseil: "Camille'in gerçek geri bildirimini almak için API'de ANTHROPIC_API_KEY ayarla.",
+  },
+  ro: {
+    resume: "Simulare: conversația ta nu a fost analizată.",
+    explication: "După « si » se folosește imparfait, niciodată conditionnel.",
+    conseil: "Setează ANTHROPIC_API_KEY în API ca să primești feedbackul real al lui Camille.",
+  },
 };
 
 /** Camille sem modelo: falas fixas, para desenvolver e testar sem chave nem custos. */

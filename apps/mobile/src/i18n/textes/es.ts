@@ -198,5 +198,7 @@ export const es: Textes = {
     inconnu: "Algo ha salido mal. Inténtalo otra vez.",
     trop_court_maintenir: "Grabación muy corta. Mantén pulsado el micrófono mientras hablas.",
     trop_court: "Grabación muy corta. Inténtalo otra vez.",
+    non_autorise: "La app no tiene acceso a la API: falta la clave de acceso o es incorrecta.",
+    trop_de_requetes: "Demasiadas peticiones en poco tiempo. Espera unos minutos.",
   },
 };

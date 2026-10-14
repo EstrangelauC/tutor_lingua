@@ -6,6 +6,9 @@ export const NOMS_LANGUES: Record<LangueAppui, string> = {
   en: "anglais",
   es: "espagnol",
   ar: "arabe",
+  uk: "ukrainien",
+  tr: "turc",
+  ro: "roumain",
 };
 
 const DESCRIPTIONS_TACHES: Record<Tache, string> = {

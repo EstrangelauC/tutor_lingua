@@ -12,10 +12,13 @@ describe("língua do aparelho", () => {
     assert.equal(langueDepuisAppareil(["pt-BR"]), "pt-PT");
     assert.equal(langueDepuisAppareil(["fr-FR", "ar-MA", "en-GB"]), "ar");
     assert.equal(langueDepuisAppareil([null, "es_ES"]), "es");
+    assert.equal(langueDepuisAppareil(["uk-UA"]), "uk");
+    assert.equal(langueDepuisAppareil(["tr"]), "tr");
+    assert.equal(langueDepuisAppareil(["ro-RO"]), "ro");
   });
 
   it("usa inglês quando nenhuma é suportada", () => {
-    assert.equal(langueDepuisAppareil(["uk-UA", "tr-TR"]), "en");
+    assert.equal(langueDepuisAppareil(["de-DE", "it-IT"]), "en");
     assert.equal(langueDepuisAppareil([]), "en");
   });
 

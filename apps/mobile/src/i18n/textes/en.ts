@@ -198,5 +198,7 @@ export const en: Textes = {
     inconnu: "Something went wrong. Try again.",
     trop_court_maintenir: "Recording too short. Keep the microphone pressed while you speak.",
     trop_court: "Recording too short. Try again.",
+    non_autorise: "The app has no access to the API: the access key is missing or wrong.",
+    trop_de_requetes: "Too many requests in a short time. Wait a few minutes.",
   },
 };

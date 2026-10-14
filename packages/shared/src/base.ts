@@ -9,5 +9,5 @@ export const TacheSchema = z.enum(["entretien", "interaction", "point_de_vue"]);
 export type Tache = z.infer<typeof TacheSchema>;
 
 /** Língua em que a Camille dá o feedback no fim da sessão. */
-export const LangueAppuiSchema = z.enum(["pt-PT", "en", "es", "ar"]);
+export const LangueAppuiSchema = z.enum(["pt-PT", "en", "es", "ar", "uk", "tr", "ro"]);
 export type LangueAppui = z.infer<typeof LangueAppuiSchema>;

@@ -17,4 +17,8 @@ function adresseApi(): string {
 
 export const ADRESSE_API = adresseApi();
 
-export const api = creerClientCamille({ baseUrl: ADRESSE_API });
+/** A mesma chave que CAMILLE_API_KEY na API; fica embutida na app, por isso não é um segredo forte. */
+export const api = creerClientCamille({
+  baseUrl: ADRESSE_API,
+  cleApi: process.env.EXPO_PUBLIC_CAMILLE_API_KEY || undefined,
+});

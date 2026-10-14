@@ -8,7 +8,7 @@ O utilizador conversa em voz alta com **Camille**, uma examinadora virtual bienv
 
 - Três tarefas da prova: **Entretien**, **Interaction**, **Point de vue**
 - Níveis alvo A2, B1 e B2
-- Interface multilíngue (PT-PT, EN, ES e AR com RTL; preparada para UK, TR, RO) e língua de apoio configurável
+- Interface em sete línguas (PT-PT, EN, ES, AR com RTL, UK, TR, RO) e língua de apoio configurável
 - Feedback no fim da sessão: nível estimado, 3 erros principais com a forma correta, 1 conselho
 - Histórico de sessões e evolução, guardados no telemóvel
 - Tema claro, escuro ou do sistema
@@ -69,7 +69,20 @@ Os modelos podem mudar-se com `ANTHROPIC_MODEL` e `OPENAI_TRANSCRIPTION_MODEL`. 
 
 Os schemas Zod de cada pedido e resposta estão em `packages/shared/src/session.ts`. A sessão termina sozinha depois de 8 respostas do aluno (`terminee: true`); o feedback pode ser pedido a qualquer momento depois da primeira resposta. As sessões ficam em memória e perdem-se quando a API reinicia.
 
-Os erros vêm como `{ code, message }`: o `code` é estável (`session_introuvable`, `session_occupee`, `audio_vide`, `service_indisponible`…, lista em `packages/shared/src/erreurs.ts`) e é o que a app traduz para a língua da interface; a `message` é em português, para quem desenvolve.
+Os erros vêm como `{ code, message }`: o `code` é estável (`session_introuvable`, `session_occupee`, `audio_vide`, `service_indisponible`, `non_autorise`, `trop_de_requetes`…, lista em `packages/shared/src/erreurs.ts`) e é o que a app traduz para a língua da interface; a `message` é em português, para quem desenvolve.
+
+#### Proteção
+
+Quem tiver o endereço da API pode gastar os créditos dos modelos. Duas barreiras, ambas configuradas no `.env`:
+
+| Variável                     | Omissão | O que faz                                                                                                 |
+| ---------------------------- | ------- | --------------------------------------------------------------------------------------------------------- |
+| `CAMILLE_API_KEY`            | —       | Chave que a app envia em `Authorization: Bearer …`; sem ela, `401 non_autorise`. Obrigatória em produção. |
+| `LIMITE_REQUETES_PAR_MINUTE` | 60      | Pedidos por minuto e por IP; acima disto, `429 trop_de_requetes`.                                         |
+| `LIMITE_SESSIONS_PAR_HEURE`  | 20      | Sessões criadas por hora e por IP (é a criação que gasta créditos).                                       |
+| `CONFIANCE_PROXY`            | false   | `true` atrás de um proxy (Render, Fly, nginx…), para o IP vir do `X-Forwarded-For`.                       |
+
+Sem `CAMILLE_API_KEY`, a API aceita qualquer pedido: só em desenvolvimento. A chave vai embutida na app (`EXPO_PUBLIC_CAMILLE_API_KEY`), por isso trava quem só tem o URL, não quem desmonta a app; os limites por IP são a segunda barreira. `/health` fica aberto. Os contadores vivem em memória: com mais do que uma instância da API, cada uma conta por si.
 
 ```sh
 curl -X POST localhost:3000/sessions -H 'content-type: application/json' \
@@ -87,7 +100,7 @@ pnpm dev:mobile
 
 Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e o computador têm de estar na mesma rede Wi-Fi.
 
-A app fala com a API: arranca primeiro `pnpm dev:api` noutro terminal. Por omissão, a app usa o IP do computador que corre o Metro, na porta 3000, por isso não é preciso configurar nada na mesma rede. Com `pnpm dev:mobile --tunnel`, ou com uma API noutro endereço, define `EXPO_PUBLIC_API_URL` em `apps/mobile/.env` (ver `apps/mobile/.env.example`).
+A app fala com a API: arranca primeiro `pnpm dev:api` noutro terminal. Por omissão, a app usa o IP do computador que corre o Metro, na porta 3000, por isso não é preciso configurar nada na mesma rede. Com `pnpm dev:mobile --tunnel`, ou com uma API noutro endereço, define `EXPO_PUBLIC_API_URL` em `apps/mobile/.env` (ver `apps/mobile/.env.example`). Se a API tiver `CAMILLE_API_KEY`, põe a mesma chave em `EXPO_PUBLIC_CAMILLE_API_KEY`.
 
 A app tem três separadores: **Início** (escolher a tarefa e começar), **Histórico** (sessões feitas, tempo de prática e evolução do nível estimado) e **Definições**.
 
@@ -105,7 +118,7 @@ Para experimentar no browser: `pnpm --filter @camille/mobile web` (o browser ped
 
 #### Línguas da interface
 
-Os textos estão em `apps/mobile/src/i18n/textes/`, um ficheiro por língua, todos com a forma do português (`Textes`). Em árabe, o layout é espelhado (RTL) e o francês fica sempre da esquerda para a direita. Para juntar uma língua (ucraniano, turco, romeno…):
+Os textos estão em `apps/mobile/src/i18n/textes/`, um ficheiro por língua (`pt-PT`, `en`, `es`, `ar`, `uk`, `tr`, `ro`), todos com a forma do português (`Textes`); cada um trata do seu plural (o árabe tem dual, o ucraniano três formas, o romeno «de» a partir de 20). Em árabe, o layout é espelhado (RTL) e o francês fica sempre da esquerda para a direita. Para juntar outra língua:
 
 1. Acrescenta o código a `LangueAppuiSchema` em `packages/shared/src/base.ts` (a API passa a aceitá-la como língua do feedback; a Camille simulada precisa de um texto de feedback nessa língua em `apps/api/src/camille/simulee.moteur.ts`).
 2. Cria `apps/mobile/src/i18n/textes/<código>.ts` a partir de `en.ts` e junta-o a `textes/index.ts`; põe o nome da língua em `i18n/langues.ts` (e marca-a em `estRtl` se se escrever da direita para a esquerda).
@@ -130,4 +143,4 @@ Os textos estão em `apps/mobile/src/i18n/textes/`, um ficheiro por língua, tod
 
 ## Estado
 
-🚧 Passo 5: interface em PT-PT, EN, ES e AR (RTL), tema escuro, histórico com evolução e definições. Verificado no browser; no iOS e no Android ainda falta confirmar num aparelho o layout RTL (estilo `direction` por ecrã, sem reiniciar a app) e as vozes francesas. A seguir: ucraniano, turco e romeno, e proteger a API (autenticação e limites de uso).
+🚧 Passo 6: API protegida (chave de acesso e limites por IP) e interface em sete línguas (UK, TR e RO juntaram-se a PT-PT, EN, ES e AR). Verificado no browser; no iOS e no Android ainda falta confirmar num aparelho o layout RTL (estilo `direction` por ecrã, sem reiniciar a app) e as vozes francesas. A seguir: publicar a API (Render/Fly) e fazer um development build da app para testar em telemóveis reais.

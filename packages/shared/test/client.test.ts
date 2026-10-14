@@ -79,9 +79,23 @@ describe("creerClientCamille", () => {
     });
   });
 
+  it("envia a chave de acesso quando a tem", async () => {
+    const { fn, appels } = fetchFalso(201, tour);
+    const client = creerClientCamille({ baseUrl: "http://api.test", cleApi: "segredo", fetch: fn });
+
+    await client.creerSession({ niveau: "A2", tache: "interaction", langueAppui: "uk" });
+
+    assert.equal(
+      (appels[0]?.init.headers as Record<string, string>).authorization,
+      "Bearer segredo",
+    );
+  });
+
   it("deduz o código pelo status quando a resposta não o traz", async () => {
     const casos = [
       [400, "requete_invalide"],
+      [401, "non_autorise"],
+      [429, "trop_de_requetes"],
       [413, "audio_trop_long"],
       [422, "audio_vide"],
       [502, "service_indisponible"],

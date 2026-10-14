@@ -201,6 +201,8 @@ export const ptPT = {
     inconnu: "Algo correu mal. Tenta outra vez.",
     trop_court_maintenir: "Gravação muito curta. Mantém o microfone premido enquanto falas.",
     trop_court: "Gravação muito curta. Tenta outra vez.",
+    non_autorise: "A app não tem acesso à API: a chave de acesso está em falta ou errada.",
+    trop_de_requetes: "Demasiados pedidos em pouco tempo. Espera uns minutos.",
   },
 };
 

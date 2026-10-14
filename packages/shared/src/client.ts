@@ -31,6 +31,8 @@ export class ErreurApi extends Error {
 export interface OptionsClient {
   /** Endereço da API, por exemplo http://192.168.1.10:3000 */
   baseUrl: string;
+  /** Chave de acesso à API (CAMILLE_API_KEY), enviada em Authorization: Bearer. */
+  cleApi?: string;
   /** Para testes; por omissão usa o fetch global. */
   fetch?: typeof fetch;
 }
@@ -51,9 +53,11 @@ export interface ClientCamille {
 
 export function creerClientCamille({
   baseUrl,
+  cleApi,
   fetch: fetchFn = fetch,
 }: OptionsClient): ClientCamille {
   const racine = baseUrl.replace(/\/+$/, "");
+  const autorisation: Record<string, string> = cleApi ? { authorization: `Bearer ${cleApi}` } : {};
 
   async function post<S extends z.ZodType>(
     chemin: string,
@@ -70,8 +74,8 @@ export function creerClientCamille({
       response = await fetchFn(`${racine}${chemin}`, {
         method: "POST",
         headers: multipart
-          ? { accept: "application/json" }
-          : { "content-type": "application/json", accept: "application/json" },
+          ? { accept: "application/json", ...autorisation }
+          : { "content-type": "application/json", accept: "application/json", ...autorisation },
         body: multipart ? corps : corps === undefined ? undefined : JSON.stringify(corps),
         signal: controleur.signal,
       });
