@@ -2,16 +2,34 @@ import "reflect-metadata";
 import assert from "node:assert/strict";
 import type { AddressInfo } from "node:net";
 import { after, before, describe, it } from "node:test";
-import { FeedbackSchema, MAX_ECHANGES, TourCamilleSchema } from "@camille/shared";
+import { FeedbackSchema, MAX_ECHANGES, TourAudioSchema, TourCamilleSchema } from "@camille/shared";
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "../src/app.module";
 import { MOTEUR_CAMILLE } from "../src/camille/camille.types";
 import { CamilleSimulee } from "../src/camille/simulee.moteur";
+import { TRANSCRIPTEUR, type Transcripteur } from "../src/transcription/transcripteur";
 
 describe("API de sessões (Camille simulada)", () => {
   let app: INestApplication;
   let base: string;
+
+  // Transcrição controlada pelo teste: devolve sempre `prochaine`.
+  const transcripteur: Transcripteur & { prochaine: string } = {
+    nom: "teste",
+    prochaine: "Je m'appelle Nour.",
+    async transcrire() {
+      return this.prochaine;
+    },
+  };
+
+  const postAudio = async (chemin: string, audio?: Blob) => {
+    const corps = new FormData();
+    if (audio) corps.append("audio", audio, "resposta.webm");
+    const response = await fetch(`${base}${chemin}`, { method: "POST", body: corps });
+    return { status: response.status, json: (await response.json()) as unknown };
+  };
+  const gravacao = () => new Blob([new Uint8Array(64)], { type: "audio/webm" });
 
   const post = async (chemin: string, corps?: unknown) => {
     const response = await fetch(`${base}${chemin}`, {
@@ -28,6 +46,8 @@ describe("API de sessões (Camille simulada)", () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(MOTEUR_CAMILLE)
       .useValue(new CamilleSimulee())
+      .overrideProvider(TRANSCRIPTEUR)
+      .useValue(transcripteur)
       .compile();
     app = moduleRef.createNestApplication({ logger: false });
     await app.listen(0, "127.0.0.1");
@@ -101,6 +121,45 @@ describe("API de sessões (Camille simulada)", () => {
   it("devolve 404 para uma sessão desconhecida", async () => {
     const inconnue = await post(`/sessions/${crypto.randomUUID()}/messages`, { texte: "Bonjour" });
     assert.equal(inconnue.status, 404);
+  });
+
+  it("aceita uma resposta gravada e devolve o que se percebeu", async () => {
+    const { sessionId } = TourCamilleSchema.parse((await creer()).json);
+    transcripteur.prochaine = "Je m'appelle Nour.";
+
+    const reponse = await postAudio(`/sessions/${sessionId}/audio`, gravacao());
+
+    assert.equal(reponse.status, 200);
+    const tour = TourAudioSchema.parse(reponse.json);
+    assert.equal(tour.texteEleve, "Je m'appelle Nour.");
+    assert.equal(tour.echange, 1);
+  });
+
+  it("não gasta uma troca quando a gravação não tem fala", async () => {
+    const { sessionId } = TourCamilleSchema.parse((await creer()).json);
+    transcripteur.prochaine = "";
+
+    const silence = await postAudio(`/sessions/${sessionId}/audio`, gravacao());
+    assert.equal(silence.status, 422);
+
+    transcripteur.prochaine = "Oui, bien sûr.";
+    const ensuite = TourAudioSchema.parse(
+      (await postAudio(`/sessions/${sessionId}/audio`, gravacao())).json,
+    );
+    assert.equal(ensuite.echange, 1);
+  });
+
+  it("valida o ficheiro de áudio", async () => {
+    const { sessionId } = TourCamilleSchema.parse((await creer()).json);
+
+    const sansFichier = await postAudio(`/sessions/${sessionId}/audio`);
+    assert.equal(sansFichier.status, 400);
+
+    const texte = await postAudio(
+      `/sessions/${sessionId}/audio`,
+      new Blob(["bonjour"], { type: "text/plain" }),
+    );
+    assert.equal(texte.status, 415);
   });
 
   it("não gera feedback sem respostas do aluno", async () => {

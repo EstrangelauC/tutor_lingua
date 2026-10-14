@@ -10,14 +10,21 @@ export const envSchema = z
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
     ANTHROPIC_API_KEY: vazioComoAusente(z.string().trim().min(1).optional()),
     ANTHROPIC_MODEL: vazioComoAusente(z.string().trim().min(1).default("claude-opus-5-5")),
+    OPENAI_API_KEY: vazioComoAusente(z.string().trim().min(1).optional()),
+    OPENAI_TRANSCRIPTION_MODEL: vazioComoAusente(
+      z.string().trim().min(1).default("gpt-4o-transcribe"),
+    ),
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV === "production" && env.ANTHROPIC_API_KEY === undefined) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["ANTHROPIC_API_KEY"],
-        message: "Obrigatória quando NODE_ENV=production.",
-      });
+    if (env.NODE_ENV !== "production") return;
+    for (const chave of ["ANTHROPIC_API_KEY", "OPENAI_API_KEY"] as const) {
+      if (env[chave] === undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: [chave],
+          message: "Obrigatória quando NODE_ENV=production.",
+        });
+      }
     }
   });
 

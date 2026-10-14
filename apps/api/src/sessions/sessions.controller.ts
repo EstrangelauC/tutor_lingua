@@ -4,11 +4,50 @@ import {
   type CreerSessionRequest,
   type EnvoyerMessageRequest,
   type Feedback,
+  type TourAudio,
   type TourCamille,
 } from "@camille/shared";
-import { Body, Controller, HttpCode, Inject, Param, ParseUUIDPipe, Post } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  HttpCode,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UnsupportedMediaTypeException,
+  UploadedFile,
+  UseInterceptors,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { SessionsService } from "./sessions.service";
+
+/** O que o FileInterceptor (multer, em memória) põe em @UploadedFile(). */
+interface FichierRecu {
+  buffer: Buffer;
+  mimetype: string;
+  originalname: string;
+}
+
+/** Uma resposta oral de ~1 min em AAC ocupa ~1 MB; 10 MB dá margem. */
+const TAILLE_MAX_AUDIO = 10 * 1024 * 1024;
+
+/** Formatos aceites pela transcrição, com a extensão que o fornecedor usa para os reconhecer. */
+const EXTENSIONS: Record<string, string> = {
+  "audio/mp4": "m4a",
+  "audio/m4a": "m4a",
+  "audio/x-m4a": "m4a",
+  "video/mp4": "mp4",
+  "audio/mpeg": "mp3",
+  "audio/mp3": "mp3",
+  "audio/wav": "wav",
+  "audio/x-wav": "wav",
+  "audio/webm": "webm",
+  "video/webm": "webm",
+  "audio/ogg": "ogg",
+};
 
 @Controller("sessions")
 export class SessionsController {
@@ -22,7 +61,7 @@ export class SessionsController {
     return this.sessions.creer(body);
   }
 
-  /** Envia uma resposta do aluno e devolve a fala seguinte da Camille. */
+  /** Envia uma resposta escrita do aluno e devolve a fala seguinte da Camille. */
   @Post(":id/messages")
   @HttpCode(200)
   envoyer(
@@ -30,6 +69,29 @@ export class SessionsController {
     @Body(new ZodValidationPipe(EnvoyerMessageRequestSchema)) body: EnvoyerMessageRequest,
   ): Promise<TourCamille> {
     return this.sessions.envoyer(id, body.texte);
+  }
+
+  /** Envia uma resposta gravada (multipart, campo "audio"): transcreve-a e devolve a fala seguinte. */
+  @Post(":id/audio")
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor("audio", { limits: { fileSize: TAILLE_MAX_AUDIO } }))
+  envoyerAudio(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @UploadedFile() fichier: FichierRecu | undefined,
+  ): Promise<TourAudio> {
+    if (!fichier || fichier.buffer.length === 0) {
+      throw new BadRequestException('Falta a gravação no campo "audio".');
+    }
+    const typeMime = fichier.mimetype.split(";")[0]?.trim().toLowerCase() ?? "";
+    const extension = EXTENSIONS[typeMime];
+    if (!extension) {
+      throw new UnsupportedMediaTypeException(`Formato de áudio não suportado: ${typeMime}.`);
+    }
+    return this.sessions.envoyerAudio(id, {
+      contenu: fichier.buffer,
+      typeMime,
+      nomFichier: `resposta.${extension}`,
+    });
   }
 
   /** Encerra a sessão e devolve o feedback na língua de apoio. */

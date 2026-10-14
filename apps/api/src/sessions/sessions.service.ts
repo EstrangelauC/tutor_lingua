@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { MAX_ECHANGES, type Feedback, type TourCamille } from "@camille/shared";
+import { MAX_ECHANGES, type Feedback, type TourAudio, type TourCamille } from "@camille/shared";
 import {
   ConflictException,
   Inject,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
   type OnModuleDestroy,
 } from "@nestjs/common";
 import {
@@ -13,6 +14,7 @@ import {
   type Conversation,
   type MoteurCamille,
 } from "../camille/camille.types";
+import { TRANSCRIPTEUR, type AudioEleve, type Transcripteur } from "../transcription/transcripteur";
 
 interface Session {
   id: string;
@@ -34,7 +36,10 @@ export class SessionsService implements OnModuleDestroy {
   private readonly sessions = new Map<string, Session>();
   private readonly nettoyage: NodeJS.Timeout;
 
-  constructor(@Inject(MOTEUR_CAMILLE) private readonly moteur: MoteurCamille) {
+  constructor(
+    @Inject(MOTEUR_CAMILLE) private readonly moteur: MoteurCamille,
+    @Inject(TRANSCRIPTEUR) private readonly transcripteur: Transcripteur,
+  ) {
     this.nettoyage = setInterval(() => this.purger(), 10 * 60 * 1000);
     this.nettoyage.unref();
   }
@@ -60,19 +65,21 @@ export class SessionsService implements OnModuleDestroy {
 
   envoyer(id: string, texte: string): Promise<TourCamille> {
     const session = this.obtenir(id);
+    return this.exclusif(session, () => this.avancer(session, texte));
+  }
+
+  /** Transcreve a gravação e continua a conversa com esse texto. */
+  envoyerAudio(id: string, audio: AudioEleve): Promise<TourAudio> {
+    const session = this.obtenir(id);
     return this.exclusif(session, async () => {
-      if (session.terminee) {
-        throw new ConflictException("A sessão já terminou: pede o feedback.");
+      this.verifierEnCours(session);
+      const texteEleve = await this.transcripteur.transcrire(audio);
+      if (texteEleve === "") {
+        throw new UnprocessableEntityException(
+          "Não se percebeu nada na gravação. Tenta outra vez.",
+        );
       }
-      const derniere = session.echange + 1 >= MAX_ECHANGES;
-      const camille = await this.moteur.repondre(session.conversation, texte, derniere);
-      session.conversation.transcription.push(
-        { role: "eleve", texte },
-        { role: "camille", texte: camille },
-      );
-      session.echange += 1;
-      session.terminee = derniere;
-      return this.tour(session, camille);
+      return { ...(await this.avancer(session, texteEleve)), texteEleve };
     });
   }
 
@@ -90,6 +97,26 @@ export class SessionsService implements OnModuleDestroy {
       session.feedback = feedback;
       return feedback;
     });
+  }
+
+  /** Uma troca: resposta do aluno → fala da Camille. Chamar com o bloqueio da sessão. */
+  private async avancer(session: Session, texte: string): Promise<TourCamille> {
+    this.verifierEnCours(session);
+    const derniere = session.echange + 1 >= MAX_ECHANGES;
+    const camille = await this.moteur.repondre(session.conversation, texte, derniere);
+    session.conversation.transcription.push(
+      { role: "eleve", texte },
+      { role: "camille", texte: camille },
+    );
+    session.echange += 1;
+    session.terminee = derniere;
+    return this.tour(session, camille);
+  }
+
+  private verifierEnCours(session: Session): void {
+    if (session.terminee) {
+      throw new ConflictException("A sessão já terminou: pede o feedback.");
+    }
   }
 
   private obtenir(id: string): Session {

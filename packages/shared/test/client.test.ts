@@ -51,6 +51,20 @@ describe("creerClientCamille", () => {
     assert.deepEqual(JSON.parse(String(appels[0]?.init.body)), { texte: "Je m'appelle Nour." });
   });
 
+  it("envia a gravação como multipart, sem forçar o content-type", async () => {
+    const { fn, appels } = fetchFalso(200, { ...tour, echange: 1, texteEleve: "Bonjour." });
+    const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });
+    const audio = new FormData();
+    audio.append("audio", new Blob(["..."], { type: "audio/webm" }), "resposta.webm");
+
+    const resultat = await client.envoyerAudio(tour.sessionId, audio);
+
+    assert.equal(resultat.texteEleve, "Bonjour.");
+    assert.equal(appels[0]?.url, `http://api.test/sessions/${tour.sessionId}/audio`);
+    assert.equal(appels[0]?.init.body, audio);
+    assert.deepEqual(appels[0]?.init.headers, { accept: "application/json" });
+  });
+
   it("transforma erros da API em ErreurApi com a mensagem do servidor", async () => {
     const { fn } = fetchFalso(409, { statusCode: 409, message: "A sessão já terminou." });
     const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });

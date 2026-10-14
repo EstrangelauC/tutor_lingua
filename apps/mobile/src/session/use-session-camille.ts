@@ -6,6 +6,7 @@ import {
 } from "@camille/shared";
 import { useCallback, useState } from "react";
 import { api } from "../api";
+import { arreterDeParler, parler } from "../voix/parole";
 
 export interface Replique {
   role: "camille" | "eleve";
@@ -22,6 +23,8 @@ export interface EtatSession {
   maxEchanges: number;
   terminee: boolean;
   activite: Activite;
+  /** A Camille está a ler a última fala em voz alta. */
+  parle: boolean;
   /** Mensagem a mostrar ao aluno quando um pedido falha. */
   erreur: string | null;
 }
@@ -33,6 +36,7 @@ const ETAT_INITIAL: EtatSession = {
   maxEchanges: 8,
   terminee: false,
   activite: null,
+  parle: false,
   erreur: null,
 };
 
@@ -45,20 +49,44 @@ function message(erreur: unknown): string {
   return "Algo correu mal. Tenta outra vez.";
 }
 
-/** Conduz uma sessão com a Camille através da API. */
-export function useSessionCamille(config: CreerSessionRequest) {
+interface Options {
+  /**
+   * Chamado quando a Camille acaba de ler uma fala sem ser interrompida (usado pelo modo
+   * mãos-livres para abrir o microfone). `terminee` diz se essa era a última fala da sessão.
+   */
+  onFinParole?: (terminee: boolean) => void;
+}
+
+/** Conduz uma sessão com a Camille através da API e lê as falas dela em voz alta. */
+export function useSessionCamille(config: CreerSessionRequest, { onFinParole }: Options = {}) {
   const [etat, setEtat] = useState<EtatSession>(ETAT_INITIAL);
 
-  const appliquerTour = (tour: TourCamille) =>
+  const dire = async (texte: string, terminee: boolean) => {
+    setEtat((e) => ({ ...e, parle: true }));
+    const fin = await parler(texte);
+    setEtat((e) => ({ ...e, parle: false }));
+    if (fin === "fin") {
+      onFinParole?.(terminee);
+    }
+  };
+
+  /** Junta a fala da Camille (e a resposta do aluno, se veio de uma gravação) e lê-a. */
+  const appliquerTour = (tour: TourCamille, texteEleve?: string) => {
     setEtat((e) => ({
       ...e,
       sessionId: tour.sessionId,
-      repliques: [...e.repliques, { role: "camille", texte: tour.camille }],
+      repliques: [
+        ...e.repliques,
+        ...(texteEleve === undefined ? [] : [{ role: "eleve" as const, texte: texteEleve }]),
+        { role: "camille", texte: tour.camille },
+      ],
       echange: tour.echange,
       maxEchanges: tour.maxEchanges,
       terminee: tour.terminee,
       activite: null,
     }));
+    void dire(tour.camille, tour.terminee);
+  };
 
   const demarrer = useCallback(async () => {
     setEtat({ ...ETAT_INITIAL, activite: "demarrage" });
@@ -67,9 +95,11 @@ export function useSessionCamille(config: CreerSessionRequest) {
     } catch (erreur) {
       setEtat((e) => ({ ...e, activite: null, erreur: message(erreur) }));
     }
+    // appliquerTour só usa setters estáveis e a fala recebida.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
-  /** Envia a resposta; devolve false se falhar, para a app manter o texto escrito. */
+  /** Envia uma resposta escrita; devolve false se falhar, para a app manter o texto. */
   const envoyer = async (texte: string): Promise<boolean> => {
     const { sessionId } = etat;
     if (!sessionId) return false;
@@ -93,10 +123,34 @@ export function useSessionCamille(config: CreerSessionRequest) {
     }
   };
 
+  /** Envia uma resposta gravada (FormData com o campo "audio"). */
+  const envoyerAudio = async (audio: FormData): Promise<boolean> => {
+    const { sessionId } = etat;
+    if (!sessionId) return false;
+    setEtat((e) => ({ ...e, activite: "reponse", erreur: null }));
+    try {
+      const tour = await api.envoyerAudio(sessionId, audio);
+      appliquerTour(tour, tour.texteEleve);
+      return true;
+    } catch (erreur) {
+      setEtat((e) => ({ ...e, activite: null, erreur: message(erreur) }));
+      return false;
+    }
+  };
+
+  /** Lê outra vez a última fala da Camille. */
+  const rejouer = () => {
+    const derniere = [...etat.repliques].reverse().find((r) => r.role === "camille");
+    if (derniere && !etat.parle) {
+      void dire(derniere.texte, etat.terminee);
+    }
+  };
+
   /** Pede o feedback; devolve null se falhar. */
   const terminer = async (): Promise<Feedback | null> => {
     const { sessionId } = etat;
     if (!sessionId) return null;
+    arreterDeParler();
     setEtat((e) => ({ ...e, activite: "evaluation", erreur: null }));
     try {
       const feedback = await api.terminer(sessionId);
@@ -108,5 +162,16 @@ export function useSessionCamille(config: CreerSessionRequest) {
     }
   };
 
-  return { etat, demarrer, envoyer, terminer };
+  const signalerErreur = (texte: string | null) => setEtat((e) => ({ ...e, erreur: texte }));
+
+  return {
+    etat,
+    demarrer,
+    envoyer,
+    envoyerAudio,
+    rejouer,
+    terminer,
+    interrompre: arreterDeParler,
+    signalerErreur,
+  };
 }

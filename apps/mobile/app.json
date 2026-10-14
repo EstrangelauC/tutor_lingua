@@ -32,6 +32,12 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "A Camille precisa do microfone para ouvir as tuas respostas em francês."
+        }
       ]
     ],
     "experiments": {

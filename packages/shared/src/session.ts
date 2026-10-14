@@ -31,6 +31,15 @@ export const TourCamilleSchema = z.object({
 });
 export type TourCamille = z.infer<typeof TourCamilleSchema>;
 
+/**
+ * Resposta de POST /sessions/:id/audio (multipart, campo "audio"):
+ * a fala seguinte da Camille e o que se percebeu da gravação do aluno.
+ */
+export const TourAudioSchema = TourCamilleSchema.extend({
+  texteEleve: z.string(),
+});
+export type TourAudio = z.infer<typeof TourAudioSchema>;
+
 /** Nível estimado no feedback: pode ficar abaixo do nível alvo. */
 export const NiveauEstimeSchema = z.enum(["A1", "A2", "B1", "B2"]);
 export type NiveauEstime = z.infer<typeof NiveauEstimeSchema>;

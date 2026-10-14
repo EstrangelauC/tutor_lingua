@@ -1,9 +1,11 @@
 import type { z } from "zod";
 import {
   FeedbackSchema,
+  TourAudioSchema,
   TourCamilleSchema,
   type CreerSessionRequest,
   type Feedback,
+  type TourAudio,
   type TourCamille,
 } from "./session";
 
@@ -33,10 +35,14 @@ export interface OptionsClient {
 // O feedback é mais lento a gerar do que uma fala da Camille.
 const DELAI_TOUR_MS = 45_000;
 const DELAI_FEEDBACK_MS = 120_000;
+// Transcrição + fala da Camille.
+const DELAI_AUDIO_MS = 60_000;
 
 export interface ClientCamille {
   creerSession(demande: CreerSessionRequest): Promise<TourCamille>;
   envoyerMessage(sessionId: string, texte: string): Promise<TourCamille>;
+  /** `audio` é um FormData com a gravação no campo "audio" (a forma de o criar depende da plataforma). */
+  envoyerAudio(sessionId: string, audio: FormData): Promise<TourAudio>;
   terminer(sessionId: string): Promise<Feedback>;
 }
 
@@ -56,10 +62,14 @@ export function creerClientCamille({
     const minuterie = setTimeout(() => controleur.abort(), delaiMs);
     let response: Response;
     try {
+      // Com FormData, o fetch define o content-type multipart (com o boundary) sozinho.
+      const multipart = typeof FormData !== "undefined" && corps instanceof FormData;
       response = await fetchFn(`${racine}${chemin}`, {
         method: "POST",
-        headers: { "content-type": "application/json", accept: "application/json" },
-        body: corps === undefined ? undefined : JSON.stringify(corps),
+        headers: multipart
+          ? { accept: "application/json" }
+          : { "content-type": "application/json", accept: "application/json" },
+        body: multipart ? corps : corps === undefined ? undefined : JSON.stringify(corps),
         signal: controleur.signal,
       });
     } catch {
@@ -92,6 +102,13 @@ export function creerClientCamille({
         {
           texte,
         },
+      ),
+    envoyerAudio: (sessionId, audio) =>
+      post(
+        `/sessions/${encodeURIComponent(sessionId)}/audio`,
+        TourAudioSchema,
+        DELAI_AUDIO_MS,
+        audio,
       ),
     terminer: (sessionId) =>
       post(

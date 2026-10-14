@@ -48,15 +48,23 @@ pnpm dev:api
 
 Verificar: `curl http://localhost:3000/health` devolve `{"status":"ok"}`.
 
-Sem `ANTHROPIC_API_KEY` no `.env`, a API usa uma **Camille simulada** (falas fixas, sem custos), útil para desenvolver a app. Com a chave, usa o Claude (`ANTHROPIC_MODEL`, por omissão `claude-opus-5-5`).
+A API usa dois serviços externos, cada um com uma versão simulada (sem custos) quando falta a chave no `.env`:
+
+| Variável            | Para quê                                | Sem chave                     |
+| ------------------- | --------------------------------------- | ----------------------------- |
+| `ANTHROPIC_API_KEY` | A Camille (Claude, `claude-opus-5-5`)   | Camille simulada, falas fixas |
+| `OPENAI_API_KEY`    | Transcrever a voz (`gpt-4o-transcribe`) | Transcrição com frases fixas  |
+
+Os modelos podem mudar-se com `ANTHROPIC_MODEL` e `OPENAI_TRANSCRIPTION_MODEL`. Com `NODE_ENV=production`, as duas chaves são obrigatórias.
 
 #### Sessões de conversa
 
-| Rota                          | Corpo                             | Resposta                                                 |
-| ----------------------------- | --------------------------------- | -------------------------------------------------------- |
-| `POST /sessions`              | `{ niveau, tache, langueAppui }`  | `{ sessionId, camille, echange, maxEchanges, terminee }` |
-| `POST /sessions/:id/messages` | `{ texte }` (a resposta do aluno) | A fala seguinte da Camille, no mesmo formato             |
-| `POST /sessions/:id/terminer` | —                                 | O feedback: `{ niveauEstime, resume, erreurs, conseil }` |
+| Rota                          | Corpo                               | Resposta                                                 |
+| ----------------------------- | ----------------------------------- | -------------------------------------------------------- |
+| `POST /sessions`              | `{ niveau, tache, langueAppui }`    | `{ sessionId, camille, echange, maxEchanges, terminee }` |
+| `POST /sessions/:id/messages` | `{ texte }` (a resposta do aluno)   | A fala seguinte da Camille, no mesmo formato             |
+| `POST /sessions/:id/audio`    | multipart, campo `audio` (m4a/webm) | O mesmo, mais `texteEleve` (o que se percebeu)           |
+| `POST /sessions/:id/terminer` | —                                   | O feedback: `{ niveauEstime, resume, erreurs, conseil }` |
 
 Os schemas Zod de cada pedido e resposta estão em `packages/shared/src/session.ts`. A sessão termina sozinha depois de 8 respostas do aluno (`terminee: true`); o feedback pode ser pedido a qualquer momento depois da primeira resposta. As sessões ficam em memória e perdem-se quando a API reinicia.
 
@@ -78,7 +86,15 @@ Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e
 
 A app fala com a API: arranca primeiro `pnpm dev:api` noutro terminal. Por omissão, a app usa o IP do computador que corre o Metro, na porta 3000, por isso não é preciso configurar nada na mesma rede. Com `pnpm dev:mobile --tunnel`, ou com uma API noutro endereço, define `EXPO_PUBLIC_API_URL` em `apps/mobile/.env` (ver `apps/mobile/.env.example`).
 
-Fluxo atual: escolher tarefa, nível e língua do feedback → conversar com a Camille por escrito (a voz chega no passo seguinte) → feedback. Para experimentar no browser: `pnpm --filter @camille/mobile web`.
+Fluxo atual: escolher tarefa, nível e língua do feedback → conversar com a Camille por voz → feedback.
+
+- A Camille lê as falas em voz alta (voz francesa do sistema, `expo-speech`). Se o telemóvel não tiver uma voz francesa instalada, instala-a nas definições de acessibilidade/voz do sistema.
+- **Premir para falar**: mantém o microfone premido enquanto respondes e solta para enviar.
+- **Mãos-livres**: o microfone abre sozinho quando a Camille acaba de falar; a resposta é enviada com um toque ou depois de uma pausa de ~2 s.
+- **Texto**: mostra ou oculta a transcrição. **Escrever a resposta** troca o microfone por uma caixa de texto.
+- Com auriculares, a Camille ouve-te melhor e não se ouve a si própria.
+
+Para experimentar no browser: `pnpm --filter @camille/mobile web` (o browser pede acesso ao microfone).
 
 ### Outros
 
@@ -99,4 +115,4 @@ Fluxo atual: escolher tarefa, nível e língua do feedback → conversar com a C
 
 ## Estado
 
-🚧 Passo 3: sessão completa na app, em texto (início → conversa → feedback). A seguir: voz.
+🚧 Passo 4: sessão por voz (gravação, transcrição, leitura das falas da Camille). A seguir: i18n da interface, RTL, tema escuro e histórico.
