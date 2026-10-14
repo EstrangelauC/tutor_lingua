@@ -21,7 +21,7 @@ apps/
   api/        NestJS: sessões de conversa com a Camille (Claude) e feedback
   mobile/     Expo (SDK 57) + Expo Router, compatível com Expo Go
 packages/
-  shared/     @camille/shared: tipos e schemas Zod partilhados
+  shared/     @camille/shared: schemas Zod e cliente HTTP da API
 ```
 
 ## Requisitos
@@ -74,7 +74,11 @@ curl -X POST localhost:3000/sessions/<sessionId>/terminer
 pnpm dev:mobile
 ```
 
-Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e o computador têm de estar na mesma rede Wi-Fi; se não estiverem, usa `pnpm dev:mobile --tunnel`.
+Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e o computador têm de estar na mesma rede Wi-Fi.
+
+A app fala com a API: arranca primeiro `pnpm dev:api` noutro terminal. Por omissão, a app usa o IP do computador que corre o Metro, na porta 3000, por isso não é preciso configurar nada na mesma rede. Com `pnpm dev:mobile --tunnel`, ou com uma API noutro endereço, define `EXPO_PUBLIC_API_URL` em `apps/mobile/.env` (ver `apps/mobile/.env.example`).
+
+Fluxo atual: escolher tarefa, nível e língua do feedback → conversar com a Camille por escrito (a voz chega no passo seguinte) → feedback. Para experimentar no browser: `pnpm --filter @camille/mobile web`.
 
 ### Outros
 
@@ -83,7 +87,7 @@ Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e
 | `pnpm build`     | Compila `@camille/shared` e a API  |
 | `pnpm lint`      | ESLint em todos os pacotes         |
 | `pnpm typecheck` | `tsc --noEmit` em todos os pacotes |
-| `pnpm test`      | Testes da API (Camille simulada)   |
+| `pnpm test`      | Testes da API e do cliente HTTP    |
 | `pnpm format`    | Formata o repositório com Prettier |
 
 > Depois de `pnpm --filter <pacote> add ...`, corre `pnpm install`: com `nodeLinker: hoisted`, o `add` filtrado pode retirar de `node_modules` pacotes de outros workspaces.
@@ -95,4 +99,4 @@ Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e
 
 ## Estado
 
-🚧 Passo 2: conversa com a Camille em texto (API). A voz e o ecrã de sessão na app vêm a seguir.
+🚧 Passo 3: sessão completa na app, em texto (início → conversa → feedback). A seguir: voz.

@@ -12,6 +12,11 @@ async function bootstrap(): Promise<void> {
   const config = app.get<ConfigService<Env, true>>(ConfigService);
   const port = config.get("PORT", { infer: true });
 
+  // A app nativa não precisa de CORS; a versão web do Expo (localhost:8081) precisa, em desenvolvimento.
+  if (config.get("NODE_ENV", { infer: true }) === "development") {
+    app.enableCors();
+  }
+
   await app.listen(port);
 
   const niveaux: readonly Niveau[] = NiveauSchema.options;

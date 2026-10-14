@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
+    // DOM só pelos tipos de fetch/AbortController, que existem no React Native e no Node.
+    "lib": ["ES2022", "DOM"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "types": [],
