@@ -124,6 +124,20 @@ Os textos estão em `apps/mobile/src/i18n/textes/`, um ficheiro por língua (`pt
 2. Cria `apps/mobile/src/i18n/textes/<código>.ts` a partir de `en.ts` e junta-o a `textes/index.ts`; põe o nome da língua em `i18n/langues.ts` (e marca-a em `estRtl` se se escrever da direita para a esquerda).
 3. O `pnpm typecheck` e o teste `textes.test.ts` dizem o que falta.
 
+### Afinar a Camille
+
+Os prompts estão em `apps/api/src/camille/prompts.ts` (conversa e bilan). Para os afinar sem passar pela app, há um ensaio que joga uma sessão inteira e escreve o relatório (conversa, bilan, duração de cada chamada) em `apps/api/essais/`:
+
+```sh
+pnpm --filter @camille/api essai --niveau B1 --tache entretien --langue pt-PT --eleve modele
+```
+
+- `--eleve modele` (precisa de `ANTHROPIC_API_KEY` no `apps/api/.env`): o modelo faz de candidato do nível pedido, com os erros típicos desse nível, e responde ao que a Camille pergunta.
+- `--eleve script` (omissão): respostas fixas por tarefa e nível, com erros típicos; serve para a Camille simulada e para fumar o circuito.
+- `--niveau A2|B1|B2`, `--tache entretien|interaction|point_de_vue`, `--langue` (uma das sete), `--echanges 1–8`, `--sortie ficheiro.md`.
+
+O que vale a pena verificar num relatório: a Camille fala só francês, uma pergunta de cada vez, duas frases no máximo, sem corrigir; as perguntas sobem de nível com o `--niveau`; no bilan, as frases «ditParLEleve» são copiadas tal e qual, os extratos são os trechos mínimos, o nível estimado é prudente e o conselho é uma ação concreta. A API regista a duração e os tokens de cada chamada aos modelos nos logs (`[ClaudeCamille]`, `[OpenAiTranscripteur]`), para se acompanhar o custo.
+
 ### Outros
 
 | Comando          | O que faz                          |
@@ -192,4 +206,4 @@ O que só se confirma num telemóvel real: a qualidade das vozes francesas do si
 
 ## Estado
 
-🚧 Passo 9: introdução da primeira utilização (línguas, nível alvo, microfone), com rotas protegidas do Expo Router; quem já tinha preferências guardadas não a vê. Falta o próprio deploy (precisa das tuas contas) e o teste num telemóvel real: vozes francesas, microfone com auriculares e RTL nativo.
+🚧 Passo 10: prompts da Camille com a estrutura real das três tarefas e repères CECRL para o bilan, ensaio de sessões (`pnpm --filter @camille/api essai`) com aluno guionado ou jogado pelo modelo, e registo de duração e tokens por chamada. Os prompts novos ainda não foram testados com o modelo real: é o primeiro ensaio a fazer com a chave. Falta também o deploy (precisa das tuas contas) e o teste num telemóvel real.

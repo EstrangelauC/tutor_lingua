@@ -17,6 +17,7 @@ export class OpenAiTranscripteur implements Transcripteur {
   ) {}
 
   async transcrire({ contenu, typeMime, nomFichier }: AudioEleve): Promise<string> {
+    const debut = performance.now();
     try {
       const resultat = await this.client.audio.transcriptions.create({
         file: await toFile(contenu, nomFichier, { type: typeMime }),
@@ -24,7 +25,11 @@ export class OpenAiTranscripteur implements Transcripteur {
         language: "fr",
         prompt: CONSIGNE,
       });
-      return resultat.text.trim();
+      const texte = resultat.text.trim();
+      this.logger.log(
+        `Transcrição: ${Math.round(performance.now() - debut)} ms, ${Math.round(contenu.length / 1024)} kB → ${texte.length} caracteres`,
+      );
+      return texte;
     } catch (erreur) {
       if (
         erreur instanceof OpenAI.RateLimitError ||

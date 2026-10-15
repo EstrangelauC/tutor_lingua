@@ -42,7 +42,7 @@ export class ClaudeCamille implements MoteurCamille {
   }
 
   async evaluer(conversation: Conversation): Promise<Feedback> {
-    const response = await this.appeler(() =>
+    const response = await this.appeler("bilan", () =>
       this.client.beta.messages.parse({
         model: this.model,
         max_tokens: 16000,
@@ -72,7 +72,7 @@ export class ClaudeCamille implements MoteurCamille {
     nouveaux: Anthropic.Beta.BetaMessageParam[],
   ): Promise<string> {
     const messages = [...conversation.messagesModele, ...nouveaux];
-    const response = await this.appeler(() =>
+    const response = await this.appeler("fala", () =>
       this.client.beta.messages.create({
         model: this.model,
         max_tokens: 16000,
@@ -108,9 +108,22 @@ export class ClaudeCamille implements MoteurCamille {
     return texte;
   }
 
-  private async appeler<T>(requete: () => Promise<T>): Promise<T> {
+  /** Faz a chamada e regista a duração e os tokens (para acompanhar o custo nos logs). */
+  private async appeler<T extends { usage?: Anthropic.Beta.BetaUsage }>(
+    etape: string,
+    requete: () => Promise<T>,
+  ): Promise<T> {
+    const debut = performance.now();
     try {
-      return await requete();
+      const response = await requete();
+      const u = response.usage;
+      this.logger.log(
+        `${etape}: ${Math.round(performance.now() - debut)} ms` +
+          (u
+            ? `, ${u.input_tokens} tokens de entrada (${u.cache_read_input_tokens ?? 0} em cache) + ${u.output_tokens} de saída`
+            : ""),
+      );
+      return response;
     } catch (erreur) {
       if (
         erreur instanceof Anthropic.RateLimitError ||

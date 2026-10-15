@@ -12,6 +12,8 @@ build/
 *.tsbuildinfo
 .turbo/
 .test-dist/
+# Relatórios dos ensaios da Camille (pnpm --filter @camille/api essai)
+apps/api/essais/
 
 # Expo / React Native
 .expo/

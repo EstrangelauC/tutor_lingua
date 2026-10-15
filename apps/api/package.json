@@ -9,7 +9,8 @@
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit",
     "lint": "eslint .",
-    "test": "node -e \"require('node:fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc -p tsconfig.test.json && node --test --enable-source-maps \".test-dist/test/**/*.test.js\""
+    "test": "node -e \"require('node:fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc -p tsconfig.test.json && node --test --enable-source-maps \".test-dist/test/**/*.test.js\"",
+    "essai": "nest build && node dist/essai/essai.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0",
