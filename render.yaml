@@ -21,9 +21,9 @@ services:
         sync: false
       - key: CAMILLE_API_KEY
         sync: false
-      # Origem da versão web (o serviço abaixo). Ajusta se mudares o nome.
+      # Origens da versão web: a publicação na Vercel e o serviço estático abaixo.
       - key: CORS_ORIGINES
-        value: https://camille-web.onrender.com
+        value: https://camille-blond.vercel.app,https://camille-web.onrender.com
 
   # Versão web da app: exportação estática do Expo (um HTML por rota); o rewrite cobre os links profundos.
   - type: web
