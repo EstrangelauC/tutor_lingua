@@ -109,6 +109,8 @@ Na primeira utilização, a app faz uma introdução em três passos (línguas, 
 - **Mãos-livres**: o microfone abre sozinho quando a Camille acaba de falar; a resposta é enviada com um toque ou depois de uma pausa de ~2 s. O modo escolhido fica como omissão para as sessões seguintes.
 - **Texto**: mostra ou oculta a transcrição. **Escrever a resposta** troca o microfone por uma caixa de texto.
 - Com auriculares, a Camille ouve-te melhor e não se ouve a si própria.
+- O telemóvel vibra quando a gravação começa e acaba e, em mãos-livres, ouve-se um sinal quando o microfone abre (desliga-se nas definições).
+- Ao abrir, a app acorda a API (os planos gratuitos adormecem) e, se o arranque da sessão falhar por a API ainda estar a acordar, insiste até três vezes antes de mostrar o erro.
 
 Nas **Definições**: língua da interface e língua de apoio (a do feedback; por omissão acompanham a língua do telemóvel), nível alvo, velocidade da voz da Camille (com «Ouvir exemplo»), modo do microfone, tema (claro, escuro ou sistema) e apagar o histórico. A conversa é sempre em francês, seja qual for a língua da interface.
 
@@ -206,4 +208,4 @@ O que só se confirma num telemóvel real: a qualidade das vozes francesas do si
 
 ## Estado
 
-🚧 Passo 10: prompts da Camille com a estrutura real das três tarefas e repères CECRL para o bilan, ensaio de sessões (`pnpm --filter @camille/api essai`) com aluno guionado ou jogado pelo modelo, e registo de duração e tokens por chamada. Os prompts novos ainda não foram testados com o modelo real: é o primeiro ensaio a fazer com a chave. Falta também o deploy (precisa das tuas contas) e o teste num telemóvel real.
+🚧 Passo 11: pronta para a primeira utilização real — a app acorda a API ao abrir e insiste no arranque da sessão enquanto ela acorda; vibração e sinal sonoro do microfone (opcionais); ícone, ícone adaptativo, splash e favicon da marca. Os prompts do passo 10 continuam por testar com o modelo real. Falta o deploy (precisa das tuas contas) e o teste num telemóvel real.

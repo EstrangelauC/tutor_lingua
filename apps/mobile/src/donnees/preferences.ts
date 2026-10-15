@@ -21,6 +21,8 @@ export const PreferencesSchema = z.object({
   modeMicro: ModeMicroSchema,
   /** A introdução (línguas, nível, microfone) já foi feita ou saltada. */
   onboardingFait: z.boolean(),
+  /** Vibração ao começar e acabar de gravar; bip quando o microfone abre sozinho (mãos-livres). */
+  retoursMicro: z.boolean(),
 });
 export type Preferences = z.infer<typeof PreferencesSchema>;
 
@@ -44,6 +46,7 @@ export function preferencesParDefaut(langue: LangueAppui, dejaUtilisee = false):
     vitesseVoix: "normale",
     modeMicro: "maintenir",
     onboardingFait: dejaUtilisee,
+    retoursMicro: true,
   };
 }
 

@@ -59,6 +59,7 @@ export const en: Textes = {
     progression: "Session progress",
     statuts: {
       demarrage: "Camille is getting ready…",
+      reveil: (n: number, total: number) => `Waking Camille up… (attempt ${n} of ${total})`,
       reponse: "Camille is thinking…",
       evaluation: "Camille is preparing your feedback…",
       ecoute: "Listening…",
@@ -159,6 +160,9 @@ export const en: Textes = {
     },
     ecouterExemple: "Play sample",
     micro: "Microphone mode",
+    retours: "Vibration and sound cue",
+    retoursAide:
+      "A vibration when recording starts and stops; in hands-free mode, a cue when the microphone opens.",
     microAide: {
       maintenir: "Hold the button while you speak. Best in noisy places.",
       mainsLibres: "The microphone opens by itself when Camille finishes. Best with earphones.",

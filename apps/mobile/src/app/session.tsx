@@ -1,4 +1,6 @@
 import { TacheSchema, type CreerSessionRequest } from "@camille/shared";
+import { useAudioPlayer } from "expo-audio";
+import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -20,12 +22,13 @@ import { Text } from "../components/texte";
 import { useDonnees } from "../donnees/donnees-context";
 import { DEBITS, ModeMicroSchema, type ModeMicro } from "../donnees/preferences";
 import { FRANCAIS, styleTexte, useI18n } from "../i18n";
-import { useSessionCamille } from "../session/use-session-camille";
+import { TENTATIVES_DEMARRAGE, useSessionCamille } from "../session/use-session-camille";
 import { TACHES } from "../taches";
 import { TOUCHE_MIN, creerStyles, serif, useLarge, useTheme } from "../theme";
 import { formulaireAudio } from "../voix/formulaire-audio";
 import { arreterDeParler } from "../voix/parole";
 import { useEnregistreur } from "../voix/use-enregistreur";
+import bipSource from "../../assets/sons/bip.wav";
 
 type Saisie = "voix" | "texte";
 
@@ -61,6 +64,8 @@ export default function Session() {
   );
 
   const enregistreur = useEnregistreur();
+  // Sinal curto quando o microfone abre sozinho (mãos-livres): sem ele não se sabe quando falar.
+  const bip = useAudioPlayer(bipSource);
   const [saisie, setSaisie] = useState<Saisie>("voix");
   const [transcriptionVisible, setTranscriptionVisible] = useState(false);
   const [brouillon, setBrouillon] = useState("");
@@ -77,7 +82,7 @@ export default function Session() {
       debit: DEBITS[preferences.vitesseVoix],
       onFinParole: (terminee) => {
         if (!terminee && modeRef.current === "mainsLibres" && saisieRef.current === "voix") {
-          void commencer();
+          void commencer(true);
         }
       },
     });
@@ -94,11 +99,25 @@ export default function Session() {
   const signalerTropCourt = () =>
     signalerErreur(modeRef.current === "maintenir" ? "trop_court_maintenir" : "trop_court");
 
-  async function commencer() {
+  const vibrer = (style: Haptics.ImpactFeedbackStyle) => {
+    if (preferences.retoursMicro && Platform.OS !== "web") {
+      void Haptics.impactAsync(style).catch(() => undefined);
+    }
+  };
+
+  /** `automatique`: o microfone abriu sozinho (mãos-livres), avisa-se com um bip. */
+  async function commencer(automatique = false) {
     interrompre();
     signalerErreur(null);
     silence.current = { aParle: false, dernierSon: Date.now() };
     const ok = await enregistreur.demarrer();
+    if (ok) {
+      vibrer(Haptics.ImpactFeedbackStyle.Light);
+      if (automatique && preferences.retoursMicro) {
+        bip.seekTo(0);
+        bip.play();
+      }
+    }
     // Premir para falar: se o dedo já saiu antes de a gravação arrancar, descarta.
     if (ok && modeRef.current === "maintenir" && !doigtPose.current) {
       await enregistreur.arreter();
@@ -109,6 +128,7 @@ export default function Session() {
   async function finir() {
     const gravacao = await enregistreur.arreter();
     if (!gravacao) return;
+    vibrer(Haptics.ImpactFeedbackStyle.Medium);
     if (gravacao.duree < DUREE_MIN_MS) {
       signalerTropCourt();
       return;
@@ -224,7 +244,9 @@ export default function Session() {
 
   const statuts = t.session.statuts;
   const statut = etat.activite
-    ? statuts[etat.activite]
+    ? etat.activite === "demarrage" && etat.tentative
+      ? statuts.reveil(etat.tentative, TENTATIVES_DEMARRAGE)
+      : statuts[etat.activite]
     : enregistreur.enregistre
       ? statuts.ecoute
       : etat.parle

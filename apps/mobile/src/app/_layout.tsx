@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { I18nManager, Platform } from "react-native";
+import { api } from "../api";
 import { DonneesProvider, useDonnees } from "../donnees/donnees-context";
 import { useI18n } from "../i18n";
 import { TITRE_DOCUMENT, useTheme } from "../theme";
@@ -32,6 +33,8 @@ function Racine() {
 
   useEffect(() => {
     void SplashScreen.hideAsync();
+    // Acorda a API já (os planos gratuitos adormecem), para a primeira sessão abrir depressa.
+    void api.reveiller();
   }, []);
 
   useEffect(() => {

@@ -59,6 +59,7 @@ export const tr: Textes = {
     progression: "Oturum ilerlemesi",
     statuts: {
       demarrage: "Camille hazırlanıyor…",
+      reveil: (n: number, total: number) => `Camille uyandırılıyor… (deneme ${n} / ${total})`,
       reponse: "Camille düşünüyor…",
       evaluation: "Camille geri bildirimini hazırlıyor…",
       ecoute: "Seni dinliyorum…",
@@ -156,6 +157,9 @@ export const tr: Textes = {
     },
     ecouterExemple: "Örneği dinle",
     micro: "Mikrofon modu",
+    retours: "Titreşim ve ses uyarısı",
+    retoursAide:
+      "Kayıt başlayıp bittiğinde titreşim; eller serbest modunda mikrofon açılınca bir uyarı sesi.",
     microAide: {
       maintenir: "Konuşurken düğmeyi basılı tut. Gürültülü yerler için ideal.",
       mainsLibres: "Camille bitirince mikrofon kendiliğinden açılır. Kulaklıkla ideal.",

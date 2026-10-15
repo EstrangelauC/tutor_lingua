@@ -61,6 +61,7 @@ export const ptPT = {
     progression: "Progresso da sessão",
     statuts: {
       demarrage: "A Camille está a preparar-se…",
+      reveil: (n: number, total: number) => `A acordar a Camille… (tentativa ${n} de ${total})`,
       reponse: "A Camille está a pensar…",
       evaluation: "A Camille está a preparar o teu feedback…",
       ecoute: "A ouvir-te…",
@@ -162,6 +163,9 @@ export const ptPT = {
     },
     ecouterExemple: "Ouvir exemplo",
     micro: "Modo do microfone",
+    retours: "Vibração e sinal sonoro",
+    retoursAide:
+      "Uma vibração quando a gravação começa e acaba; em mãos-livres, um sinal quando o microfone abre.",
     microAide: {
       maintenir: "Mantém o botão premido enquanto falas. Ideal em sítios com ruído.",
       mainsLibres: "O microfone abre sozinho quando a Camille termina. Ideal com auriculares.",

@@ -69,6 +69,7 @@ export const ro: Textes = {
     progression: "Progresul sesiunii",
     statuts: {
       demarrage: "Camille se pregătește…",
+      reveil: (n: number, total: number) => `O trezim pe Camille… (încercarea ${n} din ${total})`,
       reponse: "Camille se gândește…",
       evaluation: "Camille îți pregătește feedbackul…",
       ecoute: "Te ascult…",
@@ -169,6 +170,9 @@ export const ro: Textes = {
     },
     ecouterExemple: "Ascultă un exemplu",
     micro: "Modul microfonului",
+    retours: "Vibrație și semnal sonor",
+    retoursAide:
+      "O vibrație când înregistrarea începe și se termină; în modul mâini libere, un semnal când se deschide microfonul.",
     microAide: {
       maintenir: "Ține butonul apăsat cât timp vorbești. Ideal în locuri zgomotoase.",
       mainsLibres: "Microfonul se deschide singur când Camille termină. Ideal cu căști.",

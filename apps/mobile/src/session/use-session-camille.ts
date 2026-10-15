@@ -33,7 +33,13 @@ export interface EtatSession {
   erreur: ErreurSession | null;
   /** Quando a Camille abriu a sessão (ms), para guardar a duração no histórico. */
   debut: number | null;
+  /** Número da tentativa de arranque em curso, a partir da segunda (a API estava a acordar). */
+  tentative: number | null;
 }
+
+/** A API num plano gratuito adormece: a primeira chamada pode esgotar o tempo. Insiste. */
+export const TENTATIVES_DEMARRAGE = 3;
+const PAUSE_ENTRE_TENTATIVES_MS = 1_500;
 
 const ETAT_INITIAL: EtatSession = {
   sessionId: null,
@@ -45,6 +51,7 @@ const ETAT_INITIAL: EtatSession = {
   parle: false,
   erreur: null,
   debut: null,
+  tentative: null,
 };
 
 function code(erreur: unknown): ErreurSession {
@@ -94,12 +101,22 @@ export function useSessionCamille(config: CreerSessionRequest, { debit, onFinPar
 
   const demarrer = useCallback(async () => {
     setEtat({ ...ETAT_INITIAL, activite: "demarrage" });
-    try {
-      const tour = await api.creerSession(config);
-      setEtat((e) => ({ ...e, debut: Date.now() }));
-      appliquerTour(tour);
-    } catch (erreur) {
-      setEtat((e) => ({ ...e, activite: null, erreur: code(erreur) }));
+    for (let tentative = 1; ; tentative++) {
+      try {
+        const tour = await api.creerSession(config);
+        setEtat((e) => ({ ...e, debut: Date.now(), tentative: null }));
+        appliquerTour(tour);
+        return;
+      } catch (erreur) {
+        const temporaire = erreur instanceof ErreurApi && erreur.temporaire;
+        if (temporaire && tentative < TENTATIVES_DEMARRAGE) {
+          setEtat((e) => ({ ...e, tentative: tentative + 1 }));
+          await new Promise((resolve) => setTimeout(resolve, PAUSE_ENTRE_TENTATIVES_MS));
+          continue;
+        }
+        setEtat((e) => ({ ...e, activite: null, tentative: null, erreur: code(erreur) }));
+        return;
+      }
     }
     // appliquerTour só usa setters estáveis e a fala recebida.
     // eslint-disable-next-line react-hooks/exhaustive-deps

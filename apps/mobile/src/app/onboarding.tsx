@@ -3,7 +3,7 @@ import { requestRecordingPermissionsAsync } from "expo-audio";
 import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { Bouton } from "../components/bouton";
-import { Puces, type OptionChoix } from "../components/choix";
+import { CaseACocher, Puces, type OptionChoix } from "../components/choix";
 import { Ecran } from "../components/ecran";
 import { IconeRetour } from "../components/icones";
 import { OrbeCamille } from "../components/orbe-camille";
@@ -104,17 +104,11 @@ export default function Onboarding() {
             </View>
             <View style={styles.bloc}>
               <Text style={styles.libelle}>{o.langues.appui}</Text>
-              <Pressable
-                accessibilityRole="checkbox"
-                aria-checked={memeLangue}
-                onPress={() => choisirMemeLangue(!memeLangue)}
-                style={styles.case}
-              >
-                <View style={[styles.caseCarre, memeLangue && styles.caseCochee]}>
-                  {memeLangue && <Text style={styles.caseCoche}>✓</Text>}
-                </View>
-                <Text style={styles.caseTexte}>{o.langues.memeLangue}</Text>
-              </Pressable>
+              <CaseACocher
+                coche={memeLangue}
+                libelle={o.langues.memeLangue}
+                onChange={choisirMemeLangue}
+              />
               {!memeLangue && (
                 <Puces
                   options={LANGUES}
@@ -241,20 +235,6 @@ const useStyles = creerStyles((c) => ({
   bloc: { gap: 10, marginTop: 8 },
   libelle: { fontSize: 14, fontWeight: "600", color: c.encre },
   aide: { fontSize: 14, lineHeight: 20, color: c.encre2 },
-  case: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: TOUCHE_MIN },
-  caseCarre: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: c.ligne,
-    backgroundColor: c.surface,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  caseCochee: { backgroundColor: c.bleu, borderColor: c.bleu },
-  caseCoche: { color: c.surPlein, fontSize: 16, fontWeight: "700", lineHeight: 18 },
-  caseTexte: { fontSize: 16, color: c.encre },
   carte: {
     flexDirection: "row",
     alignItems: "flex-start",

@@ -118,6 +118,22 @@ describe("creerClientCamille", () => {
     });
   });
 
+  it("acorda a API com um GET a /health e nunca lança", async () => {
+    const { fn, appels } = fetchFalso(200, { status: "ok" });
+    const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });
+    assert.equal(await client.reveiller(), true);
+    assert.equal(appels[0]?.url, "http://api.test/health");
+    assert.equal(appels[0]?.init.method, undefined);
+
+    const enPanne = (async () => {
+      throw new TypeError("Network request failed");
+    }) as typeof fetch;
+    assert.equal(
+      await creerClientCamille({ baseUrl: "http://api.test", fetch: enPanne }).reveiller(),
+      false,
+    );
+  });
+
   it("assinala falhas de rede com status 0", async () => {
     const fn = (async () => {
       throw new TypeError("Network request failed");

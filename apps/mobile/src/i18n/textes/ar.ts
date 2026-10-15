@@ -78,6 +78,7 @@ export const ar: Textes = {
     progression: "تقدّم الجلسة",
     statuts: {
       demarrage: "كامي تستعد…",
+      reveil: (n: number, total: number) => `جارٍ إيقاظ كامي… (المحاولة ${n} من ${total})`,
       reponse: "كامي تفكّر…",
       evaluation: "كامي تُعدّ ملاحظاتك…",
       ecoute: "أستمع إليك…",
@@ -173,6 +174,8 @@ export const ar: Textes = {
     },
     ecouterExemple: "استمع إلى مثال",
     micro: "وضع الميكروفون",
+    retours: "اهتزاز وإشارة صوتية",
+    retoursAide: "اهتزاز عند بدء التسجيل وانتهائه؛ في وضع بدون يدين، إشارة عند فتح الميكروفون.",
     microAide: {
       maintenir: "اضغط على الزر مطوّلًا أثناء حديثك. مناسب للأماكن الصاخبة.",
       mainsLibres: "يفتح الميكروفون تلقائيًا عندما تنتهي كامي من الكلام. مناسب مع السماعات.",

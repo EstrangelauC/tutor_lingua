@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { ADRESSE_API } from "../../api";
 import { Bouton } from "../../components/bouton";
-import { Puces, Segments, type OptionChoix } from "../../components/choix";
+import { CaseACocher, Puces, Segments, type OptionChoix } from "../../components/choix";
 import { Ecran } from "../../components/ecran";
 import { IconeHautParleur } from "../../components/icones";
 import { Section } from "../../components/section";
@@ -104,6 +104,12 @@ export default function Definitions() {
                 onChange={(modeMicro) => modifierPreferences({ modeMicro })}
               />
             </Reglage>
+            <CaseACocher
+              coche={preferences.retoursMicro}
+              libelle={t.definitions.retours}
+              aide={t.definitions.retoursAide}
+              onChange={(retoursMicro) => modifierPreferences({ retoursMicro })}
+            />
           </View>
         </Section>
 

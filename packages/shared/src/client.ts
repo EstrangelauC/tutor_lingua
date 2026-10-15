@@ -42,8 +42,15 @@ const DELAI_TOUR_MS = 45_000;
 const DELAI_FEEDBACK_MS = 120_000;
 // Transcrição + fala da Camille.
 const DELAI_AUDIO_MS = 60_000;
+// Uma API adormecida demora cerca de um minuto a acordar.
+const DELAI_REVEIL_MS = 90_000;
 
 export interface ClientCamille {
+  /**
+   * Acorda a API (os planos gratuitos adormecem sem tráfego): um GET a /health, com um limite
+   * largo. Devolve true se respondeu; nunca lança.
+   */
+  reveiller(): Promise<boolean>;
   creerSession(demande: CreerSessionRequest): Promise<TourCamille>;
   envoyerMessage(sessionId: string, texte: string): Promise<TourCamille>;
   /** `audio` é um FormData com a gravação no campo "audio" (a forma de o criar depende da plataforma). */
@@ -103,6 +110,18 @@ export function creerClientCamille({
   }
 
   return {
+    reveiller: async () => {
+      const controleur = new AbortController();
+      const minuterie = setTimeout(() => controleur.abort(), DELAI_REVEIL_MS);
+      try {
+        const response = await fetchFn(`${racine}/health`, { signal: controleur.signal });
+        return response.ok;
+      } catch {
+        return false;
+      } finally {
+        clearTimeout(minuterie);
+      }
+    },
     creerSession: (demande) => post("/sessions", TourCamilleSchema, DELAI_TOUR_MS, demande),
     envoyerMessage: (sessionId, texte) =>
       post(
