@@ -102,7 +102,7 @@ Lê o QR code com a câmara (iOS) ou com a app Expo Go (Android). O telemóvel e
 
 A app fala com a API: arranca primeiro `pnpm dev:api` noutro terminal. Por omissão, a app usa o IP do computador que corre o Metro, na porta 3000, por isso não é preciso configurar nada na mesma rede. Com `pnpm dev:mobile --tunnel`, ou com uma API noutro endereço, define `EXPO_PUBLIC_API_URL` em `apps/mobile/.env` (ver `apps/mobile/.env.example`). Se a API tiver `CAMILLE_API_KEY`, põe a mesma chave em `EXPO_PUBLIC_CAMILLE_API_KEY`.
 
-A app tem três separadores: **Início** (escolher a tarefa e começar), **Histórico** (sessões feitas, tempo de prática e evolução do nível estimado) e **Definições**.
+Na primeira utilização, a app faz uma introdução em três passos (línguas, nível alvo, microfone) e guarda que já foi feita. Depois tem três separadores: **Início** (escolher a tarefa e começar), **Histórico** (sessões feitas, tempo de prática e evolução do nível estimado) e **Definições**.
 
 - A Camille lê as falas em voz alta (voz francesa do sistema, `expo-speech`). Se o telemóvel não tiver uma voz francesa instalada, instala-a nas definições de acessibilidade/voz do sistema.
 - **Premir para falar**: mantém o microfone premido enquanto respondes e solta para enviar.
@@ -192,4 +192,4 @@ O que só se confirma num telemóvel real: a qualidade das vozes francesas do si
 
 ## Estado
 
-🚧 Passo 8: versão web — layout de computador (navegação no topo, sessão em duas colunas, tecla Espaço, feedback em duas colunas com «Ouvir» em cada correção), exportação estática verificada no Chromium e serviço estático no Blueprint do Render. Falta o próprio deploy (precisa das tuas contas) e o teste num telemóvel real: vozes francesas, microfone com auriculares e RTL nativo.
+🚧 Passo 9: introdução da primeira utilização (línguas, nível alvo, microfone), com rotas protegidas do Expo Router; quem já tinha preferências guardadas não a vê. Falta o próprio deploy (precisa das tuas contas) e o teste num telemóvel real: vozes francesas, microfone com auriculares e RTL nativo.

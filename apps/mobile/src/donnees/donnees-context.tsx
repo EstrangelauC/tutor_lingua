@@ -28,7 +28,10 @@ async function charger(): Promise<Donnees> {
   const [preferences, historique] = await Promise.all([lire("preferences"), lire("historique")]);
   const langue = langueDepuisAppareil(getLocales().map((locale) => locale.languageTag));
   return {
-    preferences: lirePreferences(preferences, preferencesParDefaut(langue)),
+    preferences: lirePreferences(
+      preferences,
+      preferencesParDefaut(langue, preferences !== undefined),
+    ),
     historique: lireHistorique(historique),
   };
 }

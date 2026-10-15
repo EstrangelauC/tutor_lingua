@@ -3,13 +3,22 @@ import { useI18n } from "../i18n";
 import { useTheme } from "../theme";
 
 /** Barras de progresso das trocas da sessão. */
-export function Progression({ actuel, total }: { actuel: number; total: number }) {
+export function Progression({
+  actuel,
+  total,
+  libelle,
+}: {
+  actuel: number;
+  total: number;
+  /** Por omissão, o progresso da sessão. */
+  libelle?: string;
+}) {
   const { couleurs } = useTheme();
   const { t } = useI18n();
   return (
     <View
       accessibilityRole="progressbar"
-      accessibilityLabel={t.session.progression}
+      accessibilityLabel={libelle ?? t.session.progression}
       aria-valuemin={0}
       aria-valuemax={total}
       aria-valuenow={actuel}

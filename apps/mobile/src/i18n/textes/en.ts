@@ -183,6 +183,43 @@ export const en: Textes = {
       "The TCF IRN is the French test required in France for residence and citizenship. The speaking test has three tasks: entretien, interaction and point de vue. As a rule, the multi-year residence card requires A2, the resident card B1 and citizenship B2; check the current requirements on service-public.fr. Camille's estimates do not replace the official test.",
     serveur: (adresse: string) => `Server: ${adresse}`,
   },
+  onboarding: {
+    etape: (n: number, total: number) => `Step ${n} of ${total}`,
+    langues: {
+      titre: "Which language do you want the app in?",
+      texte:
+        "The conversation with Camille is always in French. Here you choose the menus and the feedback language.",
+      interface: "App language",
+      appui: "Support language (feedback)",
+      memeLangue: "Same as the app",
+      changer: "You can change this at any time in Settings.",
+    },
+    niveau: {
+      titre: "Which level are you aiming for?",
+      texte: "Camille adapts her questions and pace to your goal.",
+      usages: { A2: "Multi-year residence card", B1: "Resident card", B2: "French citizenship" },
+      exemples: {
+        A2: "Talk about yourself and your daily life in simple sentences.",
+        B1: "Tell about an experience and ask for information with ease.",
+        B2: "Defend an opinion with arguments and examples.",
+      },
+      conseil: "Not sure? Start with A2. You can change it in Settings.",
+    },
+    micro: {
+      titre: "Camille needs to hear you",
+      texte: "The speaking test is practised out loud, so the app asks for microphone access.",
+      points: [
+        "We only listen while a session is open.",
+        "You can stop at any time with “Finish”.",
+        "With earphones, Camille hears you better.",
+      ],
+      permettre: "Allow microphone",
+      plusTard: "Not now",
+      refuse:
+        "Without a microphone you answer in writing. You can turn it on later in your phone's settings.",
+    },
+    continuer: "Continue",
+  },
   erreurs: {
     reseau:
       "Can't reach the API. Make sure it's running and that your phone is on the same network.",

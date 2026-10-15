@@ -179,6 +179,43 @@ export const tr: Textes = {
       "TCF IRN, Fransa'da oturma izni ve vatandaşlık için istenen Fransızca sınavıdır. Sözlü sınav üç görevden oluşur: entretien, interaction ve point de vue. Genel olarak çok yıllık oturma kartı A2, ikamet kartı B1 ve vatandaşlık B2 ister; güncel şartları service-public.fr adresinden kontrol et. Camille'in tahminleri resmi sınavın yerini tutmaz.",
     serveur: (adresse: string) => `Sunucu: ${adresse}`,
   },
+  onboarding: {
+    etape: (n: number, total: number) => `Adım ${n} / ${total}`,
+    langues: {
+      titre: "Uygulamayı hangi dilde istersin?",
+      texte:
+        "Camille ile konuşma her zaman Fransızcadır. Burada menülerin ve geri bildirimin dilini seçersin.",
+      interface: "Uygulama dili",
+      appui: "Destek dili (geri bildirim)",
+      memeLangue: "Uygulama diliyle aynı",
+      changer: "Bunu istediğin zaman ayarlardan değiştirebilirsin.",
+    },
+    niveau: {
+      titre: "Hangi seviyeye ulaşmak istiyorsun?",
+      texte: "Camille soruları ve temposunu hedefine göre ayarlar.",
+      usages: { A2: "Çok yıllık oturma kartı", B1: "İkamet kartı", B2: "Fransız vatandaşlığı" },
+      exemples: {
+        A2: "Basit cümlelerle kendinden ve günlük hayatından bahsetmek.",
+        B1: "Bir deneyimi anlatmak ve rahatça bilgi istemek.",
+        B2: "Bir görüşü gerekçeler ve örneklerle savunmak.",
+      },
+      conseil: "Emin değil misin? A2 ile başla. Ayarlardan değiştirebilirsin.",
+    },
+    micro: {
+      titre: "Camille'in seni duyması gerekiyor",
+      texte: "Sözlü sınava yüksek sesle çalışılır; bunun için uygulama mikrofon izni ister.",
+      points: [
+        "Yalnızca bir oturum açıkken dinleriz.",
+        "İstediğin zaman «Bitir» ile durabilirsin.",
+        "Kulaklıkla Camille seni daha iyi duyar.",
+      ],
+      permettre: "Mikrofona izin ver",
+      plusTard: "Şimdi değil",
+      refuse:
+        "Mikrofon olmadan yazarak cevap verirsin. Daha sonra telefonun ayarlarından açabilirsin.",
+    },
+    continuer: "Devam et",
+  },
   erreurs: {
     reseau:
       "API'ye bağlanılamıyor. API'nin çalıştığından ve telefonun aynı ağda olduğundan emin ol.",

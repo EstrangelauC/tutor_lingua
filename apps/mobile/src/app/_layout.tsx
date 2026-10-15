@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { I18nManager, Platform } from "react-native";
-import { DonneesProvider } from "../donnees/donnees-context";
+import { DonneesProvider, useDonnees } from "../donnees/donnees-context";
 import { useI18n } from "../i18n";
 import { TITRE_DOCUMENT, useTheme } from "../theme";
 
@@ -28,6 +28,7 @@ export default function RootLayout() {
 function Racine() {
   const { nom, couleurs } = useTheme();
   const { langue, rtl } = useI18n();
+  const { preferences } = useDonnees();
 
   useEffect(() => {
     void SplashScreen.hideAsync();
@@ -54,7 +55,17 @@ function Racine() {
       <StatusBar style={nom === "sombre" ? "light" : "dark"} />
       <Stack
         screenOptions={{ headerShown: false, contentStyle: { backgroundColor: couleurs.fond } }}
-      />
+      >
+        {/* Primeira utilização: só a introdução existe; depois, só o resto da app. */}
+        <Stack.Protected guard={!preferences.onboardingFait}>
+          <Stack.Screen name="onboarding" />
+        </Stack.Protected>
+        <Stack.Protected guard={preferences.onboardingFait}>
+          <Stack.Screen name="(onglets)" />
+          <Stack.Screen name="session" />
+          <Stack.Screen name="feedback" />
+        </Stack.Protected>
+      </Stack>
     </>
   );
 }

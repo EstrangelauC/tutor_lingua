@@ -35,6 +35,18 @@ describe("preferências", () => {
     assert.equal(defaut.langueInterface, "es");
     assert.equal(defaut.langueAppui, "es");
     assert.equal(defaut.niveau, "B1");
+    assert.equal(defaut.onboardingFait, false);
+  });
+
+  it("quem já usava a app antes da introdução não a vê", () => {
+    const anciennes = { langueInterface: "pt-PT", langueAppui: "pt-PT", niveau: "B2" };
+    const lues = lirePreferences(anciennes, preferencesParDefaut("en", true));
+    assert.equal(lues.onboardingFait, true);
+    assert.equal(lues.niveau, "B2");
+    assert.equal(
+      lirePreferences(undefined, preferencesParDefaut("en", false)).onboardingFait,
+      false,
+    );
   });
 
   it("sem nada guardado, ficam as de omissão", () => {

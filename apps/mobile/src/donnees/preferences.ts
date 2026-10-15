@@ -19,6 +19,8 @@ export const PreferencesSchema = z.object({
   vitesseVoix: VitesseVoixSchema,
   /** Modo com que o microfone abre em cada sessão. */
   modeMicro: ModeMicroSchema,
+  /** A introdução (línguas, nível, microfone) já foi feita ou saltada. */
+  onboardingFait: z.boolean(),
 });
 export type Preferences = z.infer<typeof PreferencesSchema>;
 
@@ -29,7 +31,11 @@ export const DEBITS: Record<VitesseVoix, number> = {
   naturelle: 1.1,
 };
 
-export function preferencesParDefaut(langue: LangueAppui): Preferences {
+/**
+ * `dejaUtilisee`: quem tinha preferências guardadas antes de a introdução existir não a vê;
+ * só as instalações novas passam por ela.
+ */
+export function preferencesParDefaut(langue: LangueAppui, dejaUtilisee = false): Preferences {
   return {
     langueInterface: langue,
     langueAppui: langue,
@@ -37,6 +43,7 @@ export function preferencesParDefaut(langue: LangueAppui): Preferences {
     theme: "systeme",
     vitesseVoix: "normale",
     modeMicro: "maintenir",
+    onboardingFait: dejaUtilisee,
   };
 }
 

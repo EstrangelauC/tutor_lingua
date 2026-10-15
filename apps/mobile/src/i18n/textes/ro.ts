@@ -192,6 +192,47 @@ export const ro: Textes = {
       "TCF IRN este testul de franceză cerut în Franța pentru rezidență și cetățenie. Proba orală are trei sarcini: entretien, interaction și point de vue. De regulă, cardul de rezidență multianual cere A2, cardul de rezident B1 și cetățenia B2; verifică cerințele actuale pe service-public.fr. Estimările lui Camille nu înlocuiesc examenul oficial.",
     serveur: (adresse: string) => `Server: ${adresse}`,
   },
+  onboarding: {
+    etape: (n: number, total: number) => `Pasul ${n} din ${total}`,
+    langues: {
+      titre: "În ce limbă vrei aplicația?",
+      texte:
+        "Conversația cu Camille este mereu în franceză. Aici alegi limba meniurilor și a feedbackului.",
+      interface: "Limba aplicației",
+      appui: "Limba de sprijin (feedback)",
+      memeLangue: "Aceeași ca aplicația",
+      changer: "Poți schimba oricând din setări.",
+    },
+    niveau: {
+      titre: "Ce nivel vrei să atingi?",
+      texte: "Camille își adaptează întrebările și ritmul la obiectivul tău.",
+      usages: {
+        A2: "Card de rezidență multianual",
+        B1: "Card de rezident",
+        B2: "Cetățenia franceză",
+      },
+      exemples: {
+        A2: "Să vorbești despre tine și viața de zi cu zi în propoziții simple.",
+        B1: "Să povestești o experiență și să ceri informații cu ușurință.",
+        B2: "Să aperi o opinie cu argumente și exemple.",
+      },
+      conseil: "Nu ești sigur? Începe cu A2. Poți schimba din setări.",
+    },
+    micro: {
+      titre: "Camille trebuie să te audă",
+      texte: "Proba orală se exersează cu voce tare, așa că aplicația cere acces la microfon.",
+      points: [
+        "Ascultăm doar cât timp o sesiune este deschisă.",
+        "Te poți opri oricând cu „Termină”.",
+        "Cu căști, Camille te aude mai bine.",
+      ],
+      permettre: "Permite microfonul",
+      plusTard: "Nu acum",
+      refuse:
+        "Fără microfon răspunzi în scris. Îl poți activa mai târziu din setările telefonului.",
+    },
+    continuer: "Continuă",
+  },
   erreurs: {
     reseau:
       "Nu există conexiune cu API-ul. Verifică dacă API-ul rulează și dacă telefonul este în aceeași rețea.",

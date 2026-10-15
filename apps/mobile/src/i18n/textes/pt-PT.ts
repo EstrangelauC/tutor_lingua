@@ -186,6 +186,47 @@ export const ptPT = {
       "O TCF IRN é o teste de francês pedido em França para a residência e a nacionalidade. A prova oral tem três tarefas: entretien, interaction e point de vue. Em regra, o cartão plurianual pede A2, o cartão de residente B1 e a nacionalidade B2; confirma os requisitos atuais em service-public.fr. As estimativas da Camille não substituem a prova oficial.",
     serveur: (adresse: string) => `Servidor: ${adresse}`,
   },
+  onboarding: {
+    etape: (n: number, total: number) => `Passo ${n} de ${total}`,
+    langues: {
+      titre: "Em que língua preferes a app?",
+      texte:
+        "A conversa com a Camille é sempre em francês. Aqui escolhes os menus e a língua do feedback.",
+      interface: "Língua da interface",
+      appui: "Língua de apoio (feedback)",
+      memeLangue: "Igual à interface",
+      changer: "Podes mudar a qualquer momento nas definições.",
+    },
+    niveau: {
+      titre: "Que nível queres atingir?",
+      texte: "A Camille ajusta as perguntas e o ritmo ao teu objetivo.",
+      usages: {
+        A2: "Cartão de residência plurianual",
+        B1: "Cartão de residente",
+        B2: "Nacionalidade francesa",
+      },
+      exemples: {
+        A2: "Falar de ti e do teu dia a dia com frases simples.",
+        B1: "Contar uma experiência e pedir informações com à-vontade.",
+        B2: "Defender uma opinião com argumentos e exemplos.",
+      },
+      conseil: "Não tens a certeza? Começa pelo A2. Podes mudar nas definições.",
+    },
+    micro: {
+      titre: "A Camille precisa de te ouvir",
+      texte: "A prova oral pratica-se em voz alta. Para isso, a app pede acesso ao microfone.",
+      points: [
+        "Só ouvimos enquanto uma sessão está aberta.",
+        "Podes parar a qualquer momento com «Terminar».",
+        "Com auriculares, a Camille ouve-te melhor.",
+      ],
+      permettre: "Permitir microfone",
+      plusTard: "Agora não",
+      refuse:
+        "Sem microfone, respondes por escrito. Podes ativá-lo mais tarde nas definições do telemóvel.",
+    },
+    continuer: "Continuar",
+  },
   erreurs: {
     reseau:
       "Sem ligação à API. Confirma que a API está a correr e que o telemóvel está na mesma rede.",

@@ -183,6 +183,47 @@ export const es: Textes = {
       "El TCF IRN es el examen de francés que se pide en Francia para la residencia y la nacionalidad. La prueba oral tiene tres tareas: entretien, interaction y point de vue. Por lo general, la tarjeta plurianual pide A2, la tarjeta de residente B1 y la nacionalidad B2; consulta los requisitos actuales en service-public.fr. Las estimaciones de Camille no sustituyen a la prueba oficial.",
     serveur: (adresse: string) => `Servidor: ${adresse}`,
   },
+  onboarding: {
+    etape: (n: number, total: number) => `Paso ${n} de ${total}`,
+    langues: {
+      titre: "¿En qué idioma prefieres la app?",
+      texte:
+        "La conversación con Camille es siempre en francés. Aquí eliges los menús y el idioma del feedback.",
+      interface: "Idioma de la interfaz",
+      appui: "Idioma de apoyo (feedback)",
+      memeLangue: "Igual que la interfaz",
+      changer: "Puedes cambiarlo en cualquier momento en los ajustes.",
+    },
+    niveau: {
+      titre: "¿Qué nivel quieres alcanzar?",
+      texte: "Camille adapta las preguntas y el ritmo a tu objetivo.",
+      usages: {
+        A2: "Tarjeta de residencia plurianual",
+        B1: "Tarjeta de residente",
+        B2: "Nacionalidad francesa",
+      },
+      exemples: {
+        A2: "Hablar de ti y de tu día a día con frases sencillas.",
+        B1: "Contar una experiencia y pedir información con soltura.",
+        B2: "Defender una opinión con argumentos y ejemplos.",
+      },
+      conseil: "¿No estás seguro? Empieza por el A2. Puedes cambiarlo en los ajustes.",
+    },
+    micro: {
+      titre: "Camille necesita oírte",
+      texte: "La prueba oral se practica en voz alta. Para eso, la app pide acceso al micrófono.",
+      points: [
+        "Solo escuchamos mientras hay una sesión abierta.",
+        "Puedes parar en cualquier momento con «Terminar».",
+        "Con auriculares, Camille te oye mejor.",
+      ],
+      permettre: "Permitir micrófono",
+      plusTard: "Ahora no",
+      refuse:
+        "Sin micrófono, respondes por escrito. Puedes activarlo más tarde en los ajustes del móvil.",
+    },
+    continuer: "Continuar",
+  },
   erreurs: {
     reseau:
       "Sin conexión con la API. Comprueba que la API está en marcha y que el móvil está en la misma red.",
