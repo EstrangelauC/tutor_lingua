@@ -1,0 +1,249 @@
+
+   • turbo 2.11.7
+   • Packages in scope: @camille/api, @camille/mobile, @camille/shared
+   • Running typecheck, lint, test in 3 packages
+   • Remote caching disabled
+
+@camille/shared:typecheck: cache bypass, force executing 28eabeefaa16aeb5
+@camille/mobile:lint: cache bypass, force executing b9fb34241249c680
+@camille/shared:lint: cache bypass, force executing 2193a76278d530f1
+@camille/shared:test: cache bypass, force executing 9d32342bf553c185
+@camille/shared:build: cache bypass, force executing a92fa4a112262b39
+@camille/api:lint: cache bypass, force executing 72c51793d0536da7
+@camille/mobile:lint: $ eslint .
+@camille/shared:lint: $ eslint .
+@camille/shared:build: $ tsc
+@camille/api:lint: $ eslint .
+@camille/shared:typecheck: $ tsc --noEmit && tsc -p tsconfig.test.json --noEmit
+@camille/shared:test: $ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+@camille/api:test: cache bypass, force executing cf0e83ac5789a1f2
+@camille/mobile:test: cache bypass, force executing 50dfa4e0114fd139
+@camille/api:typecheck: cache bypass, force executing b3767d29c90a72ed
+@camille/mobile:typecheck: cache bypass, force executing 716a143a9e4970a5
+@camille/api:typecheck: $ tsc --noEmit && tsc -p tsconfig.test.json --noEmit
+@camille/mobile:test: $ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+@camille/shared:test: ▶ creerClientCamille
+@camille/shared:test:   ✔ cria uma sessão e valida a resposta (60.940083ms)
+@camille/shared:test:   ✔ envia a resposta do aluno para a sessão certa (1.054125ms)
+@camille/shared:test:   ✔ envia a gravação como multipart, sem forçar o content-type (1.882208ms)
+@camille/shared:test:   ✔ consulta o estado de uma sessão com um GET sem corpo (1.997875ms)
+@camille/shared:test:   ✔ transforma erros da API em ErreurApi com o código e a mensagem do servidor (1.280666ms)
+@camille/shared:test:   ✔ envia a chave de acesso quando a tem (0.57575ms)
+@camille/shared:test:   ✔ deduz o código pelo status quando a resposta não o traz (2.628791ms)
+@camille/shared:test:   ✔ recusa respostas que não seguem o contrato (1.416959ms)
+@camille/shared:test:   ✔ acorda a API com um GET a /health e nunca lança (12.407083ms)
+@camille/shared:test:   ✔ assinala falhas de rede com status 0 (139.837459ms)
+@camille/shared:test:   ✔ distingue o tempo esgotado de uma falha de rede (2.883041ms)
+@camille/shared:test: ✔ creerClientCamille (229.325166ms)
+@camille/api:test: $ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+@camille/shared:test: ℹ tests 11
+@camille/shared:test: ℹ suites 1
+@camille/shared:test: ℹ pass 11
+@camille/shared:test: ℹ fail 0
+@camille/shared:test: ℹ cancelled 0
+@camille/shared:test: ℹ skipped 0
+@camille/shared:test: ℹ todo 0
+@camille/shared:test: ℹ duration_ms 952.724875
+@camille/mobile:typecheck: $ tsc --noEmit && tsc -p tsconfig.test.json --noEmit
+@camille/mobile:test: ▶ histórico
+@camille/mobile:test:   ✔ ignora entradas inválidas e põe a mais recente primeiro (60.142125ms)
+@camille/mobile:test:   ✔ pedir o feedback outra vez substitui a sessão em vez de a repetir (0.140042ms)
+@camille/mobile:test:   ✔ guarda só as 100 sessões mais recentes (85.272333ms)
+@camille/mobile:test:   ✔ resume o progresso: sessões, minutos e evolução da mais antiga para a mais recente (0.301333ms)
+@camille/mobile:test:   ✔ o gráfico mostra só as últimas 10 sessões (0.30075ms)
+@camille/mobile:test:   ✔ arredonda a duração ao minuto, com 1 minuto no mínimo (0.061833ms)
+@camille/mobile:test:   ✔ encontra a última sessão de cada tarefa (0.119833ms)
+@camille/mobile:test:   ✔ conta dias de calendário: ontem à noite é «ontem» logo a seguir à meia-noite (0.106625ms)
+@camille/mobile:test: ✔ histórico (147.313875ms)
+@camille/mobile:test: ▶ língua do aparelho
+@camille/mobile:test:   ✔ escolhe a primeira língua suportada, por ordem de preferência (1.125584ms)
+@camille/mobile:test:   ✔ usa inglês quando nenhuma é suportada (0.245625ms)
+@camille/mobile:test:   ✔ só o árabe se escreve da direita para a esquerda (0.323958ms)
+@camille/mobile:test: ✔ língua do aparelho (3.160125ms)
+@camille/mobile:test: ▶ preferências
+@camille/mobile:test:   ✔ começam na língua do aparelho, para a interface e para o feedback (0.280834ms)
+@camille/mobile:test:   ✔ quem já usava a app antes da introdução não a vê (3.041833ms)
+@camille/mobile:test:   ✔ sem nada guardado, ficam as de omissão (1.198083ms)
+@camille/mobile:test:   ✔ um campo inválido volta ao valor de omissão sem perder os outros (0.2345ms)
+@camille/mobile:test:   ✔ o feedback acompanha a interface quando estavam na mesma língua (0.189166ms)
+@camille/mobile:test:   ✔ o feedback não muda se o aluno o tinha escolhido noutra língua (0.177084ms)
+@camille/mobile:test: ✔ preferências (5.570125ms)
+@camille/mobile:test: ▶ dicionários
+@camille/mobile:test:   ✔ pt-PT: tem os mesmos textos que o português e nenhum vazio (17.544125ms)
+@camille/mobile:test:   ✔ en: tem os mesmos textos que o português e nenhum vazio (0.334125ms)
+@camille/mobile:test:   ✔ es: tem os mesmos textos que o português e nenhum vazio (0.324041ms)
+@camille/mobile:test:   ✔ ar: tem os mesmos textos que o português e nenhum vazio (0.246958ms)
+@camille/mobile:test:   ✔ uk: tem os mesmos textos que o português e nenhum vazio (0.229542ms)
+@camille/mobile:test:   ✔ tr: tem os mesmos textos que o português e nenhum vazio (0.200375ms)
+@camille/mobile:test:   ✔ ro: tem os mesmos textos que o português e nenhum vazio (0.697459ms)
+@camille/mobile:test:   ✔ árabe: usa o dual e o plural certos (0.211167ms)
+@camille/mobile:test: ✔ dicionários (21.137667ms)
+@camille/mobile:test: ℹ tests 25
+@camille/mobile:test: ℹ suites 4
+@camille/mobile:test: ℹ pass 25
+@camille/mobile:test: ℹ fail 0
+@camille/mobile:test: ℹ cancelled 0
+@camille/mobile:test: ℹ skipped 0
+@camille/mobile:test: ℹ todo 0
+@camille/mobile:test: ℹ duration_ms 341.846167
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM     LOG [ClaudeCamille] fala: 0 ms
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM     LOG [ClaudeCamille] fala: 0 ms
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM     LOG [ClaudeCamille] fala: 0 ms
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM    WARN [ClaudeCamille] API da Anthropic indisponível: sem rede
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM     LOG [ClaudeCamille] fala: 0 ms
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM    WARN [ClaudeCamille] Resposta sem texto (stop_reason=refusal).
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM     LOG [ClaudeCamille] bilan: 2 ms
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM     LOG [ClaudeCamille] bilan: 0 ms
+@camille/api:test: [Nest] 16761  - 10/22/2026, 9:02:06 PM    WARN [ClaudeCamille] Feedback sem resultado (stop_reason=refusal).
+@camille/api:test: ▶ ClaudeCamille
+@camille/api:test:   ✔ abre a sessão e guarda a resposta completa, incluindo o raciocínio (6.317167ms)
+@camille/api:test:   ✔ só acrescenta ao histórico, sem alterar mensagens anteriores (0.313625ms)
+@camille/api:test:   ✔ não altera a conversa quando a API falha (0.52725ms)
+@camille/api:test:   ✔ usa uma fala de recurso quando o pedido é recusado (0.142458ms)
+@camille/api:test:   ✔ limita o feedback a 3 erros (1.77925ms)
+@camille/api:test:   ✔ devolve 503 quando o feedback é recusado (0.434ms)
+@camille/api:test: ✔ ClaudeCamille (10.244417ms)
+@camille/api:test: ▶ ensaio de uma sessão
+@camille/api:test:   ✔ joga as trocas pedidas com a Camille simulada e produz o relatório (21.373417ms)
+@camille/api:test:   ✔ o guião recomeça quando a sessão tem mais trocas do que frases (0.171125ms)
+@camille/api:test: ✔ ensaio de uma sessão (23.175667ms)
+@camille/api:test: ▶ proteção da API: limite geral de pedidos por IP
+@camille/api:test:   ✖ devolve 429 a partir do pedido a mais, e /health continua a responder
+@camille/api:test: ✖ proteção da API: limite geral de pedidos por IP (2726.103333ms)
+@camille/api:test: [Nest] 16764  - 10/22/2026, 9:02:08 PM     LOG [OpenAiTranscripteur] Transcrição: 1 ms, 0 kB → 21 caracteres
+@camille/api:test: [Nest] 16764  - 10/22/2026, 9:02:08 PM    WARN [OpenAiTranscripteur] Transcrição indisponível: sem rede
+@camille/api:test: ▶ OpenAiTranscripteur
+@camille/api:test:   ✔ pede uma transcrição em francês, literal, com o modelo configurado (2.939459ms)
+@camille/api:test:   ✔ devolve 503 quando o serviço está indisponível (1.335084ms)
+@camille/api:test: ✔ OpenAiTranscripteur (7.5335ms)
+@camille/api:test: ▶ proteção da API: chave de acesso e limite de sessões
+@camille/api:test:   ✖ /health responde sem chave
+@camille/api:test:   ✖ recusa pedidos sem chave ou com a chave errada
+@camille/api:test:   ✖ aceita a chave certa e limita as sessões criadas por IP
+@camille/api:test: ✖ proteção da API: chave de acesso e limite de sessões (2725.90475ms)
+@camille/api:test: ▶ API de sessões (Camille simulada)
+@camille/api:test:   ✖ percorre uma sessão completa até ao feedback
+@camille/api:test:   ✖ permite terminar a meio da sessão
+@camille/api:test:   ✖ recusa pedidos inválidos com 400
+@camille/api:test:   ✖ devolve 404 para uma sessão desconhecida
+@camille/api:test:   ✖ devolve o estado da sessão, com a transcrição, para a app se ressincronizar
+@camille/api:test:   ✖ aceita uma resposta gravada e devolve o que se percebeu
+@camille/api:test:   ✖ não gasta uma troca quando a gravação não tem fala
+@camille/api:test:   ✖ valida o ficheiro de áudio
+@camille/api:test:   ✖ recusa um segundo pedido enquanto a Camille responde ao primeiro
+@camille/api:test:   ✖ não gera feedback sem respostas do aluno
+@camille/api:test: ✖ API de sessões (Camille simulada) (38.530792ms)
+@camille/api:test: ℹ tests 24
+@camille/api:test: ℹ suites 6
+@camille/api:test: ℹ pass 10
+@camille/api:test: ℹ fail 0
+@camille/api:test: ℹ cancelled 14
+@camille/api:test: ℹ skipped 0
+@camille/api:test: ℹ todo 0
+@camille/api:test: ℹ duration_ms 5199.299875
+@camille/api:test:
+@camille/api:test: ✖ failing tests:
+@camille/api:test:
+@camille/api:test: test at test/limites.e2e.test.ts:44:5
+@camille/api:test: ✖ devolve 429 a partir do pedido a mais, e /health continua a responder
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/limites.e2e.test.ts:9:9
+@camille/api:test: ✖ proteção da API: limite geral de pedidos por IP (2726.103333ms)
+@camille/api:test:   Error: listen EPERM: operation not permitted 127.0.0.1
+@camille/api:test:       at Server.setupListenHandle [as _listen2] (node:net:1926:21)
+@camille/api:test:       at listenInCluster (node:net:2005:12)
+@camille/api:test:       at node:net:2214:7
+@camille/api:test:       at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+@camille/api:test:     code: 'EPERM',
+@camille/api:test:     errno: -1,
+@camille/api:test:     syscall: 'listen',
+@camille/api:test:     address: '127.0.0.1'
+@camille/api:test:   }
+@camille/api:test:
+@camille/api:test: test at test/protection.e2e.test.ts:55:5
+@camille/api:test: ✖ /health responde sem chave
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/protection.e2e.test.ts:60:5
+@camille/api:test: ✖ recusa pedidos sem chave ou com a chave errada
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/protection.e2e.test.ts:70:5
+@camille/api:test: ✖ aceita a chave certa e limita as sessões criadas por IP
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/protection.e2e.test.ts:11:9
+@camille/api:test: ✖ proteção da API: chave de acesso e limite de sessões (2725.90475ms)
+@camille/api:test:   Error: listen EPERM: operation not permitted 127.0.0.1
+@camille/api:test:       at Server.setupListenHandle [as _listen2] (node:net:1926:21)
+@camille/api:test:       at listenInCluster (node:net:2005:12)
+@camille/api:test:       at node:net:2214:7
+@camille/api:test:       at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+@camille/api:test:     code: 'EPERM',
+@camille/api:test:     errno: -1,
+@camille/api:test:     syscall: 'listen',
+@camille/api:test:     address: '127.0.0.1'
+@camille/api:test:   }
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:76:5
+@camille/api:test: ✖ percorre uma sessão completa até ao feedback
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:108:5
+@camille/api:test: ✖ permite terminar a meio da sessão
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:121:5
+@camille/api:test: ✖ recusa pedidos inválidos com 400
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:138:5
+@camille/api:test: ✖ devolve 404 para uma sessão desconhecida
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:147:5
+@camille/api:test: ✖ devolve o estado da sessão, com a transcrição, para a app se ressincronizar
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:165:5
+@camille/api:test: ✖ aceita uma resposta gravada e devolve o que se percebeu
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:177:5
+@camille/api:test: ✖ não gasta uma troca quando a gravação não tem fala
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:192:5
+@camille/api:test: ✖ valida o ficheiro de áudio
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:207:5
+@camille/api:test: ✖ recusa um segundo pedido enquanto a Camille responde ao primeiro
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:235:5
+@camille/api:test: ✖ não gera feedback sem respostas do aluno
+@camille/api:test:   'test did not finish before its parent and was cancelled'
+@camille/api:test:
+@camille/api:test: test at test/sessions.e2e.test.ts:19:9
+@camille/api:test: ✖ API de sessões (Camille simulada) (38.530792ms)
+@camille/api:test:   Error: listen EPERM: operation not permitted 127.0.0.1
+@camille/api:test:       at Server.setupListenHandle [as _listen2] (node:net:1926:21)
+@camille/api:test:       at listenInCluster (node:net:2005:12)
+@camille/api:test:       at node:net:2214:7
+@camille/api:test:       at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+@camille/api:test:     code: 'EPERM',
+@camille/api:test:     errno: -1,
+@camille/api:test:     syscall: 'listen',
+@camille/api:test:     address: '127.0.0.1'
+@camille/api:test:   }
+@camille/api:test: [ELIFECYCLE] Test failed. See above for more details.
+@camille/api#test:  ERROR  command (/Users/tany_neves/Desktop/camille/apps/api) /usr/local/bin/pnpm run test exited (1)
+
+ Tasks:    9 successful, 10 total
+Cached:    0 cached, 10 total
+  Time:    29.899s
+Failed:    @camille/api#test
+
+ ERROR  run failed: command  exited (1)

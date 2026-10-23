@@ -8,9 +8,10 @@ export const en: Textes = {
     tu: "You",
   },
   onglets: {
-    accueil: "Home",
-    historique: "History",
-    definitions: "Settings",
+    percurso: "Journey",
+    praticar: "Practice",
+    progressao: "Progress",
+    definicoes: "Settings",
   },
   taches: {
     entretien: {
@@ -42,6 +43,7 @@ export const en: Textes = {
     objectif: (niveau: string) => `Goal ${niveau}`,
     objectifAide: "Change your target level in Settings",
     continuer: "Keep practising",
+    commencer: "Start practice",
     derniereFois: (niveau: string, quand: string) => `last time ${niveau}, ${quand}`,
     reprendre: "Resume",
     choisir: "Choose a task",
@@ -120,6 +122,8 @@ export const en: Textes = {
     introuvable: "This session is no longer in your history.",
   },
   historique: {
+    visaoGeral: "Overview",
+    ultimoNivel: "Latest estimated level",
     titre: "History",
     sousTitre: "Your progress in the speaking test",
     sessions: "Sessions",
@@ -144,6 +148,11 @@ export const en: Textes = {
     },
   },
   definitions: {
+    objetivoEstudo: "Study goal",
+    vozMicro: "Voice and microphone",
+    aparenciaAcessibilidade: "Appearance and accessibility",
+    dadosLocais: "Local data",
+    sobreAplicacao: "About the app",
     titre: "Settings",
     langues: "Languages",
     interface: "App language",

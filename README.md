@@ -60,14 +60,15 @@ Os modelos podem mudar-se com `ANTHROPIC_MODEL` e `OPENAI_TRANSCRIPTION_MODEL`. 
 
 #### Sessões de conversa
 
-| Rota                          | Corpo                               | Resposta                                                 |
-| ----------------------------- | ----------------------------------- | -------------------------------------------------------- |
-| `POST /sessions`              | `{ niveau, tache, langueAppui }`    | `{ sessionId, camille, echange, maxEchanges, terminee }` |
-| `POST /sessions/:id/messages` | `{ texte }` (a resposta do aluno)   | A fala seguinte da Camille, no mesmo formato             |
-| `POST /sessions/:id/audio`    | multipart, campo `audio` (m4a/webm) | O mesmo, mais `texteEleve` (o que se percebeu)           |
-| `POST /sessions/:id/terminer` | —                                   | O feedback: `{ niveauEstime, resume, erreurs, conseil }` |
+| Rota                          | Corpo                               | Resposta                                                          |
+| ----------------------------- | ----------------------------------- | ----------------------------------------------------------------- |
+| `POST /sessions`              | `{ niveau, tache, langueAppui }`    | `{ sessionId, camille, echange, maxEchanges, terminee }`          |
+| `POST /sessions/:id/messages` | `{ texte }` (a resposta do aluno)   | A fala seguinte da Camille, no mesmo formato                      |
+| `POST /sessions/:id/audio`    | multipart, campo `audio` (m4a/webm) | O mesmo, mais `texteEleve` (o que se percebeu)                    |
+| `GET /sessions/:id`           | —                                   | O estado atual: o mesmo formato, mais `transcription` e `occupee` |
+| `POST /sessions/:id/terminer` | —                                   | O feedback: `{ niveauEstime, resume, erreurs, conseil }`          |
 
-Os schemas Zod de cada pedido e resposta estão em `packages/shared/src/session.ts`. A sessão termina sozinha depois de 8 respostas do aluno (`terminee: true`); o feedback pode ser pedido a qualquer momento depois da primeira resposta. As sessões ficam em memória e perdem-se quando a API reinicia.
+Os schemas Zod de cada pedido e resposta estão em `packages/shared/src/session.ts`. A sessão termina sozinha depois de 8 respostas do aluno (`terminee: true`); o feedback pode ser pedido a qualquer momento depois da primeira resposta. As sessões ficam em memória e perdem-se quando a API reinicia. Se um envio esgotar o tempo do lado da app enquanto a Camille ainda responde, a app consulta `GET /sessions/:id` até a sessão deixar de estar `occupee` e recupera a fala em falta, em vez de perder a troca.
 
 Os erros vêm como `{ code, message }`: o `code` é estável (`session_introuvable`, `session_occupee`, `audio_vide`, `service_indisponible`, `non_autorise`, `trop_de_requetes`…, lista em `packages/shared/src/erreurs.ts`) e é o que a app traduz para a língua da interface; a `message` é em português, para quem desenvolve.
 

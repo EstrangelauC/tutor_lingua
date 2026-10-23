@@ -1,15 +1,162 @@
-import { Tabs } from "expo-router/js-tabs";
+import { Tabs, type Href } from "expo-router";
+import { View, Pressable } from "react-native";
+import { Text } from "../../components/texte";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { IconeAccueil, IconeHistorique, IconeReglages } from "../../components/icones";
+import {
+  IconeAccueil,
+  IconeHistorique,
+  IconeReglages,
+  IconeSuivant,
+} from "../../components/icones";
 import { styleDirection, useI18n } from "../../i18n";
-import { useLarge, useTheme } from "../../theme";
+import { useLarge, useTheme, ESPACES, RAYONS, creerStyles } from "../../theme";
+import { useRouter, usePathname } from "expo-router";
+import { useDonnees } from "../../donnees/donnees-context";
+
+/**
+ * Sidebar para Desktop
+ * Apresenta a navegação lateral com informações contextuais.
+ */
+function Sidebar({
+  activeTab,
+  onTabPress,
+}: {
+  activeTab: string;
+  onTabPress: (name: string) => void;
+}) {
+  const { couleurs } = useTheme();
+  const { t, rtl } = useI18n();
+  const { preferences } = useDonnees();
+  const styles = useSidebarStyles();
+
+  const tabs = [
+    { name: "index", label: t.onglets.percurso, icon: IconeAccueil },
+    { name: "pratique", label: t.onglets.praticar, icon: IconeSuivant },
+    { name: "historique", label: t.onglets.progressao, icon: IconeHistorique },
+    { name: "definitions", label: t.onglets.definicoes, icon: IconeReglages },
+  ];
+
+  return (
+    <View style={[styles.container, styleDirection(rtl)]}>
+      <View style={styles.header}>
+        <Text variante="section" style={{ color: couleurs.primaire }}>
+          Camille
+        </Text>
+        <Text variante="meta" style={{ color: couleurs.encre2 }}>
+          {t.accueil.objectif(preferences.niveau)} · TCF IRN
+        </Text>
+      </View>
+
+      <View style={styles.nav}>
+        {tabs.map((tab) => (
+          <Pressable
+            key={tab.name}
+            accessibilityRole="button"
+            accessibilityState={{ selected: activeTab === tab.name }}
+            onPress={() => onTabPress(tab.name)}
+            style={[styles.tab, activeTab === tab.name && styles.tabActive]}
+          >
+            <tab.icon
+              couleur={activeTab === tab.name ? couleurs.bleu : couleurs.encre2}
+              taille={20}
+            />
+            <Text
+              variante="libelle"
+              style={{
+                color: activeTab === tab.name ? couleurs.bleu : couleurs.encre2,
+                fontWeight: activeTab === tab.name ? "700" : "400",
+              }}
+            >
+              {tab.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const sidebarStyles = creerStyles((c) => ({
+  container: {
+    width: 260,
+    height: "100%",
+    backgroundColor: c.surface,
+    borderRightWidth: 1,
+    borderColor: c.ligne,
+    padding: ESPACES.lg,
+    gap: ESPACES.xxl,
+  },
+  header: {
+    gap: 4,
+    paddingBottom: ESPACES.lg,
+    borderBottomWidth: 1,
+    borderColor: c.ligne,
+  },
+  nav: {
+    gap: ESPACES.sm,
+  },
+  tab: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: ESPACES.md,
+    padding: ESPACES.md,
+    minHeight: 48,
+    borderRadius: RAYONS.petit,
+    cursor: "pointer",
+  },
+  tabActive: {
+    backgroundColor: c.bleuDoux,
+  },
+}));
+const useSidebarStyles = sidebarStyles;
 
 export default function Onglets() {
   const { couleurs } = useTheme();
   const { t, rtl } = useI18n();
   const insets = useSafeAreaInsets();
-  // Em ecrãs largos a navegação vai para o topo, com a legenda ao lado do ícone.
   const large = useLarge();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Normaliza o pathname para identificar a tab ativa
+  const activeTab =
+    pathname.endsWith("index") || pathname === "/"
+      ? "index"
+      : pathname.includes("historique")
+        ? "historique"
+        : pathname.includes("pratique")
+          ? "pratique"
+          : "definitions";
+
+  if (large) {
+    return (
+      <View style={{ flexDirection: "row", flex: 1, backgroundColor: couleurs.fond }}>
+        <Sidebar
+          activeTab={activeTab}
+          onTabPress={(name) =>
+            router.push(
+              (name === "index"
+                ? "/"
+                : name === "pratique"
+                  ? "/pratique"
+                  : name === "historique"
+                    ? "/historique"
+                    : "/definitions") as Href,
+            )
+          }
+        />
+        <View style={{ flex: 1 }}>
+          <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: "none" } }}>
+            <Tabs.Screen name="index" options={{ title: t.onglets.percurso }} />
+            <Tabs.Screen name="pratique" options={{ title: t.onglets.praticar }} />
+            <Tabs.Screen name="historique" options={{ title: t.onglets.progressao }} />
+            <Tabs.Screen name="definitions" options={{ title: t.onglets.definicoes }} />
+          </Tabs>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <Tabs
       screenOptions={{
@@ -17,37 +164,42 @@ export default function Onglets() {
         sceneStyle: { backgroundColor: couleurs.fond },
         tabBarActiveTintColor: couleurs.bleu,
         tabBarInactiveTintColor: couleurs.encre2,
-        // Altura explícita: a de omissão (49 px) não chega para ícone + legenda de 12 px.
-        tabBarPosition: large ? "top" : "bottom",
-        tabBarLabelPosition: large ? "beside-icon" : "below-icon",
+        tabBarPosition: "bottom",
+        tabBarLabelPosition: "below-icon",
         tabBarStyle: [
-          large
-            ? { height: 56 + insets.top, borderBottomColor: couleurs.ligne }
-            : { height: 60 + insets.bottom, paddingTop: 6, borderTopColor: couleurs.ligne },
+          { height: 60 + insets.bottom, paddingTop: 6, borderTopColor: couleurs.ligne },
           { backgroundColor: couleurs.surface },
           styleDirection(rtl),
         ],
-        tabBarLabelStyle: { fontSize: large ? 15 : 12, fontWeight: "600" },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+        tabBarItemStyle: { minHeight: 48 },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: t.onglets.accueil,
+          title: t.onglets.percurso,
           tabBarIcon: ({ color, size }) => <IconeAccueil couleur={color} taille={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="pratique"
+        options={{
+          title: t.onglets.praticar,
+          tabBarIcon: ({ color, size }) => <IconeSuivant couleur={color} taille={size} />,
         }}
       />
       <Tabs.Screen
         name="historique"
         options={{
-          title: t.onglets.historique,
+          title: t.onglets.progressao,
           tabBarIcon: ({ color, size }) => <IconeHistorique couleur={color} taille={size} />,
         }}
       />
       <Tabs.Screen
         name="definitions"
         options={{
-          title: t.onglets.definitions,
+          title: t.onglets.definicoes,
           tabBarIcon: ({ color, size }) => <IconeReglages couleur={color} taille={size} />,
         }}
       />

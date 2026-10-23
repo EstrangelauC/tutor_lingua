@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Animated, Easing, StyleSheet, View } from "react-native";
 import { useI18n } from "../i18n";
 import { serif, useTheme } from "../theme";
+import { useMouvementReduit } from "../theme/mouvement";
 import { Text } from "./texte";
 
 export type EtatOrbe = "parle" | "ecoute" | "pense" | "attend";
@@ -20,10 +21,11 @@ interface Props {
 export function OrbeCamille({ etat, niveau = 0, taille = 56 }: Props) {
   const { couleurs } = useTheme();
   const { t } = useI18n();
+  const mouvementReduit = useMouvementReduit();
   const [pulsation] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
-    if (etat !== "parle" && etat !== "pense") {
+    if (mouvementReduit || (etat !== "parle" && etat !== "pense")) {
       pulsation.stopAnimation();
       pulsation.setValue(0);
       return;
@@ -38,10 +40,11 @@ export function OrbeCamille({ etat, niveau = 0, taille = 56 }: Props) {
     );
     boucle.start();
     return () => boucle.stop();
-  }, [etat, pulsation]);
+  }, [etat, mouvementReduit, pulsation]);
 
-  const anneau =
-    etat === "ecoute"
+  const anneau = mouvementReduit
+    ? { opacity: 0.4, transform: [{ scale: 1 }] }
+    : etat === "ecoute"
       ? { opacity: 0.35 + niveau * 0.5, transform: [{ scale: 1 + niveau * 0.35 }] }
       : {
           opacity: pulsation.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0] }),

@@ -6,6 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "preinstall": "node scripts/so-pnpm.cjs",
     "dev:api": "turbo run dev --filter=@camille/api",
     "dev:mobile": "turbo run build --filter=@camille/shared && pnpm --filter @camille/mobile start",
     "build": "turbo run build",

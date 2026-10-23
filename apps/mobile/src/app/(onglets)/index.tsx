@@ -1,170 +1,92 @@
-import { TacheSchema, type Tache } from "@camille/shared";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { BadgeNiveau } from "../../components/badge-niveau";
 import { Bouton } from "../../components/bouton";
+import { CarteAcademique } from "../../components/carte-academique";
 import { Ecran } from "../../components/ecran";
-import { IconeSuivant } from "../../components/icones";
-import { Section } from "../../components/section";
-import { useDonnees } from "../../donnees/donnees-context";
-import { derniereParTache, joursDepuis } from "../../donnees/historique";
-import { useI18n } from "../../i18n";
-import { TACHES } from "../../taches";
-import { COLONNE_LECTURE, creerStyles, serif, TOUCHE_MIN, useTheme } from "../../theme";
+import { EntetePage, EnteteSection } from "../../components/entete";
 import { Text } from "../../components/texte";
+import { useDonnees } from "../../donnees/donnees-context";
+import { useI18n } from "../../i18n";
+import { recomendarPratica } from "../../session/recommendation";
+import { TACHES } from "../../taches";
+import { ESPACES, useMiseEnPage, useTheme } from "../../theme";
 
-export default function Accueil() {
+export default function Percurso() {
   const router = useRouter();
-  const styles = useStyles();
+  const { t, locale } = useI18n();
   const { couleurs } = useTheme();
-  const { t, rtl } = useI18n();
-  const { preferences, historique } = useDonnees();
-  const [maintenant] = useState(() => new Date());
-
-  const derniere = historique[0];
-  const parTache = derniereParTache(historique);
-  const commencer = (tache: Tache) => router.push({ pathname: "/session", params: { tache } });
+  const { contenu } = useMiseEnPage();
+  const { historique, preferences } = useDonnees();
+  const recomendada = recomendarPratica(historique, preferences.niveau);
+  // O histórico é guardado por data decrescente; a entrada 0 é a mais recente.
+  const ultimaSessao = historique[0];
 
   return (
     <Ecran bords={["top"]}>
-      <ScrollView contentContainerStyle={styles.contenu}>
-        <View style={styles.marque}>
-          <View style={styles.pastille}>
-            <Text style={styles.pastilleTexte}>C</Text>
+      <ScrollView contentContainerStyle={contenu}>
+        <EntetePage titre={t.onglets.percurso} description={t.accueil.francais} />
+        <CarteAcademique accent>
+          <View style={{ gap: ESPACES.md }}>
+            <Text variante="libelle" style={{ color: couleurs.encre2 }}>
+              {t.accueil.objectif(preferences.niveau)} · TCF IRN
+            </Text>
+            <BadgeNiveau niveau={preferences.niveau} />
           </View>
-          <Text style={styles.marqueTexte}>Camille</Text>
-          <Text style={styles.marqueSous}>{t.marqueSous}</Text>
+        </CarteAcademique>
+        <View style={{ gap: ESPACES.md }}>
+          <EnteteSection titre={t.accueil.continuer} />
+          <CarteAcademique>
+            <View style={{ gap: ESPACES.md }}>
+              <Text variante="section">{TACHES[recomendada].titre}</Text>
+              <Text variante="description">{t.taches[recomendada].description}</Text>
+              <Bouton
+                libelle={t.accueil.commencer}
+                onPress={() =>
+                  router.push({ pathname: "/session", params: { tache: recomendada } })
+                }
+              />
+            </View>
+          </CarteAcademique>
         </View>
-
-        <View style={styles.entete}>
-          <View style={styles.remplir}>
-            <Text style={styles.salut}>
-              {derniere ? t.accueil.bonjourRetour : t.accueil.bonjour}
-            </Text>
-            <Text accessibilityRole="header" style={styles.titre}>
-              {t.accueil.titre}
-            </Text>
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityHint={t.accueil.objectifAide}
-            onPress={() => router.navigate("/definitions")}
-            style={styles.objectif}
-          >
-            <Text style={styles.objectifTexte}>{t.accueil.objectif(preferences.niveau)}</Text>
-          </Pressable>
-        </View>
-
-        {derniere && (
-          <View style={styles.continuer}>
-            <Text style={styles.continuerEtiquette}>{t.accueil.continuer}</Text>
-            <Text style={styles.continuerTitre}>{TACHES[derniere.tache].titre}</Text>
-            <Text style={styles.continuerTexte}>
-              {`${t.taches[derniere.tache].resume} · ${t.accueil.derniereFois(
-                derniere.feedback.niveauEstime,
-                t.quand(joursDepuis(derniere.date, maintenant)),
-              )}`}
-            </Text>
-            <Bouton
-              libelle={t.accueil.reprendre}
-              onPress={() => commencer(derniere.tache)}
-              style={styles.reprendre}
-            />
+        {ultimaSessao && (
+          <View style={{ gap: ESPACES.md }}>
+            <EnteteSection titre={t.historique.titre} />
+            <CarteAcademique>
+              <View style={{ gap: ESPACES.md }}>
+                <Text variante="section">{TACHES[ultimaSessao.tache].titre}</Text>
+                <Text variante="meta">
+                  {new Date(ultimaSessao.date).toLocaleDateString(locale)}
+                </Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: ESPACES.sm }}>
+                  <Text variante="description">{t.historique.ultimoNivel}</Text>
+                  <BadgeNiveau niveau={ultimaSessao.feedback.niveauEstime} />
+                </View>
+                <Bouton
+                  variante="secondaire"
+                  libelle={t.feedback.titre}
+                  onPress={() =>
+                    router.push({ pathname: "/feedback", params: { id: ultimaSessao.id } })
+                  }
+                />
+              </View>
+            </CarteAcademique>
           </View>
         )}
-
-        <Section titre={t.accueil.choisir}>
-          <View style={styles.pile}>
-            {TacheSchema.options.map((tache) => {
-              const { titre, numero } = TACHES[tache];
-              const niveau = parTache[tache]?.feedback.niveauEstime;
-              return (
-                <Pressable
-                  key={tache}
-                  accessibilityRole="button"
-                  accessibilityHint={t.accueil.commencerAide}
-                  onPress={() => commencer(tache)}
-                  style={({ pressed }) => [styles.carte, pressed && styles.cartePressee]}
-                >
-                  <View style={styles.carteCorps}>
-                    <View style={styles.carteTete}>
-                      <Text style={styles.carteTitre}>{titre}</Text>
-                      <Text style={styles.carteNumero}>{`Tâche ${numero}`}</Text>
-                    </View>
-                    <Text style={styles.carteDescription}>{t.taches[tache].description}</Text>
-                    {niveau && (
-                      <Text style={styles.carteNiveau}>{t.accueil.dernierNiveau(niveau)}</Text>
-                    )}
-                  </View>
-                  <IconeSuivant couleur={couleurs.encre3} taille={22} miroir={rtl} />
-                </Pressable>
-              );
-            })}
-          </View>
-        </Section>
-
-        <Text style={styles.aide}>{t.accueil.francais}</Text>
+        <View style={{ gap: ESPACES.md }}>
+          <EnteteSection titre={t.accueil.choisir} />
+          {Object.entries(TACHES).map(([id, tache]) => (
+            <CarteAcademique key={id}>
+              <View style={{ gap: ESPACES.xs }}>
+                <Text variante="section">{tache.titre}</Text>
+                <Text variante="description">
+                  {t.taches[id as keyof typeof TACHES].description}
+                </Text>
+              </View>
+            </CarteAcademique>
+          ))}
+        </View>
       </ScrollView>
     </Ecran>
   );
 }
-
-const useStyles = creerStyles((c) => ({
-  contenu: { ...COLONNE_LECTURE, padding: 20, gap: 24 },
-  remplir: { flex: 1 },
-  marque: { flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap" },
-  pastille: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: c.bleu,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pastilleTexte: { color: c.surPlein, fontFamily: serif, fontStyle: "italic", fontSize: 18 },
-  marqueTexte: { fontFamily: serif, fontStyle: "italic", fontSize: 20, color: c.encre },
-  marqueSous: { fontSize: 14, color: c.encre2 },
-  entete: { flexDirection: "row", alignItems: "flex-end", gap: 12 },
-  salut: { fontSize: 16, color: c.encre2 },
-  titre: { fontSize: 26, fontWeight: "600", color: c.encre },
-  objectif: {
-    minHeight: TOUCHE_MIN,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    backgroundColor: c.bleuDoux,
-    justifyContent: "center",
-  },
-  objectifTexte: { fontSize: 14, fontWeight: "700", color: c.bleuEncre },
-  continuer: {
-    padding: 18,
-    gap: 6,
-    borderRadius: 20,
-    backgroundColor: c.surface,
-    borderWidth: 1,
-    borderColor: c.ligne,
-  },
-  continuerEtiquette: { fontSize: 13, fontWeight: "600", color: c.bleu },
-  continuerTitre: { fontFamily: serif, fontSize: 22, color: c.encre },
-  continuerTexte: { fontSize: 14, lineHeight: 20, color: c.encre2 },
-  reprendre: { marginTop: 8 },
-  pile: { gap: 10 },
-  carte: {
-    minHeight: 84,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: c.ligne,
-    backgroundColor: c.surface,
-  },
-  cartePressee: { backgroundColor: c.bleuDoux, borderColor: c.bleuTrait },
-  carteCorps: { flex: 1, gap: 4 },
-  carteTete: { flexDirection: "row", alignItems: "baseline", gap: 8, flexWrap: "wrap" },
-  carteTitre: { fontFamily: serif, fontSize: 19, color: c.encre },
-  carteNumero: { fontFamily: serif, fontSize: 13, color: c.encre3 },
-  carteDescription: { fontSize: 14, lineHeight: 20, color: c.encre2 },
-  carteNiveau: { fontSize: 13, fontWeight: "600", color: c.bleuEncre },
-  aide: { fontSize: 14, lineHeight: 20, color: c.encre2 },
-}));

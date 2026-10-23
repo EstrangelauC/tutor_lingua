@@ -1,8 +1,21 @@
+import {
+  useMiseEnPage,
+  ESPACES,
+  TYPOGRAPHIE,
+  RAYONS,
+  surfaceCarte,
+  COLONNE_LECTURE,
+  TOUCHE_MIN,
+  creerStyles,
+  serif,
+  useTheme,
+} from "../theme";
 import { LangueAppuiSchema, NiveauSchema, type LangueAppui } from "@camille/shared";
 import { requestRecordingPermissionsAsync } from "expo-audio";
 import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { Bouton } from "../components/bouton";
+import { CarteAcademique } from "../components/carte-academique";
 import { CaseACocher, Puces, type OptionChoix } from "../components/choix";
 import { Ecran } from "../components/ecran";
 import { IconeRetour } from "../components/icones";
@@ -11,7 +24,6 @@ import { Progression } from "../components/progression";
 import { Text } from "../components/texte";
 import { useDonnees } from "../donnees/donnees-context";
 import { NOMS_LANGUES, useI18n } from "../i18n";
-import { COLONNE_LECTURE, TOUCHE_MIN, creerStyles, serif, useTheme } from "../theme";
 
 const ETAPES = 3;
 type Etape = 1 | 2 | 3;
@@ -28,6 +40,7 @@ const LANGUES: OptionChoix<LangueAppui>[] = LangueAppuiSchema.options.map((langu
  */
 export default function Onboarding() {
   const styles = useStyles();
+  const miseEnPage = useMiseEnPage();
   const { couleurs } = useTheme();
   const { t, rtl } = useI18n();
   const { preferences, modifierPreferences } = useDonnees();
@@ -57,7 +70,7 @@ export default function Onboarding() {
 
   return (
     <Ecran>
-      <View style={styles.entete}>
+      <View style={[styles.entete, { paddingHorizontal: miseEnPage.marge }]}>
         {etape > 1 ? (
           <Pressable
             accessibilityRole="button"
@@ -77,18 +90,18 @@ export default function Onboarding() {
         )}
         <Text style={styles.etape}>{o.etape(etape, ETAPES)}</Text>
       </View>
-      <View style={styles.progression}>
+      <View style={[styles.progression, { paddingHorizontal: miseEnPage.marge }]}>
         <Progression actuel={etape} total={ETAPES} libelle={o.etape(etape, ETAPES)} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.contenu}>
+      <ScrollView contentContainerStyle={miseEnPage.contenu}>
         {etape === 1 && (
           <>
             <Text accessibilityRole="header" style={styles.titre}>
               {o.langues.titre}
             </Text>
             <Text style={styles.texte}>{o.langues.texte}</Text>
-            <View style={styles.bloc}>
+            <CarteAcademique style={styles.bloc}>
               <Text style={styles.libelle}>{o.langues.interface}</Text>
               <Puces
                 options={LANGUES}
@@ -101,8 +114,8 @@ export default function Onboarding() {
                   )
                 }
               />
-            </View>
-            <View style={styles.bloc}>
+            </CarteAcademique>
+            <CarteAcademique style={styles.bloc}>
               <Text style={styles.libelle}>{o.langues.appui}</Text>
               <CaseACocher
                 coche={memeLangue}
@@ -117,7 +130,7 @@ export default function Onboarding() {
                 />
               )}
               <Text style={styles.aide}>{o.langues.changer}</Text>
-            </View>
+            </CarteAcademique>
           </>
         )}
 
@@ -164,14 +177,15 @@ export default function Onboarding() {
               {o.micro.titre}
             </Text>
             <Text style={styles.texte}>{o.micro.texte}</Text>
-            <View style={styles.bloc}>
+            <CarteAcademique style={styles.bloc}>
               {o.micro.points.map((point, i) => (
                 <View key={i} style={styles.point}>
                   <View style={styles.puce} />
                   <Text style={styles.pointTexte}>{point}</Text>
                 </View>
               ))}
-            </View>
+            </CarteAcademique>
+            <Text style={styles.aide}>{o.micro.refuse}</Text>
             {microRefuse && (
               <View accessibilityRole="alert" style={styles.avis}>
                 <Text style={styles.avisTexte}>{o.micro.refuse}</Text>
@@ -181,7 +195,7 @@ export default function Onboarding() {
         )}
       </ScrollView>
 
-      <View style={styles.pied}>
+      <View style={[styles.pied, { paddingHorizontal: miseEnPage.marge }]}>
         {etape < 3 ? (
           <Bouton libelle={o.continuer} onPress={() => setEtape((e) => (e + 1) as Etape)} />
         ) : microRefuse ? (
@@ -204,7 +218,7 @@ const useStyles = creerStyles((c) => ({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: ESPACES.sm,
     paddingBottom: 10,
     minHeight: TOUCHE_MIN + 18,
   },
@@ -220,7 +234,7 @@ const useStyles = creerStyles((c) => ({
   pastille: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: RAYONS.carte,
     backgroundColor: c.bleu,
     alignItems: "center",
     justifyContent: "center",
@@ -229,21 +243,16 @@ const useStyles = creerStyles((c) => ({
   marqueTexte: { fontFamily: serif, fontStyle: "italic", fontSize: 20, color: c.encre },
   etape: { fontSize: 14, fontWeight: "600", color: c.encre2 },
   progression: { ...COLONNE_LECTURE, paddingHorizontal: 20 },
-  contenu: { ...COLONNE_LECTURE, padding: 20, paddingTop: 24, gap: 16 },
-  titre: { fontSize: 26, lineHeight: 32, fontWeight: "600", color: c.encre },
+  titre: { ...TYPOGRAPHIE.page, color: c.encre },
   texte: { fontSize: 16, lineHeight: 23, color: c.encre2 },
-  bloc: { gap: 10, marginTop: 8 },
+  bloc: { gap: 10, marginTop: ESPACES.sm },
   libelle: { fontSize: 14, fontWeight: "600", color: c.encre },
-  aide: { fontSize: 14, lineHeight: 20, color: c.encre2 },
+  aide: { ...TYPOGRAPHIE.description, color: c.encre2 },
   carte: {
+    ...surfaceCarte(c),
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 14,
-    padding: 16,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: c.ligne,
-    backgroundColor: c.surface,
   },
   carteChoisie: { borderColor: c.bleu, backgroundColor: c.bleuDoux },
   carteCode: { fontSize: 26, fontWeight: "700", color: c.encre2, minWidth: 44 },
@@ -251,18 +260,18 @@ const useStyles = creerStyles((c) => ({
   carteCorps: { flex: 1, gap: 3 },
   carteNom: { fontSize: 17, fontWeight: "600", color: c.encre },
   carteUsage: { fontSize: 14, fontWeight: "600", color: c.bleuEncre },
-  carteExemple: { fontSize: 14, lineHeight: 20, color: c.encre2 },
-  orbe: { alignItems: "center", paddingVertical: 8 },
-  point: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  carteExemple: { ...TYPOGRAPHIE.description, color: c.encre2 },
+  orbe: { alignItems: "center", paddingVertical: ESPACES.sm },
+  point: { flexDirection: "row", alignItems: "flex-start", gap: ESPACES.md },
   puce: { width: 8, height: 8, borderRadius: 4, backgroundColor: c.bleu, marginTop: 7 },
   pointTexte: { flex: 1, fontSize: 15, lineHeight: 22, color: c.encre },
-  avis: { padding: 14, borderRadius: 14, backgroundColor: c.ecouteDoux },
+  avis: { padding: 14, borderRadius: RAYONS.controle, backgroundColor: c.ecouteDoux },
   avisTexte: { fontSize: 14, lineHeight: 20, color: c.ecouteEncre },
   pied: {
     ...COLONNE_LECTURE,
     gap: 10,
     paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingTop: ESPACES.md,
+    paddingBottom: ESPACES.sm,
   },
 }));

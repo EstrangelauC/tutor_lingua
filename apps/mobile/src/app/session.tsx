@@ -10,6 +10,7 @@ import {
   Pressable,
   ScrollView,
   TextInput,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { Bouton } from "../components/bouton";
@@ -24,7 +25,8 @@ import { DEBITS, ModeMicroSchema, type ModeMicro } from "../donnees/preferences"
 import { FRANCAIS, styleTexte, useI18n } from "../i18n";
 import { TENTATIVES_DEMARRAGE, useSessionCamille } from "../session/use-session-camille";
 import { TACHES } from "../taches";
-import { TOUCHE_MIN, creerStyles, serif, useLarge, useTheme } from "../theme";
+import { SEUILS, TOUCHE_MIN, creerStyles, serif, useTheme } from "../theme";
+import { useMouvementReduit } from "../theme/mouvement";
 import { formulaireAudio } from "../voix/formulaire-audio";
 import { arreterDeParler } from "../voix/parole";
 import { useEnregistreur } from "../voix/use-enregistreur";
@@ -52,8 +54,10 @@ export default function Session() {
   const router = useRouter();
   const styles = useStyles();
   const { couleurs } = useTheme();
+  const mouvementReduit = useMouvementReduit();
   const { t } = useI18n();
-  const large = useLarge();
+  // A sidebar ocupa 260 px: duas colunas só têm espaço real em desktop amplo.
+  const large = useWindowDimensions().width >= SEUILS.desktop;
   const { preferences, modifierPreferences, ajouterSession } = useDonnees();
   const params = useLocalSearchParams<{ tache?: string }>();
   const tache = TacheSchema.catch("entretien").parse(params.tache);
@@ -268,13 +272,14 @@ export default function Session() {
         : t.session.micro.toucher;
 
   const microRefuse = enregistreur.permission === "refusee";
+  const reescutaInativa = etat.parle || occupee || etat.repliques.length === 0;
 
   const listeTranscription = (
     <ScrollView
       ref={defilement}
       style={styles.remplir}
       contentContainerStyle={styles.transcriptionContenu}
-      onContentSizeChange={() => defilement.current?.scrollToEnd({ animated: true })}
+      onContentSizeChange={() => defilement.current?.scrollToEnd({ animated: !mouvementReduit })}
     >
       {etat.repliques.map((replique, i) => (
         <View
@@ -310,8 +315,9 @@ export default function Session() {
       <Pressable
         accessibilityRole="button"
         onPress={rejouer}
-        disabled={etat.parle || occupee || etat.repliques.length === 0}
-        style={styles.lien}
+        disabled={reescutaInativa}
+        accessibilityState={{ disabled: reescutaInativa }}
+        style={[styles.lien, reescutaInativa && styles.inactif]}
       >
         <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
       </Pressable>
@@ -331,8 +337,9 @@ export default function Session() {
       <Pressable
         accessibilityRole="button"
         onPress={rejouer}
-        disabled={etat.parle || occupee}
-        style={styles.lien}
+        disabled={reescutaInativa}
+        accessibilityState={{ disabled: reescutaInativa }}
+        style={[styles.lien, reescutaInativa && styles.inactif]}
       >
         <Text style={styles.lienTexte}>{t.session.reecouter}</Text>
       </Pressable>
@@ -427,7 +434,7 @@ export default function Session() {
           />
           <Text style={styles.libelleMicro}>
             {libelleMicro}
-            {large && Platform.OS === "web" && (
+            {large && microActif && Platform.OS === "web" && (
               <Text style={styles.indice}>{` · ${t.session.micro.espace}`}</Text>
             )}
           </Text>

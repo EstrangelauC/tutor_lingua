@@ -1,0 +1,29 @@
+$ turbo run lint
+
+   • turbo 2.11.7
+   • Packages in scope: @camille/api, @camille/mobile, @camille/shared
+   • Running lint in 3 packages
+   • Remote caching disabled
+
+@camille/mobile:lint: cache miss, executing cb7ff4e24713b9f7
+@camille/api:lint: cache hit, replaying logs 72c51793d0536da7
+@camille/shared:lint: cache hit, replaying logs 2193a76278d530f1
+@camille/shared:lint: $ eslint .
+@camille/api:lint: $ eslint .
+@camille/mobile:lint: $ eslint .
+@camille/mobile:lint:
+@camille/mobile:lint: /Users/tany_neves/Desktop/camille/apps/mobile/src/app/(onglets)/historique.tsx
+@camille/mobile:lint:   1:10  error  'TYPOGRAPHIE' is defined but never used  @typescript-eslint/no-unused-vars
+@camille/mobile:lint:
+@camille/mobile:lint: ✖ 1 problem (1 error, 0 warnings)
+@camille/mobile:lint:
+@camille/mobile:lint: [ELIFECYCLE] Command failed with exit code 1.
+@camille/mobile#lint:  ERROR  command (/Users/tany_neves/Desktop/camille/apps/mobile) /usr/local/bin/pnpm run lint exited (1)
+
+ Tasks:    2 successful, 3 total
+Cached:    2 cached, 3 total
+  Time:    2.926s
+Failed:    @camille/mobile#lint
+
+ ERROR  run failed: command  exited (1)
+[ELIFECYCLE] Command failed with exit code 1.

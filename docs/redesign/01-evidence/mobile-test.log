@@ -1,0 +1,48 @@
+$ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+▶ histórico
+  ✔ ignora entradas inválidas e põe a mais recente primeiro (25.273959ms)
+  ✔ pedir o feedback outra vez substitui a sessão em vez de a repetir (0.214958ms)
+  ✔ guarda só as 100 sessões mais recentes (2.828084ms)
+  ✔ resume o progresso: sessões, minutos e evolução da mais antiga para a mais recente (0.852042ms)
+  ✔ o gráfico mostra só as últimas 10 sessões (0.935458ms)
+  ✔ arredonda a duração ao minuto, com 1 minuto no mínimo (0.1615ms)
+  ✔ encontra a última sessão de cada tarefa (0.187042ms)
+  ✔ conta dias de calendário: ontem à noite é «ontem» logo a seguir à meia-noite (0.11675ms)
+✔ histórico (31.7045ms)
+▶ língua do aparelho
+  ✔ escolhe a primeira língua suportada, por ordem de preferência (1.011791ms)
+  ✔ usa inglês quando nenhuma é suportada (0.101417ms)
+  ✔ só o árabe se escreve da direita para a esquerda (0.065625ms)
+✔ língua do aparelho (2.05125ms)
+▶ preferências
+  ✔ começam na língua do aparelho, para a interface e para o feedback (0.153833ms)
+  ✔ quem já usava a app antes da introdução não a vê (1.83025ms)
+  ✔ sem nada guardado, ficam as de omissão (4.688084ms)
+  ✔ um campo inválido volta ao valor de omissão sem perder os outros (0.1135ms)
+  ✔ o feedback acompanha a interface quando estavam na mesma língua (0.107709ms)
+  ✔ o feedback não muda se o aluno o tinha escolhido noutra língua (0.174958ms)
+✔ preferências (7.406375ms)
+▶ dicionários
+  ✔ pt-PT: tem os mesmos textos que o português e nenhum vazio (6.090917ms)
+  ✔ en: tem os mesmos textos que o português e nenhum vazio (0.700083ms)
+  ✔ es: tem os mesmos textos que o português e nenhum vazio (0.56925ms)
+  ✔ ar: tem os mesmos textos que o português e nenhum vazio (0.428041ms)
+  ✔ uk: tem os mesmos textos que o português e nenhum vazio (0.621375ms)
+  ✔ tr: tem os mesmos textos que o português e nenhum vazio (3.41175ms)
+  ✔ ro: tem os mesmos textos que o português e nenhum vazio (0.569709ms)
+  ✔ árabe: usa o dual e o plural certos (0.131042ms)
+✔ dicionários (14.053417ms)
+▶ contraste des tokens Camille 2.0 (WCAG AA)
+  ✔ clair: texte courant, actions et états atteignent 4.5:1 (3.1385ms)
+  ✔ clair: limites des contrôles et focus atteignent 3:1 (0.223042ms)
+  ✔ sombre: texte courant, actions et états atteignent 4.5:1 (0.205709ms)
+  ✔ sombre: limites des contrôles et focus atteignent 3:1 (0.100667ms)
+✔ contraste des tokens Camille 2.0 (WCAG AA) (6.102167ms)
+ℹ tests 29
+ℹ suites 5
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 320.714958

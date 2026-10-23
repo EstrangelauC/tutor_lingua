@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { MAX_ECHANGES, type Feedback, type TourAudio, type TourCamille } from "@camille/shared";
+import {
+  MAX_ECHANGES,
+  type EtatSession,
+  type Feedback,
+  type TourAudio,
+  type TourCamille,
+} from "@camille/shared";
 import {
   ConflictException,
   Inject,
@@ -62,6 +68,18 @@ export class SessionsService implements OnModuleDestroy {
     session.conversation.transcription.push({ role: "camille", texte: camille });
     this.sessions.set(session.id, session);
     return this.tour(session, camille);
+  }
+
+  /** Estado atual, sem tocar na conversa: pode ser lido mesmo com a sessão ocupada. */
+  consulter(id: string): EtatSession {
+    const session = this.obtenir(id);
+    const { transcription } = session.conversation;
+    const derniere = transcription.findLast((r) => r.role === "camille");
+    return {
+      ...this.tour(session, derniere?.texte ?? ""),
+      transcription: [...transcription],
+      occupee: session.occupee,
+    };
   }
 
   envoyer(id: string, texte: string): Promise<TourCamille> {

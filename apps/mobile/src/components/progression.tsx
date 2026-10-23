@@ -1,40 +1,41 @@
 import { View } from "react-native";
-import { useI18n } from "../i18n";
-import { useTheme } from "../theme";
+import { ESPACES, RAYONS, creerStyles, useTheme } from "../theme";
+import { Text } from "./texte";
 
-/** Barras de progresso das trocas da sessão. */
-export function Progression({
-  actuel,
-  total,
-  libelle,
-}: {
+interface Props {
   actuel: number;
   total: number;
-  /** Por omissão, o progresso da sessão. */
   libelle?: string;
-}) {
-  const { couleurs } = useTheme();
-  const { t } = useI18n();
+  altura?: number;
+}
+
+export function Progression({ actuel, total, libelle, altura = 8 }: Props) {
+  const styles = useStyles();
+  const { couleurs: c } = useTheme();
+
+  const percentual = Math.min(Math.max((actuel / total) * 100, 0), 100);
+
   return (
-    <View
-      accessibilityRole="progressbar"
-      accessibilityLabel={libelle ?? t.session.progression}
-      aria-valuemin={0}
-      aria-valuemax={total}
-      aria-valuenow={actuel}
-      style={{ flexDirection: "row", gap: 4 }}
-    >
-      {Array.from({ length: total }, (_, i) => (
-        <View
-          key={i}
-          style={{
-            flex: 1,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: i < actuel ? couleurs.bleu : couleurs.ligne,
-          }}
-        />
-      ))}
+    <View style={{ gap: ESPACES.xs }}>
+      {libelle && (
+        <Text variante="meta" style={{ textAlign: "right" }}>
+          {libelle} {Math.round(percentual)}%
+        </Text>
+      )}
+      <View style={[styles.track, { height: altura }]}>
+        <View style={[styles.fill, { width: `${percentual}%`, backgroundColor: c.bleu }]} />
+      </View>
     </View>
   );
 }
+
+const useStyles = creerStyles((c) => ({
+  track: {
+    backgroundColor: c.discret,
+    borderRadius: RAYONS.pilule,
+    overflow: "hidden",
+  },
+  fill: {
+    borderRadius: RAYONS.pilule,
+  },
+}));

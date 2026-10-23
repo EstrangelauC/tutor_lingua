@@ -65,6 +65,32 @@ describe("creerClientCamille", () => {
     assert.deepEqual(appels[0]?.init.headers, { accept: "application/json" });
   });
 
+  it("consulta o estado de uma sessão com um GET sem corpo", async () => {
+    const etat = {
+      ...tour,
+      echange: 1,
+      transcription: [
+        { role: "camille", texte: "Bonjour !" },
+        { role: "eleve", texte: "Bonjour, je m'appelle Nour." },
+        { role: "camille", texte: "Où habitez-vous ?" },
+      ],
+      occupee: false,
+    };
+    const { fn, appels } = fetchFalso(200, etat);
+    const client = creerClientCamille({ baseUrl: "http://api.test", cleApi: "segredo", fetch: fn });
+
+    const resultat = await client.consulter(tour.sessionId);
+
+    assert.deepEqual(resultat, etat);
+    assert.equal(appels[0]?.url, `http://api.test/sessions/${tour.sessionId}`);
+    assert.equal(appels[0]?.init.method, "GET");
+    assert.equal(appels[0]?.init.body, undefined);
+    assert.deepEqual(appels[0]?.init.headers, {
+      accept: "application/json",
+      authorization: "Bearer segredo",
+    });
+  });
+
   it("transforma erros da API em ErreurApi com o código e a mensagem do servidor", async () => {
     const { fn } = fetchFalso(409, { code: "session_terminee", message: "A sessão já terminou." });
     const client = creerClientCamille({ baseUrl: "http://api.test", fetch: fn });

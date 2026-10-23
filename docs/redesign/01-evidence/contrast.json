@@ -1,0 +1,114 @@
+[
+  {
+    "theme": "clair",
+    "role": "primary",
+    "foreground": "#FFFFFF",
+    "background": "#142D4E",
+    "ratio": "13.86"
+  },
+  {
+    "theme": "clair",
+    "role": "body",
+    "foreground": "#17243A",
+    "background": "#F6F8FC",
+    "ratio": "14.63"
+  },
+  {
+    "theme": "clair",
+    "role": "secondary",
+    "foreground": "#56657B",
+    "background": "#FFFFFF",
+    "ratio": "5.93"
+  },
+  {
+    "theme": "clair",
+    "role": "metadata",
+    "foreground": "#5F6D83",
+    "background": "#EDF1F7",
+    "ratio": "4.63"
+  },
+  {
+    "theme": "clair",
+    "role": "success",
+    "foreground": "#13725E",
+    "background": "#E7F4EE",
+    "ratio": "5.16"
+  },
+  {
+    "theme": "clair",
+    "role": "warning",
+    "foreground": "#875911",
+    "background": "#FFF4DD",
+    "ratio": "5.55"
+  },
+  {
+    "theme": "clair",
+    "role": "error",
+    "foreground": "#B5303C",
+    "background": "#FCECEF",
+    "ratio": "5.32"
+  },
+  {
+    "theme": "clair",
+    "role": "focus",
+    "foreground": "#2459A6",
+    "background": "#FFFFFF",
+    "ratio": "6.87"
+  },
+  {
+    "theme": "sombre",
+    "role": "primary",
+    "foreground": "#142D4E",
+    "background": "#C0D5F2",
+    "ratio": "9.27"
+  },
+  {
+    "theme": "sombre",
+    "role": "body",
+    "foreground": "#EDF2FA",
+    "background": "#101A29",
+    "ratio": "15.55"
+  },
+  {
+    "theme": "sombre",
+    "role": "secondary",
+    "foreground": "#B8C5D8",
+    "background": "#17253A",
+    "ratio": "8.82"
+  },
+  {
+    "theme": "sombre",
+    "role": "metadata",
+    "foreground": "#A4B4CB",
+    "background": "#203149",
+    "ratio": "6.24"
+  },
+  {
+    "theme": "sombre",
+    "role": "success",
+    "foreground": "#7BD4B8",
+    "background": "#193C35",
+    "ratio": "6.87"
+  },
+  {
+    "theme": "sombre",
+    "role": "warning",
+    "foreground": "#F2C879",
+    "background": "#3E321D",
+    "ratio": "7.93"
+  },
+  {
+    "theme": "sombre",
+    "role": "error",
+    "foreground": "#FFADB5",
+    "background": "#442930",
+    "ratio": "7.41"
+  },
+  {
+    "theme": "sombre",
+    "role": "focus",
+    "foreground": "#9CC3FF",
+    "background": "#17253A",
+    "ratio": "8.56"
+  }
+]

@@ -1,0 +1,17 @@
+$ turbo run lint
+
+   • turbo 2.11.7
+   • Packages in scope: @camille/api, @camille/mobile, @camille/shared
+   • Running lint in 3 packages
+   • Remote caching disabled
+
+@camille/mobile:lint: cache hit, replaying logs b9fb34241249c680
+@camille/shared:lint: cache hit, replaying logs 2193a76278d530f1
+@camille/api:lint: cache hit, replaying logs 72c51793d0536da7
+@camille/shared:lint: $ eslint .
+@camille/mobile:lint: $ eslint .
+@camille/api:lint: $ eslint .
+
+ Tasks:    3 successful, 3 total
+Cached:    3 cached, 3 total
+  Time:    78ms >>> FULL TURBO

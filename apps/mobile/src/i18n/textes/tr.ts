@@ -9,9 +9,10 @@ export const tr: Textes = {
     tu: "Sen",
   },
   onglets: {
-    accueil: "Ana sayfa",
-    historique: "Geçmiş",
-    definitions: "Ayarlar",
+    percurso: "Yolculuk",
+    praticar: "Pratik",
+    progressao: "İlerleme",
+    definicoes: "Ayarlar",
   },
   taches: {
     entretien: {
@@ -42,6 +43,7 @@ export const tr: Textes = {
     objectif: (niveau: string) => `Hedef ${niveau}`,
     objectifAide: "Hedef seviyeyi ayarlardan değiştir",
     continuer: "Pratiğe devam et",
+    commencer: "Pratiğe başla",
     derniereFois: (niveau: string, quand: string) => `son kez ${niveau}, ${quand}`,
     reprendre: "Devam et",
     choisir: "Bir görev seç",
@@ -120,6 +122,8 @@ export const tr: Textes = {
     introuvable: "Bu oturum artık geçmişte yok.",
   },
   historique: {
+    visaoGeral: "Genel bakış",
+    ultimoNivel: "Son tahmini seviye",
     titre: "Geçmiş",
     sousTitre: "Sözlü sınavdaki ilerlemen",
     sessions: "Oturumlar",
@@ -141,6 +145,11 @@ export const tr: Textes = {
     },
   },
   definitions: {
+    objetivoEstudo: "Çalışma hedefi",
+    vozMicro: "Ses ve mikrofon",
+    aparenciaAcessibilidade: "Görünüm ve erişilebilirlik",
+    dadosLocais: "Yerel veriler",
+    sobreAplicacao: "Uygulama hakkında",
     titre: "Ayarlar",
     langues: "Diller",
     interface: "Uygulama dili",

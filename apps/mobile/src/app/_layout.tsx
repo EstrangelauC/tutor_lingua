@@ -44,10 +44,11 @@ function Racine() {
   // Na web, a direção e a língua vêm do <html>: o browser trata do resto (bidi, campos de texto).
   useEffect(() => {
     if (Platform.OS === "web") {
+      document.documentElement.style.setProperty("--camille-focus", couleurs.focus);
       document.documentElement.lang = langue;
       document.documentElement.dir = rtl ? "rtl" : "ltr";
     }
-  }, [langue, rtl]);
+  }, [langue, rtl, couleurs.focus]);
 
   return (
     <>

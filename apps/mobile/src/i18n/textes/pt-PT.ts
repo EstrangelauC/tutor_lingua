@@ -11,9 +11,10 @@ export const ptPT = {
     tu: "Tu",
   },
   onglets: {
-    accueil: "Início",
-    historique: "Histórico",
-    definitions: "Definições",
+    percurso: "Percurso",
+    praticar: "Praticar",
+    progressao: "Progressão",
+    definicoes: "Definições",
   },
   taches: {
     entretien: {
@@ -44,6 +45,7 @@ export const ptPT = {
     objectif: (niveau: string) => `Objetivo ${niveau}`,
     objectifAide: "Alterar o nível alvo nas definições",
     continuer: "Continuar a praticar",
+    commencer: "Começar a prática",
     derniereFois: (niveau: string, quand: string) => `última vez ${niveau}, ${quand}`,
     reprendre: "Retomar",
     choisir: "Escolhe uma tarefa",
@@ -122,6 +124,8 @@ export const ptPT = {
     introuvable: "Esta sessão já não está no histórico.",
   },
   historique: {
+    visaoGeral: "Visão geral",
+    ultimoNivel: "Último nível estimado",
     titre: "Histórico",
     sousTitre: "O teu progresso na prova oral",
     sessions: "Sessões",
@@ -147,6 +151,11 @@ export const ptPT = {
     },
   },
   definitions: {
+    objetivoEstudo: "Objetivo de estudo",
+    vozMicro: "Voz e microfone",
+    aparenciaAcessibilidade: "Aparência e acessibilidade",
+    dadosLocais: "Dados locais",
+    sobreAplicacao: "Sobre a aplicação",
     titre: "Definições",
     langues: "Línguas",
     interface: "Interface",
@@ -187,7 +196,7 @@ export const ptPT = {
     efface: "Histórico apagado.",
     apropos: "Sobre a prova TCF IRN",
     aproposTexte:
-      "O TCF IRN é o teste de francês pedido em França para a residência e a nacionalidade. A prova oral tem três tarefas: entretien, interaction e point de vue. Em regra, o cartão plurianual pede A2, o cartão de residente B1 e a nacionalidade B2; confirma os requisitos atuais em service-public.fr. As estimativas da Camille não substituem a prova oficial.",
+      "O TCF IRN é o teste de francês pedido em França para a residência e a nacionalidade. A prova oral tem três tarefas: entretien, interaction et point de vue. Em regra, o cartão plurianual pede A2, o cartão de residente B1 e a nacionalidade B2; confirma os requisitos atuais em service-public.fr. As estimativas da Camille não substituem a prova oficial.",
     serveur: (adresse: string) => `Servidor: ${adresse}`,
   },
   onboarding: {
@@ -245,7 +254,7 @@ export const ptPT = {
     audio_trop_long: "A gravação é demasiado longa. Tenta uma resposta mais curta.",
     audio_format: "Este formato de áudio não é suportado.",
     audio_vide: "Não se percebeu nada na gravação. Tenta outra vez.",
-    service_indisponible: "A Camille não está disponível de momento. Tenta daqui a pouco.",
+    service_indisponible: "O serviço não está disponível de momento. Tenta mais tarde.",
     inconnu: "Algo correu mal. Tenta outra vez.",
     trop_court_maintenir: "Gravação muito curta. Mantém o microfone premido enquanto falas.",
     trop_court: "Gravação muito curta. Tenta outra vez.",

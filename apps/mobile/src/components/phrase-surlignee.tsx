@@ -1,6 +1,6 @@
 import { type TextStyle } from "react-native";
 import { FRANCAIS } from "../i18n";
-import { creerStyles } from "../theme";
+import { TYPOGRAPHIE, creerStyles } from "../theme";
 import { Text } from "./texte";
 
 interface Props {
@@ -29,11 +29,11 @@ export function PhraseSurlignee({ phrase, extrait, type }: Props) {
 }
 
 const useStyles = creerStyles((c) => ({
-  phrase: { ...FRANCAIS, fontSize: 17, lineHeight: 25, color: c.encre },
+  phrase: { ...TYPOGRAPHIE.francais, ...FRANCAIS, color: c.encre },
   errone: {
-    backgroundColor: c.ecouteDoux,
-    color: c.ecouteEncre,
+    backgroundColor: c.erreurDoux,
+    color: c.erreur,
     textDecorationLine: "line-through",
   },
-  corrige: { backgroundColor: c.bleuDoux, color: c.bleuEncre, fontWeight: "600" },
+  corrige: { backgroundColor: c.succesDoux, color: c.succes, fontWeight: "600" },
 }));

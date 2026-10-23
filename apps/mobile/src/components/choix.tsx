@@ -1,5 +1,7 @@
-import { Pressable, View, type StyleProp, type ViewStyle } from "react-native";
-import { TOUCHE_MIN, creerStyles } from "../theme";
+import type { KeyboardEvent } from "react";
+import { useI18n } from "../i18n";
+import { Platform, Pressable, View, type StyleProp, type ViewStyle } from "react-native";
+import { ESPACES, RAYONS, TOUCHE_MIN, creerStyles } from "../theme";
 import { Text } from "./texte";
 
 export interface OptionChoix<V extends string> {
@@ -15,23 +17,32 @@ interface Props<V extends string> {
   style?: StyleProp<ViewStyle>;
 }
 
-/** Controlo segmentado (uma escolha entre poucas opções curtas). */
+/**
+ * Segments
+ * Controlo segmentado para poucas opções curtas, com estética profissional.
+ */
 export function Segments<V extends string>({ options, valeur, onChange, style }: Props<V>) {
   const styles = useStyles();
+  const { rtl } = useI18n();
   return (
     <View accessibilityRole="radiogroup" style={[styles.segments, style]}>
-      {options.map((option) => {
+      {options.map((option, index) => {
         const choisi = option.valeur === valeur;
         return (
           <Pressable
             key={option.valeur}
+            {...clavierChoix(options, index, valeur, onChange, rtl)}
             accessibilityRole="radio"
             aria-checked={choisi}
             accessibilityLabel={option.accessibilityLabel}
             onPress={() => onChange(option.valeur)}
             style={[styles.segment, choisi && styles.segmentChoisi]}
           >
-            <Text style={[styles.segmentTexte, choisi && styles.segmentTexteChoisi]}>
+            <Text
+              variante="libelle"
+              color={choisi ? "surPrimaire" : "encre2"}
+              style={[styles.segmentTexte, choisi && styles.segmentTexteChoisi]}
+            >
               {option.libelle}
             </Text>
           </Pressable>
@@ -41,7 +52,10 @@ export function Segments<V extends string>({ options, valeur, onChange, style }:
   );
 }
 
-/** Caixa de seleção com legenda e, opcionalmente, uma linha de ajuda. */
+/**
+ * CaseACocher
+ * Caixa de seleção com legenda e linha de ajuda.
+ */
 export function CaseACocher({
   coche,
   libelle,
@@ -57,6 +71,16 @@ export function CaseACocher({
   return (
     <View style={styles.caseBloc}>
       <Pressable
+        {...(Platform.OS === "web"
+          ? {
+              onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
+                if (event.key === " ") {
+                  event.preventDefault();
+                  if (!event.repeat) onChange(!coche);
+                }
+              },
+            }
+          : {})}
         accessibilityRole="checkbox"
         aria-checked={coche}
         onPress={() => onChange(!coche)}
@@ -65,30 +89,45 @@ export function CaseACocher({
         <View style={[styles.caseCarre, coche && styles.caseCochee]}>
           {coche && <Text style={styles.caseCoche}>✓</Text>}
         </View>
-        <Text style={styles.caseTexte}>{libelle}</Text>
+        <Text variante="corps" style={styles.caseTexte}>
+          {libelle}
+        </Text>
       </Pressable>
-      {aide && <Text style={styles.caseAide}>{aide}</Text>}
+      {aide && (
+        <Text variante="meta" style={styles.caseAide}>
+          {aide}
+        </Text>
+      )}
     </View>
   );
 }
 
-/** Pastilhas (uma escolha entre opções com nomes mais longos, como as línguas). */
+/**
+ * Puces
+ * Seleção de opções com nomes longos (ex: línguas), estilo "pílulas".
+ */
 export function Puces<V extends string>({ options, valeur, onChange, style }: Props<V>) {
   const styles = useStyles();
+  const { rtl } = useI18n();
   return (
     <View accessibilityRole="radiogroup" style={[styles.puces, style]}>
-      {options.map((option) => {
+      {options.map((option, index) => {
         const choisie = option.valeur === valeur;
         return (
           <Pressable
             key={option.valeur}
+            {...clavierChoix(options, index, valeur, onChange, rtl)}
             accessibilityRole="radio"
             aria-checked={choisie}
             accessibilityLabel={option.accessibilityLabel}
             onPress={() => onChange(option.valeur)}
             style={[styles.puce, choisie && styles.puceChoisie]}
           >
-            <Text style={[styles.puceTexte, choisie && styles.puceTexteChoisie]}>
+            <Text
+              variante="description"
+              color={choisie ? "surPrimaire" : "encre"}
+              style={[styles.puceTexte, choisie && styles.puceTexteChoisie]}
+            >
               {option.libelle}
             </Text>
           </Pressable>
@@ -98,44 +137,83 @@ export function Puces<V extends string>({ options, valeur, onChange, style }: Pr
   );
 }
 
+function clavierChoix<V extends string>(
+  options: readonly OptionChoix<V>[],
+  index: number,
+  valeur: V,
+  onChange: (valeur: V) => void,
+  rtl: boolean,
+) {
+  if (Platform.OS !== "web") return {};
+  return {
+    tabIndex: options[index]?.valeur === valeur ? (0 as const) : (-1 as const),
+    onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
+      const key = event.key;
+      if (![" ", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Home", "End"].includes(key))
+        return;
+      event.preventDefault();
+      if (event.repeat && key === " ") return;
+      let prochain = index;
+      if (key === "Home") prochain = 0;
+      else if (key === "End") prochain = options.length - 1;
+      else if (key !== " ") {
+        const avance =
+          key === "ArrowDown" || (key === "ArrowRight" && !rtl) || (key === "ArrowLeft" && rtl);
+        prochain = (index + (avance ? 1 : -1) + options.length) % options.length;
+      }
+      const option = options[prochain];
+      if (!option) return;
+      const radios =
+        event.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="radio"]');
+      radios?.[prochain]?.focus();
+      onChange(option.valeur);
+    },
+  };
+}
+
 const useStyles = creerStyles((c) => ({
   segments: {
     flexDirection: "row",
-    gap: 4,
-    padding: 4,
-    borderRadius: 14,
+    flexWrap: "wrap",
+    gap: ESPACES.xs,
+    padding: ESPACES.xs,
+    borderRadius: RAYONS.controle,
     backgroundColor: c.discret,
   },
   segment: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 96,
     minHeight: TOUCHE_MIN,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    paddingHorizontal: ESPACES.sm,
+    borderRadius: RAYONS.petit,
     alignItems: "center",
     justifyContent: "center",
   },
-  segmentChoisi: { backgroundColor: c.releve, boxShadow: "0 1px 3px rgba(21, 26, 45, 0.14)" },
-  segmentTexte: { fontSize: 15, fontWeight: "500", color: c.encre2, textAlign: "center" },
-  segmentTexteChoisi: { fontWeight: "700", color: c.encre },
-  puces: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  segmentChoisi: { backgroundColor: c.primaire },
+  segmentTexte: { textAlign: "center" },
+  segmentTexteChoisi: { fontWeight: "700" },
+  puces: { flexDirection: "row", flexWrap: "wrap", gap: ESPACES.sm },
   puce: {
+    maxWidth: "100%",
+    paddingVertical: ESPACES.sm,
     minHeight: TOUCHE_MIN,
-    paddingHorizontal: 16,
-    borderRadius: 999,
+    paddingHorizontal: ESPACES.lg,
+    borderRadius: RAYONS.controle,
     borderWidth: 1,
     borderColor: c.ligne,
     backgroundColor: c.surface,
     justifyContent: "center",
   },
-  puceChoisie: { backgroundColor: c.encre, borderColor: c.encre },
-  puceTexte: { fontSize: 15, color: c.encre },
-  puceTexteChoisie: { color: c.surPlein, fontWeight: "600" },
+  puceChoisie: { backgroundColor: c.primaire, borderColor: c.primaire },
+  puceTexte: {},
+  puceTexteChoisie: { fontWeight: "600" },
   caseBloc: { gap: 4 },
-  case: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: TOUCHE_MIN },
+  case: { flexDirection: "row", alignItems: "center", gap: ESPACES.md, minHeight: TOUCHE_MIN },
   caseCarre: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
+    width: 24,
+    height: 24,
+    borderRadius: RAYONS.petit,
     borderWidth: 2,
     borderColor: c.ligne,
     backgroundColor: c.surface,
@@ -143,7 +221,7 @@ const useStyles = creerStyles((c) => ({
     justifyContent: "center",
   },
   caseCochee: { backgroundColor: c.bleu, borderColor: c.bleu },
-  caseCoche: { color: c.surPlein, fontSize: 16, fontWeight: "700", lineHeight: 18 },
-  caseTexte: { flex: 1, fontSize: 16, color: c.encre },
-  caseAide: { fontSize: 14, lineHeight: 20, color: c.encre2 },
+  caseCoche: { color: c.surPrimaire, fontSize: 14, fontWeight: "700", lineHeight: 16 },
+  caseTexte: { flex: 1 },
+  caseAide: { marginLeft: ESPACES.md },
 }));

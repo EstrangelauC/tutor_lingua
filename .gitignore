@@ -1,5 +1,7 @@
-# Dependências
+# Dependências (só o pnpm-lock.yaml é versionado)
 node_modules/
+package-lock.json
+yarn.lock
 
 # Variáveis de ambiente (o .env.example é versionado)
 .env

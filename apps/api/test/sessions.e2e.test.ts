@@ -2,7 +2,13 @@ import "reflect-metadata";
 import assert from "node:assert/strict";
 import type { AddressInfo } from "node:net";
 import { after, before, describe, it } from "node:test";
-import { FeedbackSchema, MAX_ECHANGES, TourAudioSchema, TourCamilleSchema } from "@camille/shared";
+import {
+  EtatSessionSchema,
+  FeedbackSchema,
+  MAX_ECHANGES,
+  TourAudioSchema,
+  TourCamilleSchema,
+} from "@camille/shared";
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "../src/app.module";
@@ -133,6 +139,27 @@ describe("API de sessões (Camille simulada)", () => {
     const inconnue = await post(`/sessions/${crypto.randomUUID()}/messages`, { texte: "Bonjour" });
     assert.equal(inconnue.status, 404);
     assert.equal(code(inconnue.json), "session_introuvable");
+
+    const consultation = await fetch(`${base}/sessions/${crypto.randomUUID()}`);
+    assert.equal(consultation.status, 404);
+  });
+
+  it("devolve o estado da sessão, com a transcrição, para a app se ressincronizar", async () => {
+    const premier = TourCamilleSchema.parse((await creer()).json);
+    await post(`/sessions/${premier.sessionId}/messages`, { texte: "Je m'appelle Nour." });
+
+    const response = await fetch(`${base}/sessions/${premier.sessionId}`);
+    assert.equal(response.status, 200);
+    const etat = EtatSessionSchema.parse(await response.json());
+
+    assert.equal(etat.sessionId, premier.sessionId);
+    assert.equal(etat.echange, 1);
+    assert.equal(etat.terminee, false);
+    assert.equal(etat.occupee, false);
+    assert.equal(etat.transcription.length, 3);
+    assert.deepEqual(etat.transcription[0], { role: "camille", texte: premier.camille });
+    assert.deepEqual(etat.transcription[1], { role: "eleve", texte: "Je m'appelle Nour." });
+    assert.equal(etat.camille, etat.transcription[2]?.texte);
   });
 
   it("aceita uma resposta gravada e devolve o que se percebeu", async () => {
@@ -189,6 +216,13 @@ describe("API de sessões (Camille simulada)", () => {
       const enParallele = await post(`/sessions/${sessionId}/messages`, { texte: "Allô ?" });
       assert.equal(enParallele.status, 409);
       assert.equal(code(enParallele.json), "session_occupee");
+
+      // Consultar o estado continua possível, e diz que a sessão está ocupada.
+      const pendant = EtatSessionSchema.parse(
+        await (await fetch(`${base}/sessions/${sessionId}`)).json(),
+      );
+      assert.equal(pendant.occupee, true);
+      assert.equal(pendant.echange, 0);
 
       liberer();
       assert.equal((await audio).status, 200);

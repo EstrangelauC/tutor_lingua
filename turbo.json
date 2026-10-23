@@ -17,7 +17,19 @@
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true,
-      "passThroughEnv": ["PORT", "NODE_ENV", "ANTHROPIC_API_KEY"]
+      "passThroughEnv": [
+        "PORT",
+        "NODE_ENV",
+        "ANTHROPIC_API_KEY",
+        "ANTHROPIC_MODEL",
+        "OPENAI_API_KEY",
+        "OPENAI_TRANSCRIPTION_MODEL",
+        "CAMILLE_API_KEY",
+        "CONFIANCE_PROXY",
+        "LIMITE_SESSIONS_PAR_HEURE",
+        "LIMITE_REQUETES_PAR_MINUTE",
+        "CORS_ORIGINES"
+      ]
     }
   }
 }

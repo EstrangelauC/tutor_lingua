@@ -86,6 +86,14 @@ export function derniereParTache(
   return resultat;
 }
 
+/** Filtra sem alterar a ordem (mais recente primeiro) nem os dados guardados. */
+export function filtrarHistorico(
+  historique: readonly EntreeHistorique[],
+  tache: Tache | "toutes",
+): EntreeHistorique[] {
+  return tache === "toutes" ? [...historique] : historique.filter((entree) => entree.tache === tache);
+}
+
 /** Dias de calendário (hora local) entre a data da sessão e agora: 0 = hoje, 1 = ontem. */
 export function joursDepuis(date: string, maintenant: Date): number {
   const jour = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();

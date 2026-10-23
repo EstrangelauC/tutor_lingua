@@ -1,10 +1,12 @@
 import type { z } from "zod";
 import { CodeErreurApiSchema, codeDepuisStatut, type CodeErreur } from "./erreurs";
 import {
+  EtatSessionSchema,
   FeedbackSchema,
   TourAudioSchema,
   TourCamilleSchema,
   type CreerSessionRequest,
+  type EtatSession,
   type Feedback,
   type TourAudio,
   type TourCamille,
@@ -44,6 +46,8 @@ const DELAI_FEEDBACK_MS = 120_000;
 const DELAI_AUDIO_MS = 60_000;
 // Uma API adormecida demora cerca de um minuto a acordar.
 const DELAI_REVEIL_MS = 90_000;
+// Consultar o estado não passa pelos modelos: é rápido.
+const DELAI_CONSULTATION_MS = 15_000;
 
 export interface ClientCamille {
   /**
@@ -55,6 +59,8 @@ export interface ClientCamille {
   envoyerMessage(sessionId: string, texte: string): Promise<TourCamille>;
   /** `audio` é um FormData com a gravação no campo "audio" (a forma de o criar depende da plataforma). */
   envoyerAudio(sessionId: string, audio: FormData): Promise<TourAudio>;
+  /** Estado atual da sessão, para a app se ressincronizar depois de um tempo esgotado. */
+  consulter(sessionId: string): Promise<EtatSession>;
   terminer(sessionId: string): Promise<Feedback>;
 }
 
@@ -66,7 +72,8 @@ export function creerClientCamille({
   const racine = baseUrl.replace(/\/+$/, "");
   const autorisation: Record<string, string> = cleApi ? { authorization: `Bearer ${cleApi}` } : {};
 
-  async function post<S extends z.ZodType>(
+  async function appeler<S extends z.ZodType>(
+    methode: "GET" | "POST",
     chemin: string,
     schema: S,
     delaiMs: number,
@@ -79,10 +86,11 @@ export function creerClientCamille({
       // Com FormData, o fetch define o content-type multipart (com o boundary) sozinho.
       const multipart = typeof FormData !== "undefined" && corps instanceof FormData;
       response = await fetchFn(`${racine}${chemin}`, {
-        method: "POST",
-        headers: multipart
-          ? { accept: "application/json", ...autorisation }
-          : { "content-type": "application/json", accept: "application/json", ...autorisation },
+        method: methode,
+        headers:
+          multipart || corps === undefined
+            ? { accept: "application/json", ...autorisation }
+            : { "content-type": "application/json", accept: "application/json", ...autorisation },
         body: multipart ? corps : corps === undefined ? undefined : JSON.stringify(corps),
         signal: controleur.signal,
       });
@@ -108,6 +116,9 @@ export function creerClientCamille({
     }
     return resultat.data;
   }
+
+  const post = <S extends z.ZodType>(chemin: string, schema: S, delaiMs: number, corps?: unknown) =>
+    appeler("POST", chemin, schema, delaiMs, corps);
 
   return {
     reveiller: async () => {
@@ -138,6 +149,13 @@ export function creerClientCamille({
         TourAudioSchema,
         DELAI_AUDIO_MS,
         audio,
+      ),
+    consulter: (sessionId) =>
+      appeler(
+        "GET",
+        `/sessions/${encodeURIComponent(sessionId)}`,
+        EtatSessionSchema,
+        DELAI_CONSULTATION_MS,
       ),
     terminer: (sessionId) =>
       post(

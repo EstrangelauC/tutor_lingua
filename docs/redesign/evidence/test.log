@@ -1,0 +1,136 @@
+$ turbo run test
+
+   • turbo 2.11.7
+   • Packages in scope: @camille/api, @camille/mobile, @camille/shared
+   • Running test in 3 packages
+   • Remote caching disabled
+
+@camille/shared:build: cache hit, replaying logs a92fa4a112262b39
+@camille/shared:build: $ tsc
+@camille/shared:test: cache hit, replaying logs 9d32342bf553c185
+@camille/shared:test: $ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+@camille/shared:test: ▶ creerClientCamille
+@camille/shared:test:   ✔ cria uma sessão e valida a resposta (17.7855ms)
+@camille/shared:test:   ✔ envia a resposta do aluno para a sessão certa (0.456459ms)
+@camille/shared:test:   ✔ envia a gravação como multipart, sem forçar o content-type (0.905958ms)
+@camille/shared:test:   ✔ consulta o estado de uma sessão com um GET sem corpo (0.850334ms)
+@camille/shared:test:   ✔ transforma erros da API em ErreurApi com o código e a mensagem do servidor (0.444875ms)
+@camille/shared:test:   ✔ envia a chave de acesso quando a tem (0.197625ms)
+@camille/shared:test:   ✔ deduz o código pelo status quando a resposta não o traz (1.338958ms)
+@camille/shared:test:   ✔ recusa respostas que não seguem o contrato (0.861333ms)
+@camille/shared:test:   ✔ acorda a API com um GET a /health e nunca lança (0.242083ms)
+@camille/shared:test:   ✔ assinala falhas de rede com status 0 (0.168875ms)
+@camille/shared:test:   ✔ distingue o tempo esgotado de uma falha de rede (0.560666ms)
+@camille/shared:test: ✔ creerClientCamille (24.674333ms)
+@camille/shared:test: ℹ tests 11
+@camille/shared:test: ℹ suites 1
+@camille/shared:test: ℹ pass 11
+@camille/shared:test: ℹ fail 0
+@camille/shared:test: ℹ cancelled 0
+@camille/shared:test: ℹ skipped 0
+@camille/shared:test: ℹ todo 0
+@camille/shared:test: ℹ duration_ms 123.047584
+@camille/mobile:test: cache hit, replaying logs 50dfa4e0114fd139
+@camille/api:test: cache hit, replaying logs cf0e83ac5789a1f2
+@camille/mobile:test: $ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+@camille/mobile:test: ▶ histórico
+@camille/mobile:test:   ✔ ignora entradas inválidas e põe a mais recente primeiro (9.830667ms)
+@camille/mobile:test:   ✔ pedir o feedback outra vez substitui a sessão em vez de a repetir (0.106625ms)
+@camille/mobile:test:   ✔ guarda só as 100 sessões mais recentes (7.22025ms)
+@camille/mobile:test:   ✔ resume o progresso: sessões, minutos e evolução da mais antiga para a mais recente (0.623792ms)
+@camille/mobile:test:   ✔ o gráfico mostra só as últimas 10 sessões (0.676666ms)
+@camille/mobile:test:   ✔ arredonda a duração ao minuto, com 1 minuto no mínimo (0.132166ms)
+@camille/mobile:test:   ✔ encontra a última sessão de cada tarefa (0.281916ms)
+@camille/mobile:test:   ✔ conta dias de calendário: ontem à noite é «ontem» logo a seguir à meia-noite (0.267666ms)
+@camille/mobile:test: ✔ histórico (19.932042ms)
+@camille/mobile:test: ▶ língua do aparelho
+@camille/mobile:test:   ✔ escolhe a primeira língua suportada, por ordem de preferência (0.41075ms)
+@camille/mobile:test:   ✔ usa inglês quando nenhuma é suportada (0.072334ms)
+@camille/mobile:test:   ✔ só o árabe se escreve da direita para a esquerda (0.059333ms)
+@camille/mobile:test: ✔ língua do aparelho (1.022625ms)
+@camille/mobile:test: ▶ preferências
+@camille/mobile:test:   ✔ começam na língua do aparelho, para a interface e para o feedback (0.112459ms)
+@camille/mobile:test:   ✔ quem já usava a app antes da introdução não a vê (1.097041ms)
+@camille/mobile:test:   ✔ sem nada guardado, ficam as de omissão (1.614292ms)
+@camille/mobile:test:   ✔ um campo inválido volta ao valor de omissão sem perder os outros (0.093333ms)
+@camille/mobile:test:   ✔ o feedback acompanha a interface quando estavam na mesma língua (0.082875ms)
+@camille/mobile:test:   ✔ o feedback não muda se o aluno o tinha escolhido noutra língua (0.066541ms)
+@camille/mobile:test: ✔ preferências (3.253625ms)
+@camille/mobile:test: ▶ dicionários
+@camille/mobile:test:   ✔ pt-PT: tem os mesmos textos que o português e nenhum vazio (1.0835ms)
+@camille/mobile:test:   ✔ en: tem os mesmos textos que o português e nenhum vazio (0.292917ms)
+@camille/mobile:test:   ✔ es: tem os mesmos textos que o português e nenhum vazio (0.330167ms)
+@camille/mobile:test:   ✔ ar: tem os mesmos textos que o português e nenhum vazio (0.234875ms)
+@camille/mobile:test:   ✔ uk: tem os mesmos textos que o português e nenhum vazio (0.222709ms)
+@camille/mobile:test:   ✔ tr: tem os mesmos textos que o português e nenhum vazio (0.193208ms)
+@camille/mobile:test:   ✔ ro: tem os mesmos textos que o português e nenhum vazio (0.713458ms)
+@camille/mobile:test:   ✔ árabe: usa o dual e o plural certos (0.069709ms)
+@camille/mobile:test: ✔ dicionários (3.775333ms)
+@camille/mobile:test: ℹ tests 25
+@camille/mobile:test: ℹ suites 4
+@camille/mobile:test: ℹ pass 25
+@camille/mobile:test: ℹ fail 0
+@camille/mobile:test: ℹ cancelled 0
+@camille/mobile:test: ℹ skipped 0
+@camille/mobile:test: ℹ todo 0
+@camille/mobile:test: ℹ duration_ms 131.935791
+@camille/api:test: $ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+@camille/api:test: [32m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [32m    LOG[39m [38;5;3m[ClaudeCamille] [39m[32mfala: 0 ms[39m
+@camille/api:test: [32m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [32m    LOG[39m [38;5;3m[ClaudeCamille] [39m[32mfala: 0 ms[39m
+@camille/api:test: [32m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [32m    LOG[39m [38;5;3m[ClaudeCamille] [39m[32mfala: 0 ms[39m
+@camille/api:test: [33m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [33m   WARN[39m [38;5;3m[ClaudeCamille] [39m[33mAPI da Anthropic indisponível: sem rede[39m
+@camille/api:test: [32m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [32m    LOG[39m [38;5;3m[ClaudeCamille] [39m[32mfala: 5 ms[39m
+@camille/api:test: [33m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [33m   WARN[39m [38;5;3m[ClaudeCamille] [39m[33mResposta sem texto (stop_reason=refusal).[39m
+@camille/api:test: [32m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [32m    LOG[39m [38;5;3m[ClaudeCamille] [39m[32mbilan: 1 ms[39m
+@camille/api:test: [32m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [32m    LOG[39m [38;5;3m[ClaudeCamille] [39m[32mbilan: 0 ms[39m
+@camille/api:test: [33m[Nest] 36692  - [39m10/15/2026, 2:20:52 PM [33m   WARN[39m [38;5;3m[ClaudeCamille] [39m[33mFeedback sem resultado (stop_reason=refusal).[39m
+@camille/api:test: ▶ ClaudeCamille
+@camille/api:test:   ✔ abre a sessão e guarda a resposta completa, incluindo o raciocínio (4.146583ms)
+@camille/api:test:   ✔ só acrescenta ao histórico, sem alterar mensagens anteriores (0.287458ms)
+@camille/api:test:   ✔ não altera a conversa quando a API falha (0.48575ms)
+@camille/api:test:   ✔ usa uma fala de recurso quando o pedido é recusado (5.169625ms)
+@camille/api:test:   ✔ limita o feedback a 3 erros (1.67875ms)
+@camille/api:test:   ✔ devolve 503 quando o feedback é recusado (0.83575ms)
+@camille/api:test: ✔ ClaudeCamille (13.521542ms)
+@camille/api:test: ▶ ensaio de uma sessão
+@camille/api:test:   ✔ joga as trocas pedidas com a Camille simulada e produz o relatório (5.068875ms)
+@camille/api:test:   ✔ o guião recomeça quando a sessão tem mais trocas do que frases (0.211083ms)
+@camille/api:test: ✔ ensaio de uma sessão (6.162209ms)
+@camille/api:test: ▶ proteção da API: limite geral de pedidos por IP
+@camille/api:test:   ✔ devolve 429 a partir do pedido a mais, e /health continua a responder (41.953167ms)
+@camille/api:test: ✔ proteção da API: limite geral de pedidos por IP (328.015458ms)
+@camille/api:test: [32m[Nest] 36695  - [39m10/15/2026, 2:20:52 PM [32m    LOG[39m [38;5;3m[OpenAiTranscripteur] [39m[32mTranscrição: 0 ms, 0 kB → 21 caracteres[39m
+@camille/api:test: [33m[Nest] 36695  - [39m10/15/2026, 2:20:52 PM [33m   WARN[39m [38;5;3m[OpenAiTranscripteur] [39m[33mTranscrição indisponível: sem rede[39m
+@camille/api:test: ▶ OpenAiTranscripteur
+@camille/api:test:   ✔ pede uma transcrição em francês, literal, com o modelo configurado (1.351042ms)
+@camille/api:test:   ✔ devolve 503 quando o serviço está indisponível (0.520667ms)
+@camille/api:test: ✔ OpenAiTranscripteur (2.348791ms)
+@camille/api:test: ▶ proteção da API: chave de acesso e limite de sessões
+@camille/api:test:   ✔ /health responde sem chave (16.466167ms)
+@camille/api:test:   ✔ recusa pedidos sem chave ou com a chave errada (9.841209ms)
+@camille/api:test:   ✔ aceita a chave certa e limita as sessões criadas por IP (14.419417ms)
+@camille/api:test: ✔ proteção da API: chave de acesso e limite de sessões (327.744375ms)
+@camille/api:test: ▶ API de sessões (Camille simulada)
+@camille/api:test:   ✔ percorre uma sessão completa até ao feedback (48.13075ms)
+@camille/api:test:   ✔ permite terminar a meio da sessão (3.08075ms)
+@camille/api:test:   ✔ recusa pedidos inválidos com 400 (2.9495ms)
+@camille/api:test:   ✔ devolve 404 para uma sessão desconhecida (1.171709ms)
+@camille/api:test:   ✔ devolve o estado da sessão, com a transcrição, para a app se ressincronizar (2.0805ms)
+@camille/api:test:   ✔ aceita uma resposta gravada e devolve o que se percebeu (5.592375ms)
+@camille/api:test:   ✔ não gasta uma troca quando a gravação não tem fala (3.124209ms)
+@camille/api:test:   ✔ valida o ficheiro de áudio (2.2565ms)
+@camille/api:test:   ✔ recusa um segundo pedido enquanto a Camille responde ao primeiro (2.812875ms)
+@camille/api:test:   ✔ não gera feedback sem respostas do aluno (1.300625ms)
+@camille/api:test: ✔ API de sessões (Camille simulada) (91.914166ms)
+@camille/api:test: ℹ tests 24
+@camille/api:test: ℹ suites 6
+@camille/api:test: ℹ pass 24
+@camille/api:test: ℹ fail 0
+@camille/api:test: ℹ cancelled 0
+@camille/api:test: ℹ skipped 0
+@camille/api:test: ℹ todo 0
+@camille/api:test: ℹ duration_ms 672.332583
+
+ Tasks:    4 successful, 4 total
+Cached:    4 cached, 4 total
+  Time:    33ms >>> FULL TURBO

@@ -21,9 +21,10 @@ export const uk: Textes = {
     tu: "Ви",
   },
   onglets: {
-    accueil: "Головна",
-    historique: "Історія",
-    definitions: "Налаштування",
+    percurso: "Шлях",
+    praticar: "Практика",
+    progressao: "Прогрес",
+    definicoes: "Налаштування",
   },
   taches: {
     entretien: {
@@ -59,6 +60,7 @@ export const uk: Textes = {
     objectif: (niveau: string) => `Мета ${niveau}`,
     objectifAide: "Змінити цільовий рівень у налаштуваннях",
     continuer: "Продовжити тренування",
+    commencer: "Почати тренування",
     derniereFois: (niveau: string, quand: string) => `минулого разу ${niveau}, ${quand}`,
     reprendre: "Продовжити",
     choisir: "Оберіть завдання",
@@ -137,6 +139,8 @@ export const uk: Textes = {
     introuvable: "Цієї сесії вже немає в історії.",
   },
   historique: {
+    visaoGeral: "Огляд",
+    ultimoNivel: "Останній оцінений рівень",
     titre: "Історія",
     sousTitre: "Ваш прогрес в усному іспиті",
     sessions: "Сесії",
@@ -161,6 +165,11 @@ export const uk: Textes = {
     },
   },
   definitions: {
+    objetivoEstudo: "Навчальна мета",
+    vozMicro: "Голос і мікрофон",
+    aparenciaAcessibilidade: "Вигляд і доступність",
+    dadosLocais: "Локальні дані",
+    sobreAplicacao: "Про застосунок",
     titre: "Налаштування",
     langues: "Мови",
     interface: "Мова застосунку",

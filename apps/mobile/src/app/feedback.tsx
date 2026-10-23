@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 import { Bouton } from "../components/bouton";
 import { Ecran } from "../components/ecran";
 import { IconeHautParleur, IconeRetour } from "../components/icones";
@@ -10,7 +10,7 @@ import { useDonnees } from "../donnees/donnees-context";
 import { DEBITS } from "../donnees/preferences";
 import { dateCourte, estRtl, styleTexte, useI18n } from "../i18n";
 import { ECHELLE, TACHES } from "../taches";
-import { TOUCHE_MIN, creerStyles, serif, useLarge, useTheme } from "../theme";
+import { SEUILS, TOUCHE_MIN, creerStyles, serif, useTheme } from "../theme";
 import { arreterDeParler, parler } from "../voix/parole";
 
 /** Feedback de uma sessão do histórico (a acabada de terminar ou uma antiga). */
@@ -19,7 +19,7 @@ export default function FeedbackSession() {
   const styles = useStyles();
   const { couleurs } = useTheme();
   const { t, rtl, locale } = useI18n();
-  const large = useLarge();
+  const large = useWindowDimensions().width >= SEUILS.desktop;
   const { historique, preferences } = useDonnees();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const entree = historique.find((e) => e.id === id);
@@ -276,7 +276,7 @@ const useStyles = creerStyles((c) => ({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    minHeight: 36,
+    minHeight: TOUCHE_MIN,
     paddingHorizontal: 10,
     borderRadius: 10,
     backgroundColor: c.bleuDoux,

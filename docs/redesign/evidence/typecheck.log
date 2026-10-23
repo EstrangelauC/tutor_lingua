@@ -1,0 +1,19 @@
+$ turbo run typecheck
+
+   • turbo 2.11.7
+   • Packages in scope: @camille/api, @camille/mobile, @camille/shared
+   • Running typecheck in 3 packages
+   • Remote caching disabled
+
+@camille/shared:typecheck: cache hit, replaying logs 28eabeefaa16aeb5
+@camille/shared:typecheck: $ tsc --noEmit && tsc -p tsconfig.test.json --noEmit
+@camille/shared:build: cache hit, replaying logs a92fa4a112262b39
+@camille/shared:build: $ tsc
+@camille/api:typecheck: cache hit, replaying logs b3767d29c90a72ed
+@camille/mobile:typecheck: cache hit, replaying logs 716a143a9e4970a5
+@camille/mobile:typecheck: $ tsc --noEmit && tsc -p tsconfig.test.json --noEmit
+@camille/api:typecheck: $ tsc --noEmit && tsc -p tsconfig.test.json --noEmit
+
+ Tasks:    4 successful, 4 total
+Cached:    4 cached, 4 total
+  Time:    68ms >>> FULL TURBO

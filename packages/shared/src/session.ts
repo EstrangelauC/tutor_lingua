@@ -40,6 +40,24 @@ export const TourAudioSchema = TourCamilleSchema.extend({
 });
 export type TourAudio = z.infer<typeof TourAudioSchema>;
 
+/** Uma fala da conversa, tal como a API a guarda. */
+export const RepliqueSchema = z.object({
+  role: z.enum(["camille", "eleve"]),
+  texte: z.string(),
+});
+export type Replique = z.infer<typeof RepliqueSchema>;
+
+/**
+ * Resposta de GET /sessions/:id: o estado atual da sessão, para a app se ressincronizar quando
+ * um pedido esgotou o tempo do lado dela mas a Camille acabou por responder. `camille` é a
+ * última fala dela; `occupee` diz se ainda há um pedido a ser tratado.
+ */
+export const EtatSessionSchema = TourCamilleSchema.extend({
+  transcription: z.array(RepliqueSchema),
+  occupee: z.boolean(),
+});
+export type EtatSession = z.infer<typeof EtatSessionSchema>;
+
 /** Nível estimado no feedback: pode ficar abaixo do nível alvo. */
 export const NiveauEstimeSchema = z.enum(["A1", "A2", "B1", "B2"]);
 export type NiveauEstime = z.infer<typeof NiveauEstimeSchema>;

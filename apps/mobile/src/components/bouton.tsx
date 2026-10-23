@@ -1,11 +1,12 @@
-import { ActivityIndicator, Pressable, type StyleProp, type ViewStyle } from "react-native";
-import { TOUCHE_MIN, creerStyles, useTheme } from "../theme";
+import { Pressable, type StyleProp, type ViewStyle } from "react-native";
+import { ESPACES, RAYONS, TOUCHE_MIN, creerStyles, useTheme } from "../theme";
+import { EtatChargement } from "./etat-chargement";
 import { Text } from "./texte";
 
 interface Props {
   libelle: string;
   onPress: () => void;
-  variante?: "principal" | "secondaire" | "danger";
+  variante?: "principal" | "secondaire" | "danger" | "fantome";
   desactive?: boolean;
   chargement?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -20,28 +21,56 @@ export function Bouton({
   style,
 }: Props) {
   const styles = useStyles();
-  const { couleurs } = useTheme();
+  const { couleurs: c } = useTheme();
   const inactif = desactive || chargement;
-  const plein = variante !== "secondaire";
+
+  // Determinação da cor do texto baseada na variante e estado
+  const getColor = () => {
+    if (desactive) return c.surInactif;
+    switch (variante) {
+      case "principal":
+        return c.surPrimaire;
+      case "secondaire":
+        return c.primaire;
+      case "danger":
+        return c.surPrimaire;
+      case "fantome":
+        return c.primaire;
+      default:
+        return c.surPrimaire;
+    }
+  };
+
+  const couleurTexto = getColor();
+
   return (
     <Pressable
       accessibilityRole="button"
-      aria-disabled={inactif}
-      aria-busy={chargement}
+      accessibilityLabel={libelle}
       disabled={inactif}
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
         styles[variante],
-        inactif && styles.inactif,
+        desactive && styles.inactif,
         pressed && !inactif && styles.presse,
         style,
       ]}
     >
       {chargement ? (
-        <ActivityIndicator color={plein ? couleurs.surPlein : couleurs.bleu} />
+        <EtatChargement libelle={libelle} couleur={couleurTexto} />
       ) : (
-        <Text style={[styles.texte, plein ? styles.textePlein : styles.texteSecondaire]}>
+        <Text
+          variante="libelle"
+          color={
+            desactive
+              ? "surInactif"
+              : variante === "principal" || variante === "danger"
+                ? "surPrimaire"
+                : "primaire"
+          }
+          style={{ textAlign: "center", flexShrink: 1 }}
+        >
           {libelle}
         </Text>
       )}
@@ -51,23 +80,37 @@ export function Bouton({
 
 const useStyles = creerStyles((c) => ({
   base: {
-    minHeight: TOUCHE_MIN + 8,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 16,
+    minHeight: TOUCHE_MIN,
+    paddingHorizontal: ESPACES.xl,
+    paddingVertical: ESPACES.md,
+    borderRadius: RAYONS.controle,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
   },
-  principal: { backgroundColor: c.bleu },
+  principal: {
+    backgroundColor: c.primaire,
+    borderColor: c.primaire,
+  },
   secondaire: {
     backgroundColor: c.surface,
-    borderWidth: 1,
     borderColor: c.ligne,
   },
-  danger: { backgroundColor: c.ecoute },
-  inactif: { opacity: 0.5 },
-  presse: { opacity: 0.85 },
-  texte: { fontSize: 17, fontWeight: "600", textAlign: "center" },
-  textePlein: { color: c.surPlein },
-  texteSecondaire: { color: c.encre },
+  danger: {
+    backgroundColor: c.erreur,
+    borderColor: c.erreur,
+  },
+  fantome: {
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+  },
+  inactif: {
+    backgroundColor: c.inactif,
+    borderColor: c.inactif,
+  },
+  presse: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
+  },
 }));

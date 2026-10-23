@@ -1,28 +1,25 @@
 import type { ReactNode } from "react";
-import { View } from "react-native";
-import { creerStyles } from "../theme";
-import { Text } from "./texte";
+import { View, type StyleProp, type ViewStyle } from "react-native";
+import { ESPACES } from "../theme";
+import { EnteteSection } from "./entete";
 
-/** Título pequeno em maiúsculas seguido do conteúdo. */
-export function Section({ titre, children }: { titre: string; children: ReactNode }) {
-  const styles = useStyles();
+/**
+ * Section
+ * Agrupador de conteúdo com título, garantindo espaçamento consistente.
+ */
+export function Section({
+  titre,
+  children,
+  style,
+}: {
+  titre: string;
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
   return (
-    <View style={styles.section}>
-      <Text accessibilityRole="header" style={styles.titre}>
-        {titre}
-      </Text>
+    <View style={[{ gap: ESPACES.md }, style]}>
+      <EnteteSection titre={titre} />
       {children}
     </View>
   );
 }
-
-const useStyles = creerStyles((c) => ({
-  section: { gap: 10 },
-  titre: {
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-    color: c.encre2,
-  },
-}));

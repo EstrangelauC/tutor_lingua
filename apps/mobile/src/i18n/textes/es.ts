@@ -8,9 +8,10 @@ export const es: Textes = {
     tu: "Tú",
   },
   onglets: {
-    accueil: "Inicio",
-    historique: "Historial",
-    definitions: "Ajustes",
+    percurso: "Recorrido",
+    praticar: "Practicar",
+    progressao: "Progreso",
+    definicoes: "Definiciones",
   },
   taches: {
     entretien: {
@@ -41,6 +42,7 @@ export const es: Textes = {
     objectif: (niveau: string) => `Objetivo ${niveau}`,
     objectifAide: "Cambiar el nivel objetivo en los ajustes",
     continuer: "Seguir practicando",
+    commencer: "Empezar a practicar",
     derniereFois: (niveau: string, quand: string) => `última vez ${niveau}, ${quand}`,
     reprendre: "Retomar",
     choisir: "Elige una tarea",
@@ -119,6 +121,8 @@ export const es: Textes = {
     introuvable: "Esta sesión ya no está en el historial.",
   },
   historique: {
+    visaoGeral: "Resumen",
+    ultimoNivel: "Último nivel estimado",
     titre: "Historial",
     sousTitre: "Tu progreso en la prueba oral",
     sessions: "Sesiones",
@@ -144,6 +148,11 @@ export const es: Textes = {
     },
   },
   definitions: {
+    objetivoEstudo: "Objetivo de estudio",
+    vozMicro: "Voz y micrófono",
+    aparenciaAcessibilidade: "Apariencia y accesibilidad",
+    dadosLocais: "Datos locales",
+    sobreAplicacao: "Acerca de la aplicación",
     titre: "Ajustes",
     langues: "Idiomas",
     interface: "Interfaz",

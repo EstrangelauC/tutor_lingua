@@ -3,16 +3,14 @@ import {
   type CodeErreur,
   type CreerSessionRequest,
   type Feedback,
+  type Replique,
   type TourCamille,
 } from "@camille/shared";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { arreterDeParler, parler } from "../voix/parole";
 
-export interface Replique {
-  role: "camille" | "eleve";
-  texte: string;
-}
+export type { Replique };
 
 /** O que está a acontecer agora: arranque, à espera da Camille, a gerar o feedback ou nada (vez do aluno). */
 export type Activite = "demarrage" | "reponse" | "evaluation" | null;
@@ -41,6 +39,13 @@ export interface EtatSession {
 export const TENTATIVES_DEMARRAGE = 3;
 const PAUSE_ENTRE_TENTATIVES_MS = 1_500;
 
+/**
+ * Quando um envio esgota o tempo do lado da app, a Camille pode ainda estar a responder: a app
+ * consulta o estado da sessão de tantos em tantos segundos, até este limite, e recupera a fala.
+ */
+export const CONSULTATIONS_MAX = 12;
+const PAUSE_ENTRE_CONSULTATIONS_MS = 5_000;
+
 const ETAT_INITIAL: EtatSession = {
   sessionId: null,
   repliques: [],
@@ -58,6 +63,15 @@ function code(erreur: unknown): ErreurSession {
   return erreur instanceof ErreurApi ? erreur.code : "inconnu";
 }
 
+/** A Camille pode ter acabado por responder do lado da API: vale a pena ir ver. */
+function vautRecuperation(erreur: unknown): boolean {
+  return (
+    erreur instanceof ErreurApi && (erreur.code === "delai" || erreur.code === "session_occupee")
+  );
+}
+
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 interface Options {
   /** Velocidade de leitura das falas (1 = normal do sistema). */
   debit: number;
@@ -69,62 +83,109 @@ interface Options {
 }
 
 /** Conduz uma sessão com a Camille através da API e lê as falas dela em voz alta. */
-export function useSessionCamille(config: CreerSessionRequest, { debit, onFinParole }: Options) {
+export function useSessionCamille(config: CreerSessionRequest, options: Options) {
   const [etat, setEtat] = useState<EtatSession>(ETAT_INITIAL);
 
-  const dire = async (texte: string, terminee: boolean) => {
+  // As opções são lidas quando a fala acaba, não quando o pedido partiu: ficam sempre atuais.
+  const optionsRef = useRef(options);
+  useEffect(() => {
+    optionsRef.current = options;
+  });
+  // Em desenvolvimento, o React monta o ecrã duas vezes: só se cria uma sessão.
+  const demarrageEnCours = useRef(false);
+
+  const dire = useCallback(async (texte: string, terminee: boolean) => {
     setEtat((e) => ({ ...e, parle: true }));
-    const fin = await parler(texte, debit);
+    const fin = await parler(texte, optionsRef.current.debit);
     setEtat((e) => ({ ...e, parle: false }));
     if (fin === "fin") {
-      onFinParole?.(terminee);
+      optionsRef.current.onFinParole?.(terminee);
     }
-  };
+  }, []);
 
   /** Junta a fala da Camille (e a resposta do aluno, se veio de uma gravação) e lê-a. */
-  const appliquerTour = (tour: TourCamille, texteEleve?: string) => {
-    setEtat((e) => ({
-      ...e,
-      sessionId: tour.sessionId,
-      repliques: [
-        ...e.repliques,
-        ...(texteEleve === undefined ? [] : [{ role: "eleve" as const, texte: texteEleve }]),
-        { role: "camille", texte: tour.camille },
-      ],
-      echange: tour.echange,
-      maxEchanges: tour.maxEchanges,
-      terminee: tour.terminee,
-      activite: null,
-    }));
-    void dire(tour.camille, tour.terminee);
-  };
+  const appliquerTour = useCallback(
+    (tour: TourCamille, texteEleve?: string) => {
+      setEtat((e) => ({
+        ...e,
+        sessionId: tour.sessionId,
+        repliques: [
+          ...e.repliques,
+          ...(texteEleve === undefined ? [] : [{ role: "eleve" as const, texte: texteEleve }]),
+          { role: "camille", texte: tour.camille },
+        ],
+        echange: tour.echange,
+        maxEchanges: tour.maxEchanges,
+        terminee: tour.terminee,
+        activite: null,
+      }));
+      void dire(tour.camille, tour.terminee);
+    },
+    [dire],
+  );
 
   const demarrer = useCallback(async () => {
+    if (demarrageEnCours.current) return;
+    demarrageEnCours.current = true;
     setEtat({ ...ETAT_INITIAL, activite: "demarrage" });
-    for (let tentative = 1; ; tentative++) {
+    try {
+      for (let tentative = 1; ; tentative++) {
+        try {
+          const tour = await api.creerSession(config);
+          setEtat((e) => ({ ...e, debut: Date.now(), tentative: null }));
+          appliquerTour(tour);
+          return;
+        } catch (erreur) {
+          const temporaire = erreur instanceof ErreurApi && erreur.temporaire;
+          if (temporaire && tentative < TENTATIVES_DEMARRAGE) {
+            setEtat((e) => ({ ...e, tentative: tentative + 1 }));
+            await pause(PAUSE_ENTRE_TENTATIVES_MS);
+            continue;
+          }
+          setEtat((e) => ({ ...e, activite: null, tentative: null, erreur: code(erreur) }));
+          return;
+        }
+      }
+    } finally {
+      demarrageEnCours.current = false;
+    }
+  }, [config, appliquerTour]);
+
+  /**
+   * Depois de um tempo esgotado: espera que a API deixe de estar ocupada e, se a troca avançou
+   * entretanto, substitui a conversa pela da API e lê a fala recuperada. Devolve false se não
+   * houve nada a recuperar.
+   */
+  const recuperer = async (sessionId: string, echangeAvant: number): Promise<boolean> => {
+    for (let i = 0; i < CONSULTATIONS_MAX; i++) {
       try {
-        const tour = await api.creerSession(config);
-        setEtat((e) => ({ ...e, debut: Date.now(), tentative: null }));
-        appliquerTour(tour);
-        return;
-      } catch (erreur) {
-        const temporaire = erreur instanceof ErreurApi && erreur.temporaire;
-        if (temporaire && tentative < TENTATIVES_DEMARRAGE) {
-          setEtat((e) => ({ ...e, tentative: tentative + 1 }));
-          await new Promise((resolve) => setTimeout(resolve, PAUSE_ENTRE_TENTATIVES_MS));
+        const actuel = await api.consulter(sessionId);
+        if (actuel.occupee) {
+          await pause(PAUSE_ENTRE_CONSULTATIONS_MS);
           continue;
         }
-        setEtat((e) => ({ ...e, activite: null, tentative: null, erreur: code(erreur) }));
-        return;
+        if (actuel.echange <= echangeAvant) return false;
+        setEtat((e) => ({
+          ...e,
+          repliques: actuel.transcription,
+          echange: actuel.echange,
+          maxEchanges: actuel.maxEchanges,
+          terminee: actuel.terminee,
+          activite: null,
+          erreur: null,
+        }));
+        void dire(actuel.camille, actuel.terminee);
+        return true;
+      } catch {
+        return false;
       }
     }
-    // appliquerTour só usa setters estáveis e a fala recebida.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config]);
+    return false;
+  };
 
   /** Envia uma resposta escrita; devolve false se falhar, para a app manter o texto. */
   const envoyer = async (texte: string): Promise<boolean> => {
-    const { sessionId } = etat;
+    const { sessionId, echange } = etat;
     if (!sessionId) return false;
     setEtat((e) => ({
       ...e,
@@ -136,6 +197,7 @@ export function useSessionCamille(config: CreerSessionRequest, { debit, onFinPar
       appliquerTour(await api.envoyerMessage(sessionId, texte));
       return true;
     } catch (erreur) {
+      if (vautRecuperation(erreur) && (await recuperer(sessionId, echange))) return true;
       setEtat((e) => ({
         ...e,
         repliques: e.repliques.slice(0, -1),
@@ -148,7 +210,7 @@ export function useSessionCamille(config: CreerSessionRequest, { debit, onFinPar
 
   /** Envia uma resposta gravada (FormData com o campo "audio"). */
   const envoyerAudio = async (audio: FormData): Promise<boolean> => {
-    const { sessionId } = etat;
+    const { sessionId, echange } = etat;
     if (!sessionId) return false;
     setEtat((e) => ({ ...e, activite: "reponse", erreur: null }));
     try {
@@ -156,6 +218,7 @@ export function useSessionCamille(config: CreerSessionRequest, { debit, onFinPar
       appliquerTour(tour, tour.texteEleve);
       return true;
     } catch (erreur) {
+      if (vautRecuperation(erreur) && (await recuperer(sessionId, echange))) return true;
       setEtat((e) => ({ ...e, activite: null, erreur: code(erreur) }));
       return false;
     }

@@ -18,9 +18,10 @@ export const ro: Textes = {
     tu: "Tu",
   },
   onglets: {
-    accueil: "Acasă",
-    historique: "Istoric",
-    definitions: "Setări",
+    percurso: "Parcurs",
+    praticar: "Practică",
+    progressao: "Progres",
+    definicoes: "Setări",
   },
   taches: {
     entretien: {
@@ -52,6 +53,7 @@ export const ro: Textes = {
     objectif: (niveau: string) => `Obiectiv ${niveau}`,
     objectifAide: "Schimbă nivelul țintă din setări",
     continuer: "Continuă să exersezi",
+    commencer: "Începe să exersezi",
     derniereFois: (niveau: string, quand: string) => `ultima dată ${niveau}, ${quand}`,
     reprendre: "Reia",
     choisir: "Alege o sarcină",
@@ -130,6 +132,8 @@ export const ro: Textes = {
     introuvable: "Această sesiune nu mai este în istoric.",
   },
   historique: {
+    visaoGeral: "Prezentare generală",
+    ultimoNivel: "Ultimul nivel estimat",
     titre: "Istoric",
     sousTitre: "Progresul tău la proba orală",
     sessions: "Sesiuni",
@@ -154,6 +158,11 @@ export const ro: Textes = {
     },
   },
   definitions: {
+    objetivoEstudo: "Obiectiv de studiu",
+    vozMicro: "Voce și microfon",
+    aparenciaAcessibilidade: "Aspect și accesibilitate",
+    dadosLocais: "Date locale",
+    sobreAplicacao: "Despre aplicație",
     titre: "Setări",
     langues: "Limbi",
     interface: "Limba aplicației",

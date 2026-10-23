@@ -1,5 +1,7 @@
 import { ScrollViewStyleReset } from "expo-router/html";
 import type { PropsWithChildren } from "react";
+import { PALETTES } from "../theme/palettes";
+import { STYLES_WEB } from "../theme/styles-web";
 import { TITRE_DOCUMENT } from "../theme/mise-en-page";
 
 /**
@@ -9,7 +11,7 @@ import { TITRE_DOCUMENT } from "../theme/mise-en-page";
  */
 export default function Racine({ children }: PropsWithChildren) {
   return (
-    <html lang="pt">
+    <html lang="pt-PT">
       <head>
         <meta charSet="utf-8" />
         <meta
@@ -17,8 +19,16 @@ export default function Racine({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
         />
         <meta name="color-scheme" content="light dark" />
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F6FA" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0E1222" />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: light)"
+          content={PALETTES.clair.fond}
+        />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: dark)"
+          content={PALETTES.sombre.fond}
+        />
         <meta
           name="description"
           content="Camille: prática oral do TCF IRN por voz, com feedback na tua língua."
@@ -27,8 +37,7 @@ export default function Racine({ children }: PropsWithChildren) {
         <ScrollViewStyleReset />
         <style
           dangerouslySetInnerHTML={{
-            __html:
-              "body{background:#F5F6FA}@media (prefers-color-scheme:dark){body{background:#0E1222}}",
+            __html: STYLES_WEB,
           }}
         />
       </head>

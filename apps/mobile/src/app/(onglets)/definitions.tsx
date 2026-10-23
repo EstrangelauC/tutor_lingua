@@ -1,3 +1,13 @@
+import {
+  ESPACES,
+  TYPOGRAPHIE,
+  useMiseEnPage,
+  creerStyles,
+  TOUCHE_MIN,
+  useTheme,
+} from "../../theme";
+import { EntetePage } from "../../components/entete";
+import { CarteAcademique } from "../../components/carte-academique";
 import { LangueAppuiSchema, NiveauSchema, type LangueAppui } from "@camille/shared";
 import Constants from "expo-constants";
 import { useEffect, useState, type ReactNode } from "react";
@@ -11,7 +21,6 @@ import { Section } from "../../components/section";
 import { useDonnees } from "../../donnees/donnees-context";
 import { DEBITS, ModeMicroSchema, ThemeSchema, VitesseVoixSchema } from "../../donnees/preferences";
 import { NOMS_LANGUES, useI18n } from "../../i18n";
-import { COLONNE_LECTURE, creerStyles, TOUCHE_MIN, useTheme } from "../../theme";
 import { arreterDeParler, parler } from "../../voix/parole";
 import { Text } from "../../components/texte";
 
@@ -25,6 +34,7 @@ const LANGUES: OptionChoix<LangueAppui>[] = LangueAppuiSchema.options.map((langu
 
 export default function Definitions() {
   const styles = useStyles();
+  const miseEnPage = useMiseEnPage();
   const { couleurs } = useTheme();
   const { t } = useI18n();
   const { preferences, modifierPreferences, historique, effacerHistorique } = useDonnees();
@@ -40,13 +50,11 @@ export default function Definitions() {
 
   return (
     <Ecran bords={["top"]}>
-      <ScrollView contentContainerStyle={styles.contenu}>
-        <Text accessibilityRole="header" style={styles.titre}>
-          {t.definitions.titre}
-        </Text>
+      <ScrollView contentContainerStyle={miseEnPage.contenu}>
+        <EntetePage titre={t.definitions.titre} />
 
         <Section titre={t.definitions.langues}>
-          <View style={styles.carte}>
+          <CarteAcademique style={styles.grupo}>
             <Reglage libelle={t.definitions.interface}>
               <Puces
                 options={LANGUES}
@@ -61,11 +69,11 @@ export default function Definitions() {
                 onChange={(langueAppui) => modifierPreferences({ langueAppui })}
               />
             </Reglage>
-          </View>
+          </CarteAcademique>
         </Section>
 
-        <Section titre={t.definitions.pratique}>
-          <View style={styles.carte}>
+        <Section titre={t.definitions.objetivoEstudo}>
+          <CarteAcademique style={styles.grupo}>
             <Reglage libelle={t.definitions.niveau} aide={t.niveaux[preferences.niveau]}>
               <Segments
                 options={NiveauSchema.options.map((niveau) => ({
@@ -77,6 +85,11 @@ export default function Definitions() {
                 onChange={(niveau) => modifierPreferences({ niveau })}
               />
             </Reglage>
+          </CarteAcademique>
+        </Section>
+
+        <Section titre={t.definitions.vozMicro}>
+          <CarteAcademique style={styles.grupo}>
             <Reglage libelle={t.definitions.vitesse}>
               <Segments
                 options={VitesseVoixSchema.options.map((vitesse) => ({
@@ -110,11 +123,11 @@ export default function Definitions() {
               aide={t.definitions.retoursAide}
               onChange={(retoursMicro) => modifierPreferences({ retoursMicro })}
             />
-          </View>
+          </CarteAcademique>
         </Section>
 
-        <Section titre={t.definitions.apparence}>
-          <View style={styles.carte}>
+        <Section titre={t.definitions.aparenciaAcessibilidade}>
+          <CarteAcademique style={styles.grupo}>
             <Reglage libelle={t.definitions.theme}>
               <Segments
                 options={ThemeSchema.options.map((theme) => ({
@@ -125,11 +138,11 @@ export default function Definitions() {
                 onChange={(theme) => modifierPreferences({ theme })}
               />
             </Reglage>
-          </View>
+          </CarteAcademique>
         </Section>
 
-        <Section titre={t.definitions.donnees}>
-          <View style={styles.carte}>
+        <Section titre={t.definitions.dadosLocais}>
+          <CarteAcademique style={styles.grupo}>
             <Text style={styles.texte}>{t.definitions.donneesTexte}</Text>
             {confirmation ? (
               <View style={styles.confirmation}>
@@ -171,16 +184,16 @@ export default function Definitions() {
                 {t.definitions.efface}
               </Text>
             )}
-          </View>
+          </CarteAcademique>
         </Section>
 
-        <Section titre={t.definitions.apropos}>
-          <View style={styles.carte}>
+        <Section titre={t.definitions.sobreAplicacao}>
+          <CarteAcademique style={styles.grupo}>
             <Text style={styles.texte}>{t.definitions.aproposTexte}</Text>
             <Text style={styles.discret}>
               {`${t.definitions.serveur(ADRESSE_API)} · v${Constants.expoConfig?.version ?? "?"}`}
             </Text>
-          </View>
+          </CarteAcademique>
         </Section>
       </ScrollView>
     </Ecran>
@@ -207,20 +220,11 @@ function Reglage({
 }
 
 const useStyles = creerStyles((c) => ({
-  contenu: { ...COLONNE_LECTURE, padding: 20, gap: 24 },
-  titre: { fontSize: 26, fontWeight: "600", color: c.encre },
+  grupo: { gap: ESPACES.xl },
   remplir: { flex: 1 },
-  carte: {
-    padding: 16,
-    gap: 20,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: c.ligne,
-    backgroundColor: c.surface,
-  },
   reglage: { gap: 10 },
   reglageLibelle: { fontSize: 16, fontWeight: "600", color: c.encre },
-  aide: { fontSize: 14, lineHeight: 20, color: c.encre2 },
+  aide: { ...TYPOGRAPHIE.description, color: c.encre2 },
   texte: { fontSize: 15, lineHeight: 22, color: c.encre2 },
   discret: { fontSize: 13, color: c.encre3 },
   lien: {
@@ -228,11 +232,11 @@ const useStyles = creerStyles((c) => ({
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    gap: 8,
-    paddingHorizontal: 4,
+    gap: ESPACES.sm,
+    paddingHorizontal: ESPACES.xs,
   },
   lienTexte: { fontSize: 15, fontWeight: "600", color: c.bleu },
-  confirmation: { gap: 12 },
+  confirmation: { gap: ESPACES.md },
   question: { fontSize: 16, fontWeight: "600", color: c.encre },
   boutons: { flexDirection: "row", gap: 10 },
 }));

@@ -1,0 +1,56 @@
+$ node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})" && tsc -p tsconfig.test.json && node --test --enable-source-maps ".test-dist/test/**/*.test.js"
+[Nest] 16994  - 10/22/2026, 9:02:38 PM     LOG [ClaudeCamille] fala: 0 ms
+[Nest] 16994  - 10/22/2026, 9:02:38 PM     LOG [ClaudeCamille] fala: 0 ms
+[Nest] 16994  - 10/22/2026, 9:02:38 PM     LOG [ClaudeCamille] fala: 0 ms
+[Nest] 16994  - 10/22/2026, 9:02:38 PM    WARN [ClaudeCamille] API da Anthropic indisponível: sem rede
+[Nest] 16994  - 10/22/2026, 9:02:38 PM     LOG [ClaudeCamille] fala: 0 ms
+[Nest] 16994  - 10/22/2026, 9:02:38 PM    WARN [ClaudeCamille] Resposta sem texto (stop_reason=refusal).
+[Nest] 16994  - 10/22/2026, 9:02:38 PM     LOG [ClaudeCamille] bilan: 1 ms
+[Nest] 16994  - 10/22/2026, 9:02:38 PM     LOG [ClaudeCamille] bilan: 0 ms
+[Nest] 16994  - 10/22/2026, 9:02:38 PM    WARN [ClaudeCamille] Feedback sem resultado (stop_reason=refusal).
+▶ ClaudeCamille
+  ✔ abre a sessão e guarda a resposta completa, incluindo o raciocínio (2.230459ms)
+  ✔ só acrescenta ao histórico, sem alterar mensagens anteriores (0.54525ms)
+  ✔ não altera a conversa quando a API falha (0.774375ms)
+  ✔ usa uma fala de recurso quando o pedido é recusado (0.265458ms)
+  ✔ limita o feedback a 3 erros (1.699791ms)
+  ✔ devolve 503 quando o feedback é recusado (0.358417ms)
+✔ ClaudeCamille (6.981958ms)
+▶ ensaio de uma sessão
+  ✔ joga as trocas pedidas com a Camille simulada e produz o relatório (5.481709ms)
+  ✔ o guião recomeça quando a sessão tem mais trocas do que frases (0.290125ms)
+✔ ensaio de uma sessão (6.665458ms)
+▶ proteção da API: limite geral de pedidos por IP
+  ✔ devolve 429 a partir do pedido a mais, e /health continua a responder (34.13475ms)
+✔ proteção da API: limite geral de pedidos por IP (291.688875ms)
+[Nest] 16997  - 10/22/2026, 9:02:38 PM     LOG [OpenAiTranscripteur] Transcrição: 0 ms, 0 kB → 21 caracteres
+[Nest] 16997  - 10/22/2026, 9:02:38 PM    WARN [OpenAiTranscripteur] Transcrição indisponível: sem rede
+▶ OpenAiTranscripteur
+  ✔ pede uma transcrição em francês, literal, com o modelo configurado (1.22075ms)
+  ✔ devolve 503 quando o serviço está indisponível (0.463834ms)
+✔ OpenAiTranscripteur (2.123333ms)
+▶ proteção da API: chave de acesso e limite de sessões
+  ✔ /health responde sem chave (18.74275ms)
+  ✔ recusa pedidos sem chave ou com a chave errada (10.832375ms)
+  ✔ aceita a chave certa e limita as sessões criadas por IP (10.401959ms)
+✔ proteção da API: chave de acesso e limite de sessões (297.517625ms)
+▶ API de sessões (Camille simulada)
+  ✔ percorre uma sessão completa até ao feedback (43.745666ms)
+  ✔ permite terminar a meio da sessão (2.57825ms)
+  ✔ recusa pedidos inválidos com 400 (2.614417ms)
+  ✔ devolve 404 para uma sessão desconhecida (1.733125ms)
+  ✔ devolve o estado da sessão, com a transcrição, para a app se ressincronizar (2.246709ms)
+  ✔ aceita uma resposta gravada e devolve o que se percebeu (5.962541ms)
+  ✔ não gasta uma troca quando a gravação não tem fala (3.055833ms)
+  ✔ valida o ficheiro de áudio (2.719625ms)
+  ✔ recusa um segundo pedido enquanto a Camille responde ao primeiro (3.190834ms)
+  ✔ não gera feedback sem respostas do aluno (1.18725ms)
+✔ API de sessões (Camille simulada) (96.626792ms)
+ℹ tests 24
+ℹ suites 6
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 645.720375

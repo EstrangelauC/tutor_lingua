@@ -8,6 +8,8 @@ ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN npm install -g corepack@latest && corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+# O preinstall da raiz (só pnpm) precisa do script.
+COPY scripts scripts
 COPY packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
 

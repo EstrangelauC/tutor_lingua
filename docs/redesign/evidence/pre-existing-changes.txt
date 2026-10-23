@@ -1,0 +1,15 @@
+.gitignore
+README.md
+apps/api/Dockerfile
+apps/api/src/camille/camille.types.ts
+apps/api/src/sessions/sessions.controller.ts
+apps/api/src/sessions/sessions.service.ts
+apps/api/test/sessions.e2e.test.ts
+apps/mobile/src/app/session.tsx
+apps/mobile/src/session/use-session-camille.ts
+docs/design-prompt.md
+package.json
+packages/shared/src/client.ts
+packages/shared/src/session.ts
+packages/shared/test/client.test.ts
+turbo.json

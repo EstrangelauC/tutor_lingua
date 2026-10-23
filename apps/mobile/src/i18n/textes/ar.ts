@@ -20,9 +20,10 @@ export const ar: Textes = {
     tu: "أنت",
   },
   onglets: {
-    accueil: "الرئيسية",
-    historique: "السجل",
-    definitions: "الإعدادات",
+    percurso: "المسار",
+    praticar: "ممارسة",
+    progressao: "التقدم",
+    definicoes: "الإعدادات",
   },
   taches: {
     entretien: {
@@ -61,6 +62,7 @@ export const ar: Textes = {
     objectif: (niveau: string) => `الهدف ${niveau}`,
     objectifAide: "غيّر المستوى المستهدف في الإعدادات",
     continuer: "واصل التدرّب",
+    commencer: "ابدأ الممارسة",
     derniereFois: (niveau: string, quand: string) => `آخر مرة ${niveau}، ${quand}`,
     reprendre: "استئناف",
     choisir: "اختر مهمة",
@@ -138,6 +140,8 @@ export const ar: Textes = {
     introuvable: "لم تعد هذه الجلسة في السجل.",
   },
   historique: {
+    visaoGeral: "نظرة عامة",
+    ultimoNivel: "آخر مستوى مقدّر",
     titre: "السجل",
     sousTitre: "تقدّمك في الاختبار الشفهي",
     sessions: "الجلسات",
@@ -159,6 +163,11 @@ export const ar: Textes = {
     },
   },
   definitions: {
+    objetivoEstudo: "هدف الدراسة",
+    vozMicro: "الصوت والميكروفون",
+    aparenciaAcessibilidade: "المظهر وإمكانية الوصول",
+    dadosLocais: "البيانات المحلية",
+    sobreAplicacao: "حول التطبيق",
     titre: "الإعدادات",
     langues: "اللغات",
     interface: "لغة التطبيق",

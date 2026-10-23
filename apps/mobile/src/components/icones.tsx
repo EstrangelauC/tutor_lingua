@@ -17,12 +17,13 @@ function Icone({
 }: Props & { children: ReactNode }) {
   return (
     <Svg
+      aria-hidden
       width={taille}
       height={taille}
       viewBox="0 0 24 24"
       fill="none"
       stroke={couleur}
-      strokeWidth={2}
+      strokeWidth={1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
       style={miroir ? { transform: [{ scaleX: -1 }] } : undefined}

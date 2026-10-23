@@ -1,0 +1,53 @@
+$ turbo run build --filter=@camille/shared && pnpm --filter @camille/mobile exec expo export --platform web --clear
+
+   • turbo 2.11.7
+   • Packages in scope: @camille/shared
+   • Running build in 1 package
+   • Remote caching disabled
+
+@camille/shared:build: cache hit, replaying logs a92fa4a112262b39
+@camille/shared:build: $ tsc
+
+ Tasks:    1 successful, 1 total
+Cached:    1 cached, 1 total
+  Time:    47ms >>> FULL TURBO
+
+Using src/app as the root directory for Expo Router.
+React Compiler enabled
+Expo Autolinking module resolution enabled
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Static rendering is enabled. Learn more: https://docs.expo.dev/router/web/static-rendering/
+| (node:23806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:23806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:23806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:23806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:23806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:23806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+λ Bundled 18228ms node_modules/@expo/router-server/node/render.js (1125 modules)
+Web Bundled 18902ms node_modules/expo-router/entry.js (1099 modules)
+
+› web bundles (1):
+_expo/static/js/web/entry-8d294d686cb2f33c9a381c855b491f2c.js (2.6MB)
+
+› Static routes (11):
+/ (index) (18KB)
+/session (18KB)
+/feedback (18KB)
+/_sitemap (18KB)
+/onboarding (18KB)
+/+not-found (18KB)
+/historique (18KB)
+/definitions (18KB)
+/(onglets) (18KB)
+/(onglets)/historique (18KB)
+/(onglets)/definitions (18KB)
+
+Exported: dist

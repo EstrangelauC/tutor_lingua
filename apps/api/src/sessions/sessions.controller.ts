@@ -3,6 +3,7 @@ import {
   EnvoyerMessageRequestSchema,
   type CreerSessionRequest,
   type EnvoyerMessageRequest,
+  type EtatSession,
   type Feedback,
   type TourAudio,
   type TourCamille,
@@ -11,6 +12,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   Inject,
   Param,
@@ -64,6 +66,15 @@ export class SessionsController {
     @Body(new ZodValidationPipe(CreerSessionRequestSchema)) body: CreerSessionRequest,
   ): Promise<TourCamille> {
     return this.sessions.creer(body);
+  }
+
+  /**
+   * Estado atual da sessão. A app chama-o quando um pedido esgotou o tempo do lado dela:
+   * a Camille pode ter acabado por responder, e assim a app recupera essa fala.
+   */
+  @Get(":id")
+  consulter(@Param("id", new ParseUUIDPipe()) id: string): EtatSession {
+    return this.sessions.consulter(id);
   }
 
   /** Envia uma resposta escrita do aluno e devolve a fala seguinte da Camille. */

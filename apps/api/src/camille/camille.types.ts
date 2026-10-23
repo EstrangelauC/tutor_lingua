@@ -1,12 +1,8 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import type { CreerSessionRequest, Feedback } from "@camille/shared";
+import type { CreerSessionRequest, Feedback, Replique } from "@camille/shared";
 
 export type ContexteSession = CreerSessionRequest;
-
-export interface Replique {
-  role: "camille" | "eleve";
-  texte: string;
-}
+export type { Replique };
 
 /** Estado de uma conversa. A sessão guarda-o; o motor só lhe acrescenta mensagens depois de uma chamada bem-sucedida. */
 export interface Conversation {
