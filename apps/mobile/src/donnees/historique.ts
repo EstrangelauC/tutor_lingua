@@ -91,7 +91,9 @@ export function filtrarHistorico(
   historique: readonly EntreeHistorique[],
   tache: Tache | "toutes",
 ): EntreeHistorique[] {
-  return tache === "toutes" ? [...historique] : historique.filter((entree) => entree.tache === tache);
+  return tache === "toutes"
+    ? [...historique]
+    : historique.filter((entree) => entree.tache === tache);
 }
 
 /** Dias de calendário (hora local) entre a data da sessão e agora: 0 = hoje, 1 = ontem. */

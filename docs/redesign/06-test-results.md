@@ -2,13 +2,13 @@
 
 Execução a partir da raiz do monorepo após as correções da Fase 5.
 
-| Comando | Resultado | Observações |
-| --- | --- | --- |
-| `pnpm typecheck` | aprovado | API, mobile e shared; parte dos resultados reaproveitada pelo cache local do Turbo |
-| `pnpm lint` | aprovado | API, mobile e shared |
-| `pnpm test` | aprovado | 70 testes: 24 API, 35 mobile, 11 shared; incluem contratos, histórico, i18n, recomendação e contraste |
-| `pnpm build:web` | aprovado | export Expo Web, 13 rotas estáticas; bundle web gerado |
-| `git diff --check` | aprovado | sem whitespace incorreto nas alterações rastreadas |
+| Comando            | Resultado | Observações                                                                                           |
+| ------------------ | --------- | ----------------------------------------------------------------------------------------------------- |
+| `pnpm typecheck`   | aprovado  | API, mobile e shared; parte dos resultados reaproveitada pelo cache local do Turbo                    |
+| `pnpm lint`        | aprovado  | API, mobile e shared                                                                                  |
+| `pnpm test`        | aprovado  | 70 testes: 24 API, 35 mobile, 11 shared; incluem contratos, histórico, i18n, recomendação e contraste |
+| `pnpm build:web`   | aprovado  | export Expo Web, 13 rotas estáticas; bundle web gerado                                                |
+| `git diff --check` | aprovado  | sem whitespace incorreto nas alterações rastreadas                                                    |
 
 ## Testes de interface executados
 

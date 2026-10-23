@@ -111,7 +111,10 @@ describe("histórico", () => {
       entree("2", "2026-10-02T10:00:00.000Z", "A2", "entretien"),
       entree("3", "2026-10-03T10:00:00.000Z", "B1", "interaction"),
     ]);
-    assert.deepEqual(filtrarHistorico(historique, "interaction").map((e) => e.id), ["3", "1"]);
+    assert.deepEqual(
+      filtrarHistorico(historique, "interaction").map((e) => e.id),
+      ["3", "1"],
+    );
     assert.deepEqual(filtrarHistorico(historique, "point_de_vue"), []);
     assert.deepEqual(filtrarHistorico(historique, "toutes"), historique);
     assert.equal(historique.length, 3);

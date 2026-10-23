@@ -6,28 +6,28 @@
 
 Legenda: **A** automatizado, **W** observado no Chromium local, **P** pendente de validação real.
 
-| # | Fluxo | Resultado e evidência |
-| --- | --- | --- |
-| 1 | Onboarding novo | **W** três passos, escolha de língua/nível e «Agora não»; permissão efetiva **P** |
-| 2 | Preferências antigas | **A** leitura campo a campo e bypass de onboarding existente (`preferences.test.ts`) |
-| 3 | Quatro destinos | **W** barra mobile e sidebar desktop, sem duplicação visível |
-| 4 | Recomendação | **A/W** testes de desempate/sem histórico; Percurso mostra Entretien sem histórico |
-| 5 | Três tarefas | **W** as três URLs mostram a tarefa correta; conversa efetiva **P** |
-| 6 | Conversação | **A** API simulada em testes; integração web com API real **P** |
-| 7 | Reprodução de áudio | Botões ligados aos fornecedores existentes; som efetivo **P** |
-| 8 | Dois modos de microfone | Escolha visível/persistida; gravação e permissões efetivas **P** |
-| 9 | Resposta por texto | Campo/ação visíveis; envio real **P** (API local indisponível) |
-| 10 | Transcrição | Painel abre e duas colunas em desktop; conteúdo real **P** |
-| 11 | Encerrar sessão | **W** sem resposta regressa ao Percurso; sessão já criada no servidor não é cancelada explicitamente (**P**, ver riscos) |
-| 12 | Feedback/correções | **W** histórico fictício de teste: nível, resumo, correção destacada e conselho; geração real **P** |
-| 13 | Repetir tarefa | **W** feedback de Interaction abriu `/session?tache=interaction` |
-| 14 | Histórico/filtros | **A/W** três entradas fictícias, filtro Interaction reteve só essa tarefa |
-| 15 | Gráfico | **A/W** ordem A1→A2→B1, linha alvo B1 e legenda em RTL |
-| 16 | Limpeza | **W** confirmação obrigatória de 3 entradas; armazenamento ficou `[]` |
-| 17 | Persistência | **A/W** árabe e tema escuro mantidos após recarregar |
-| 18 | Sete idiomas | **A** igualdade de chaves e textos não vazios; revisão linguística humana **P** |
-| 19 | Claro/escuro | **A/W** pares de contraste testados e capturas nos dois temas |
-| 20 | RTL árabe | **W** `lang=ar`, `dir=rtl`, sem scroll horizontal, nomes franceses legíveis |
+| #   | Fluxo                   | Resultado e evidência                                                                                                    |
+| --- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Onboarding novo         | **W** três passos, escolha de língua/nível e «Agora não»; permissão efetiva **P**                                        |
+| 2   | Preferências antigas    | **A** leitura campo a campo e bypass de onboarding existente (`preferences.test.ts`)                                     |
+| 3   | Quatro destinos         | **W** barra mobile e sidebar desktop, sem duplicação visível                                                             |
+| 4   | Recomendação            | **A/W** testes de desempate/sem histórico; Percurso mostra Entretien sem histórico                                       |
+| 5   | Três tarefas            | **W** as três URLs mostram a tarefa correta; conversa efetiva **P**                                                      |
+| 6   | Conversação             | **A** API simulada em testes; integração web com API real **P**                                                          |
+| 7   | Reprodução de áudio     | Botões ligados aos fornecedores existentes; som efetivo **P**                                                            |
+| 8   | Dois modos de microfone | Escolha visível/persistida; gravação e permissões efetivas **P**                                                         |
+| 9   | Resposta por texto      | Campo/ação visíveis; envio real **P** (API local indisponível)                                                           |
+| 10  | Transcrição             | Painel abre e duas colunas em desktop; conteúdo real **P**                                                               |
+| 11  | Encerrar sessão         | **W** sem resposta regressa ao Percurso; sessão já criada no servidor não é cancelada explicitamente (**P**, ver riscos) |
+| 12  | Feedback/correções      | **W** histórico fictício de teste: nível, resumo, correção destacada e conselho; geração real **P**                      |
+| 13  | Repetir tarefa          | **W** feedback de Interaction abriu `/session?tache=interaction`                                                         |
+| 14  | Histórico/filtros       | **A/W** três entradas fictícias, filtro Interaction reteve só essa tarefa                                                |
+| 15  | Gráfico                 | **A/W** ordem A1→A2→B1, linha alvo B1 e legenda em RTL                                                                   |
+| 16  | Limpeza                 | **W** confirmação obrigatória de 3 entradas; armazenamento ficou `[]`                                                    |
+| 17  | Persistência            | **A/W** árabe e tema escuro mantidos após recarregar                                                                     |
+| 18  | Sete idiomas            | **A** igualdade de chaves e textos não vazios; revisão linguística humana **P**                                          |
+| 19  | Claro/escuro            | **A/W** pares de contraste testados e capturas nos dois temas                                                            |
+| 20  | RTL árabe               | **W** `lang=ar`, `dir=rtl`, sem scroll horizontal, nomes franceses legíveis                                              |
 
 As entradas do histórico usadas no browser eram **fixtures locais inventadas apenas para teste**, nunca resultados apresentados como académicos ou dados de produção. Foram removidas no fim.
 

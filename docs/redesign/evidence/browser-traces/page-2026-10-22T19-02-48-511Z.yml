@@ -1,27 +1,27 @@
 - generic [ref=e8]:
-  - generic [ref=e9]:
-    - generic [ref=e10]:
-      - generic [ref=e11]: C
-      - generic [ref=e13]: Camille
-    - generic [ref=e14]: Step 1 of 3
-  - progressbar "Step 1 of 3" [ref=e16]
-  - generic [ref=e21]:
-    - heading "Which language do you want the app in?" [level=1] [ref=e22]
-    - generic [ref=e23]: The conversation with Camille is always in French. Here you choose the menus and the feedback language.
-    - generic [ref=e24]:
-      - generic [ref=e25]: App language
-      - radiogroup [ref=e26]:
-        - radio "Português" [ref=e27] [cursor=pointer]
-        - radio "English" [checked] [ref=e29] [cursor=pointer]
-        - radio "Español" [ref=e31] [cursor=pointer]
-        - radio "العربية" [ref=e33] [cursor=pointer]
-        - radio "Українська" [ref=e35] [cursor=pointer]
-        - radio "Türkçe" [ref=e37] [cursor=pointer]
-        - radio "Română" [ref=e39] [cursor=pointer]
-    - generic [ref=e41]:
-      - generic [ref=e42]: Support language (feedback)
-      - checkbox "✓ Same as the app" [checked] [ref=e44] [cursor=pointer]:
-        - generic [ref=e45]: ✓
-        - generic [ref=e47]: Same as the app
-      - generic [ref=e48]: You can change this at any time in Settings.
-  - button "Continue" [ref=e50] [cursor=pointer]
+    - generic [ref=e9]:
+        - generic [ref=e10]:
+            - generic [ref=e11]: C
+            - generic [ref=e13]: Camille
+        - generic [ref=e14]: Step 1 of 3
+    - progressbar "Step 1 of 3" [ref=e16]
+    - generic [ref=e21]:
+        - heading "Which language do you want the app in?" [level=1] [ref=e22]
+        - generic [ref=e23]: The conversation with Camille is always in French. Here you choose the menus and the feedback language.
+        - generic [ref=e24]:
+            - generic [ref=e25]: App language
+            - radiogroup [ref=e26]:
+                - radio "Português" [ref=e27] [cursor=pointer]
+                - radio "English" [checked] [ref=e29] [cursor=pointer]
+                - radio "Español" [ref=e31] [cursor=pointer]
+                - radio "العربية" [ref=e33] [cursor=pointer]
+                - radio "Українська" [ref=e35] [cursor=pointer]
+                - radio "Türkçe" [ref=e37] [cursor=pointer]
+                - radio "Română" [ref=e39] [cursor=pointer]
+        - generic [ref=e41]:
+            - generic [ref=e42]: Support language (feedback)
+            - checkbox "✓ Same as the app" [checked] [ref=e44] [cursor=pointer]:
+                - generic [ref=e45]: ✓
+                - generic [ref=e47]: Same as the app
+            - generic [ref=e48]: You can change this at any time in Settings.
+    - button "Continue" [ref=e50] [cursor=pointer]

@@ -11,12 +11,12 @@
 
 ## Validação de browser (Chromium, Expo Web local)
 
-| Largura | Navegação visível | Scroll horizontal | Notas |
-| --- | --- | --- | --- |
-| 390 px | barra inferior | não | último cartão acessível acima da barra; onboarding e definições inspecionados |
-| 768 px | barra inferior | não | sem sidebar duplicada |
-| 1024 px | sidebar | não | sessão/feedback em uma coluna, sem compressão da transcrição |
-| 1440 px | sidebar | não | Praticar em 3 colunas; sessão/feedback em duas |
+| Largura | Navegação visível | Scroll horizontal | Notas                                                                         |
+| ------- | ----------------- | ----------------- | ----------------------------------------------------------------------------- |
+| 390 px  | barra inferior    | não               | último cartão acessível acima da barra; onboarding e definições inspecionados |
+| 768 px  | barra inferior    | não               | sem sidebar duplicada                                                         |
+| 1024 px | sidebar           | não               | sessão/feedback em uma coluna, sem compressão da transcrição                  |
+| 1440 px | sidebar           | não               | Praticar em 3 colunas; sessão/feedback em duas                                |
 
 Foram verificados os quatro tamanhos em Percurso, Praticar, Progressão, Definições, Sessão e Feedback (incluindo feedback e histórico com **dados fictícios apenas no browser de teste**). O onboarding foi percorrido nos três passos em 390 px e inspecionado nos quatro tamanhos. As capturas representativas estão em [`05-evidence/`](./05-evidence/): `percurso-390.png`, `percurso-1024.png`, `pratique-1440-grid.png`, `session-no-api-390.png`, `session-no-api-1440.png`, `onboarding-390.png`, `onboarding-1440.png`, `historique-fixture-ar-dark-1440.png` e `feedback-fixture-ar-dark-390.png`.
 

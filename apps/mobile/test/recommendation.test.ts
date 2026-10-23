@@ -7,9 +7,7 @@ test("deve recomendar 'entretien' quando não houver histórico", () => {
 });
 
 test("deve recomendar a tarefa nunca praticada seguindo a prioridade", () => {
-  const historico = [
-    { tache: "interaction", feedback: { niveauEstime: "A2" } },
-  ];
+  const historico = [{ tache: "interaction", feedback: { niveauEstime: "A2" } }];
   assert.strictEqual(recomendarPratica(historico, "B1"), "entretien");
 });
 
