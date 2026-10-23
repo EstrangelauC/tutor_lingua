@@ -29,5 +29,9 @@ apps/mobile/android/
 npm-debug.log*
 pnpm-debug.log*
 
+# Capturas temporárias de automação e script de migração pontual
+.playwright-mcp/
+update_i18n.js
+
 # Sistema
 .DS_Store
