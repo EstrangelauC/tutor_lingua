@@ -31,6 +31,9 @@ describe("contraste des tokens Camille 2.0 (WCAG AA)", () => {
         [c.erreur, c.erreurDoux],
         [c.ecouteEncre, c.ecouteDoux],
         [c.surInactif, c.inactif],
+        [c.navTexto, c.navFundo],
+        [c.navMeta, c.navFundo],
+        [c.navTexto, c.navAtivo],
       ];
       for (const [texte, fond] of paires) {
         assert.ok(

@@ -24,6 +24,11 @@ export function useMiseEnPage() {
           ? "tablette"
           : "desktop";
   const marge = format === "compact" ? ESPACES.lg : format === "mobile" ? ESPACES.xl : ESPACES.xxl;
-  const contenu: ViewStyle = { ...COLONNE_LECTURE, padding: marge, gap: ESPACES.xl };
+  const contenu: ViewStyle = {
+    ...COLONNE_LECTURE,
+    maxWidth: width >= SEUILS.navigationLarge ? LARGEURS.contenu : LARGEUR_LECTURE,
+    padding: marge,
+    gap: ESPACES.xl,
+  };
   return { format, marge, contenu };
 }

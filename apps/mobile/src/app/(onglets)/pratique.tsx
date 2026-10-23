@@ -11,13 +11,14 @@ import { useDonnees } from "../../donnees/donnees-context";
 import { derniereParTache } from "../../donnees/historique";
 import { useI18n } from "../../i18n";
 import { TACHES } from "../../taches";
-import { ESPACES, LARGEURS, SEUILS, useMiseEnPage } from "../../theme";
+import { ESPACES, LARGEURS, RAYONS, SEUILS, useMiseEnPage, useTheme } from "../../theme";
 
 const TAREFAS: Tache[] = ["entretien", "interaction", "point_de_vue"];
 
 export default function Pratique() {
   const router = useRouter();
   const { t } = useI18n();
+  const { couleurs: c } = useTheme();
   const { contenu } = useMiseEnPage();
   const desktop = useWindowDimensions().width >= SEUILS.desktop;
   const { historique, preferences } = useDonnees();
@@ -29,8 +30,30 @@ export default function Pratique() {
         <EntetePage titre={t.onglets.praticar} description={t.accueil.francais} />
         <View style={{ flexDirection: desktop ? "row" : "column", gap: ESPACES.lg }}>
           {TAREFAS.map((tache) => (
-            <CarteAcademique key={tache} style={desktop && { flex: 1, minWidth: 0 }}>
+            <CarteAcademique
+              key={tache}
+              style={{
+                flex: desktop ? 1 : undefined,
+                minWidth: 0,
+                minHeight: desktop ? 330 : undefined,
+                padding: ESPACES.xl,
+              }}
+            >
               <View style={{ flex: 1, gap: ESPACES.md }}>
+                <View
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: RAYONS.controle,
+                    backgroundColor: c.bleuDoux,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text variante="section" style={{ color: c.bleuEncre, fontWeight: "800" }}>
+                    {TACHES[tache].numero}
+                  </Text>
+                </View>
                 <Text variante="section">{TACHES[tache].titre}</Text>
                 <Text variante="description">{t.taches[tache].description}</Text>
                 <Text variante="meta">{t.taches[tache].resume}</Text>

@@ -37,14 +37,26 @@ function Sidebar({
   ];
 
   return (
-    <View style={[styles.container, styleDirection(rtl)]}>
+    <View
+      nativeID="camille-sidebar"
+      style={[styles.container, styleDirection(rtl), rtl && styles.containerRtl]}
+    >
       <View style={styles.header}>
-        <Text variante="section" style={{ color: couleurs.primaire }}>
-          Camille
-        </Text>
-        <Text variante="meta" style={{ color: couleurs.encre2 }}>
-          {t.accueil.objectif(preferences.niveau)} · TCF IRN
-        </Text>
+        <View style={styles.brandRow}>
+          <View style={styles.brandMark}>
+            <Text variante="section" style={{ color: couleurs.navFundo, fontWeight: "800" }}>
+              C
+            </Text>
+          </View>
+          <View style={{ gap: 2 }}>
+            <Text variante="section" style={{ color: couleurs.navTexto, fontWeight: "800" }}>
+              Camille
+            </Text>
+            <Text variante="meta" style={{ color: couleurs.navMeta }}>
+              Oral TCF IRN
+            </Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.nav}>
@@ -54,16 +66,17 @@ function Sidebar({
             accessibilityRole="button"
             accessibilityState={{ selected: activeTab === tab.name }}
             onPress={() => onTabPress(tab.name)}
-            style={[styles.tab, activeTab === tab.name && styles.tabActive]}
+            style={({ pressed }) => [
+              styles.tab,
+              activeTab === tab.name && styles.tabActive,
+              pressed && styles.tabPressed,
+            ]}
           >
-            <tab.icon
-              couleur={activeTab === tab.name ? couleurs.bleu : couleurs.encre2}
-              taille={20}
-            />
+            <tab.icon couleur={couleurs.navTexto} taille={20} />
             <Text
               variante="libelle"
               style={{
-                color: activeTab === tab.name ? couleurs.bleu : couleurs.encre2,
+                color: activeTab === tab.name ? couleurs.navTexto : couleurs.navMeta,
                 fontWeight: activeTab === tab.name ? "700" : "400",
               }}
             >
@@ -72,40 +85,69 @@ function Sidebar({
           </Pressable>
         ))}
       </View>
+      <View style={styles.goalCard}>
+        <Text variante="meta" style={{ color: couleurs.navMeta }}>
+          TCF IRN
+        </Text>
+        <Text variante="section" style={{ color: couleurs.navTexto }}>
+          {t.accueil.objectif(preferences.niveau)}
+        </Text>
+      </View>
     </View>
   );
 }
 
 const sidebarStyles = creerStyles((c) => ({
   container: {
-    width: 260,
+    width: 272,
     height: "100%",
-    backgroundColor: c.surface,
+    backgroundColor: c.navFundo,
     borderRightWidth: 1,
-    borderColor: c.ligne,
+    borderColor: c.navFundo,
     padding: ESPACES.lg,
     gap: ESPACES.xxl,
   },
+  containerRtl: {
+    borderRightWidth: 0,
+    borderLeftWidth: 1,
+  },
   header: {
-    gap: 4,
-    paddingBottom: ESPACES.lg,
+    paddingTop: ESPACES.md,
+    paddingBottom: ESPACES.xl,
     borderBottomWidth: 1,
-    borderColor: c.ligne,
+    borderColor: c.navAtivo,
+  },
+  brandRow: { flexDirection: "row", alignItems: "center", gap: ESPACES.md },
+  brandMark: {
+    width: 44,
+    height: 44,
+    borderRadius: RAYONS.controle,
+    backgroundColor: c.navTexto,
+    alignItems: "center",
+    justifyContent: "center",
   },
   nav: {
     gap: ESPACES.sm,
+    flex: 1,
   },
   tab: {
     flexDirection: "row",
     alignItems: "center",
     gap: ESPACES.md,
-    padding: ESPACES.md,
+    padding: ESPACES.lg,
     minHeight: 48,
     borderRadius: RAYONS.petit,
     cursor: "pointer",
   },
   tabActive: {
-    backgroundColor: c.bleuDoux,
+    backgroundColor: c.navAtivo,
+  },
+  tabPressed: { opacity: 0.78 },
+  goalCard: {
+    padding: ESPACES.lg,
+    gap: ESPACES.xs,
+    borderRadius: RAYONS.carte,
+    backgroundColor: c.navAtivo,
   },
 }));
 const useSidebarStyles = sidebarStyles;

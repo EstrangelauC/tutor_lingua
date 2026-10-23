@@ -19,9 +19,9 @@
 
 ## Antes de dar por concluída a identidade visual
 
-- [ ] Comparar as capturas de `05-evidence/` com as imagens de design que o utilizador vai fornecer; corrigir diferenças verificadas.
+- [x] Comparar as capturas de `05-evidence/` com as quatro imagens de referência fornecidas em 23/10/2026; ajustar sidebar, grelha, cartões e destaques visuais. Ver [alinhamento visual](07-reference-alignment.md).
 - [ ] Verificar zoom/texto ampliado e leitor de ecrã nas plataformas-alvo; rever as traduções dos sete idiomas com falantes competentes.
 - [ ] Reexecutar os quatro comandos técnicos e os percursos web críticos após qualquer correção.
-- [ ] Só depois fazer commit, push e confirmar o deploy Vercel, incluindo URL e revisão publicada.
+- [ ] Após o push, confirmar o resultado do deploy Vercel, incluindo URL e revisão publicada. Um deploy automático não equivale a aprovação para produção.
 
-**Nota:** o pedido anterior de commit/push/deploy continua pendente. Não seria honesto fazer deploy e declarar a Camille 2.0 estável com estes bloqueadores abertos.
+**Nota:** o commit local `f36c092` foi feito antes destes ajustes visuais. O push para `main` foi solicitado em 23/10/2026 e pode acionar o deploy automático. Não seria honesto declarar a Camille 2.0 estável com os bloqueadores abertos.

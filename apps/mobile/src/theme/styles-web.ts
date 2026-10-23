@@ -14,6 +14,9 @@ a:focus-visible, input:focus-visible, textarea:focus-visible {
   outline: 3px solid var(--camille-focus) !important;
   outline-offset: 3px;
 }
+#camille-sidebar [role="button"]:focus-visible {
+  outline-color: #FFFFFF !important;
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

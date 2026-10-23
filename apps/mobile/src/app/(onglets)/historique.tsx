@@ -59,10 +59,13 @@ export default function Historique() {
             >{`${t.feedback.objectif} ${preferences.niveau}`}</Text>
           </CarteAcademique>
           <EnteteSection titre={t.historique.titre} />
-          <EtatVide titre={t.historique.vide.titre} description={t.historique.vide.texte} />
+          <CarteAcademique>
+            <EtatVide titre={t.historique.vide.titre} description={t.historique.vide.texte} />
+          </CarteAcademique>
           <Bouton
             libelle={t.historique.vide.commencer}
             onPress={() => router.navigate("/pratique" as Href)}
+            style={miseEnPage.format === "desktop" ? { alignSelf: "flex-start" } : undefined}
           />
         </ScrollView>
       </Ecran>
